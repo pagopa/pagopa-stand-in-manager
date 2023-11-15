@@ -81,7 +81,7 @@ public class NodoMonitorService {
         filterStations.add("6666666");
         filterStations.add("77777");
         ZonedDateTime now = ZonedDateTime.now();
-        Map<String, Integer> totals = getCount(TOTALS_QUERY,filterStations,now.minusYears(30));
+        Map<String, Integer> totals = getCount(TOTALS_QUERY,filterStations,now.minusYears(5));
         Map<String, Integer> faults = getCount(FAULT_QUERY,filterStations,now.minusYears(5));
         Map<String, Double> faultsPerc = new HashMap<>();
         totals.forEach((station,totalCount)->{
