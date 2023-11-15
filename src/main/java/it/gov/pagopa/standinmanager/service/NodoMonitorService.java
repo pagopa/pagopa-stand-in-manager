@@ -4,7 +4,9 @@ import com.microsoft.azure.kusto.data.*;
 import com.microsoft.azure.kusto.data.auth.ConnectionStringBuilder;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
+import it.gov.pagopa.standinmanager.repository.StandInStationsRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +47,9 @@ public class NodoMonitorService {
             "| where sottoTipoEvento == 'REQ'\n" +
             "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"+
             "| summarize count = count() by (stazione)";
+
+    @Autowired
+    private StandInStationsRepository standInStationsRepository;
 
     private Client getClient() throws URISyntaxException {
         return ClientFactory.createClient(ConnectionStringBuilder.createWithAadManagedIdentity(dataExplorerUrl));
