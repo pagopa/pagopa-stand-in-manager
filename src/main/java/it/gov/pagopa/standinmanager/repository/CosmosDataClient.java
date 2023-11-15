@@ -2,6 +2,7 @@ package it.gov.pagopa.standinmanager.repository;
 
 import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosContainer;
+import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.CosmosQueryRequestOptions;
 import com.azure.cosmos.models.SqlParameter;
 import com.azure.cosmos.models.SqlQuerySpec;
@@ -45,6 +46,11 @@ public class CosmosDataClient {
     log.info("executing query:" + query.getQueryText());
     CosmosContainer container = getClient().getDatabase(dbname).getContainer(tablename);
     return container.queryItems(query, new CosmosQueryRequestOptions(), StationCounts.class);
+  }
+
+  public CosmosItemResponse<Object> save(Object item) {
+    CosmosContainer container = getClient().getDatabase(dbname).getContainer(tablename);
+    return container.createItem(item);
   }
 
   public List<StationCounts> getStationCounts(

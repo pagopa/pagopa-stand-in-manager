@@ -4,6 +4,7 @@ import com.microsoft.azure.kusto.data.*;
 import com.microsoft.azure.kusto.data.auth.ConnectionStringBuilder;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
+import it.gov.pagopa.standinmanager.repository.CosmosDataClient;
 import it.gov.pagopa.standinmanager.repository.StandInStationsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +39,11 @@ public class NodoMonitorService {
             "FAULT_CODE\n" +
             "| where faultCode in ('PPT_STAZIONE_INT_PA_IRRAGGIUNGIBILE','PPT_STAZIONE_INT_PA_TIMEOUT','PPT_STAZIONE_INT_PA_SERVIZIO_NON_ATTIVO')\n" +
             "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"+
-            "| where stazione in ({stations})" +
+            "| where not(stazione in ({stations}))" +
             "| summarize count = count() by (stazione)";
     private String TOTALS_QUERY = "declare query_parameters(year:int,month:int,day:int,hour:int,minute:int,second:int);" +
             "ReEvent\n" +
-            "| where stazione in ({stations})" +
+            "| where not(stazione in ({stations}))" +
             "| where tipoEvento in ('paVerifyPaymentNotice','paGetPayment')\n" +
             "| where sottoTipoEvento == 'REQ'\n" +
             "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"+
@@ -52,6 +53,8 @@ public class NodoMonitorService {
     private StandInStationsRepository standInStationsRepository;
     @Autowired
     private Client kustoClient;
+    @Autowired
+    private CosmosDataClient cosmosDataClient;
 
 
 
