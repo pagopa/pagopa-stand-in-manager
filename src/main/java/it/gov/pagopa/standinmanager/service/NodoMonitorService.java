@@ -50,10 +50,10 @@ public class NodoMonitorService {
 
     @Autowired
     private StandInStationsRepository standInStationsRepository;
+    @Autowired
+    private Client kustoClient;
 
-    private Client getClient() throws URISyntaxException {
-        return ClientFactory.createClient(ConnectionStringBuilder.createWithAadManagedIdentity(dataExplorerUrl));
-    }
+
 
     private ClientRequestProperties getTimeParameters(ZonedDateTime time){
         ClientRequestProperties clientRequestProperties = new ClientRequestProperties();
@@ -67,7 +67,6 @@ public class NodoMonitorService {
     }
 
     private Map<String,Integer> getCount(String query,List<String> filterStations,ZonedDateTime timelimit) throws URISyntaxException, DataServiceException, DataClientException {
-        Client kustoClient = getClient();
         log.info("Running query [{}]", query);
         String stations = String.join(",",filterStations.stream().map(s -> "'" + s + "'").collect(Collectors.toList()));
         KustoOperationResult response = kustoClient.execute(database,query.replace("{stations}",stations), getTimeParameters(timelimit));
