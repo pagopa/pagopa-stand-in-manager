@@ -40,6 +40,7 @@ public class NodoMonitorService {
             "| summarize count = count() by (stazione)";
     private String TOTALS_QUERY = "declare query_parameters(year:int,month:int,day:int,hour:int,minute:int,second:int);" +
             "ReEvent\n" +
+            "| where stazione in ({stations})" +
             "| where tipoEvento in ('paVerifyPaymentNotice','paGetPayment')\n" +
             "| where sottoTipoEvento == 'REQ'\n" +
             "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"+
@@ -60,12 +61,11 @@ public class NodoMonitorService {
         return clientRequestProperties;
     }
 
-    private Map<String,Integer> getCount(String query,List<String> filterStations) throws URISyntaxException, DataServiceException, DataClientException {
+    private Map<String,Integer> getCount(String query,List<String> filterStations,ZonedDateTime timelimit) throws URISyntaxException, DataServiceException, DataClientException {
         Client kustoClient = getClient();
-        ZonedDateTime now = ZonedDateTime.now().minusYears(5);
         log.info("Running query [{}]", query);
         String stations = String.join(",",filterStations.stream().map(s -> "'" + s + "'").collect(Collectors.toList()));
-        KustoOperationResult response = kustoClient.execute(database, FAULT_QUERY.replace("{stations}",stations), getTimeParameters(now));
+        KustoOperationResult response = kustoClient.execute(database,query.replace("{stations}",stations), getTimeParameters(timelimit));
         KustoResultSetTable primaryResults = response.getPrimaryResults();
         Map<String,Integer> results = new HashMap<>();
         while(primaryResults.hasNext()){
@@ -77,8 +77,20 @@ public class NodoMonitorService {
 
     public void check() throws URISyntaxException, DataServiceException, DataClientException {
         List<String> filterStations = new ArrayList<>();
-        Map<String, Integer> totals = getCount(TOTALS_QUERY,filterStations);
-        Map<String, Integer> faults = getCount(FAULT_QUERY,filterStations);
+        //TODO prendere le stazioni da conf
+        filterStations.add("6666666");
+        filterStations.add("77777");
+        ZonedDateTime now = ZonedDateTime.now();
+        Map<String, Integer> totals = getCount(TOTALS_QUERY,filterStations,now.minusYears(30));
+        Map<String, Integer> faults = getCount(FAULT_QUERY,filterStations,now.minusYears(5));
+        Map<String, Double> faultsPerc = new HashMap<>();
+        totals.forEach((station,totalCount)->{
+            Integer faultCount = faults.getOrDefault(station, 0);
+            faultsPerc.put(station,((faultCount/(double)totalCount) * 100));
+        });
+        log.info("totals:{}",totals);
+        log.info("faults:{}",faults);
+        log.info("faultsPerc:{}",faultsPerc);
     }
 
 }
