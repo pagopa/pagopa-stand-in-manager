@@ -1,7 +1,7 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.standinmanager.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.microservice.model.AppCorsConfiguration;
+import it.gov.pagopa.standinmanager.model.AppCorsConfiguration;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

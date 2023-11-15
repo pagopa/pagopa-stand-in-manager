@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.exception;
+package it.gov.pagopa.standinmanager.exception;
 
 import java.util.Formatter;
 import javax.validation.constraints.NotNull;

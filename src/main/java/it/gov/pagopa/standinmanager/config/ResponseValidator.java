@@ -1,6 +1,6 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.standinmanager.config;
 
-import it.gov.pagopa.microservice.exception.AppException;
+import it.gov.pagopa.standinmanager.exception.AppException;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;

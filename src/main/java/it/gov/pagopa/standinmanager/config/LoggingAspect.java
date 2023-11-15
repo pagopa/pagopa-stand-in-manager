@@ -1,5 +1,6 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.standinmanager.config;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -19,7 +20,6 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;

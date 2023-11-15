@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.standinmanager.config;
 
 
 import org.modelmapper.ModelMapper;

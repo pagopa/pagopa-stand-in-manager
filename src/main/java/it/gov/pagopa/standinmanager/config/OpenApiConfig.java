@@ -1,6 +1,6 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.standinmanager.config;
 
-import static it.gov.pagopa.microservice.util.Constants.HEADER_REQUEST_ID;
+import static it.gov.pagopa.standinmanager.util.Constants.HEADER_REQUEST_ID;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

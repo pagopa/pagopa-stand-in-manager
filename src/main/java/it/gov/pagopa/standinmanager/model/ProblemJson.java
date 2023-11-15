@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.model;
+package it.gov.pagopa.standinmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

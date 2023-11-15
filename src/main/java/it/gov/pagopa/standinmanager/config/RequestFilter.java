@@ -1,6 +1,6 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.standinmanager.config;
 
-import static it.gov.pagopa.microservice.util.Constants.HEADER_REQUEST_ID;
+import static it.gov.pagopa.standinmanager.util.Constants.HEADER_REQUEST_ID;
 
 import java.io.IOException;
 import java.util.UUID;
