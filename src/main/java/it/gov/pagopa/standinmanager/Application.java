@@ -1,21 +1,21 @@
 package it.gov.pagopa.standinmanager; // TODO: refactor the package
 
-import com.azure.identity.DefaultAzureCredentialBuilder;
+import com.azure.cosmos.CosmosClient;
+import com.azure.cosmos.CosmosClientBuilder;
 import com.microsoft.azure.kusto.data.Client;
 import com.microsoft.azure.kusto.data.ClientFactory;
 import com.microsoft.azure.kusto.data.auth.ConnectionStringBuilder;
+import it.gov.pagopa.standinmanager.config.ApiClient;
+import org.openapitools.client.api.CacheApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URISyntaxException;
+import java.time.Duration;
 
 @SpringBootApplication(
 )
@@ -24,6 +24,12 @@ public class Application {
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
   }
+
+  @Value("${api-config-cache.base-path}")
+  private String basePath;
+
+  @Value("${api-config-cache.api-key}")
+  private String apiKey;
 
   @Value("${dataexplorer.url}")
   private String dataExplorerUrl;
@@ -34,14 +40,35 @@ public class Application {
   @Value("${dataexplorer.appKey}")
   private String dataExplorerKey;
 
+  @Value("${cosmos.endpoint}")
+  private String cosmosEndpoint;
+
+  @Value("${cosmos.key}")
+  private String cosmosKey;
+
+  @Bean
+  public CacheApi cacheApi(){
+    ApiClient apiClient = new ApiClient();
+    apiClient.setBasePath(basePath);
+    apiClient.setApiKey(apiKey);
+
+    return new CacheApi(apiClient);
+  }
+
   @Bean
   public RestTemplate restTemplate(RestTemplateBuilder builder) {
-    return builder.build();
+    return
+            builder.setReadTimeout(Duration.ofSeconds(5)).setConnectTimeout(Duration.ofSeconds(10)).build();
   }
 
   @Bean
   public Client getClient() throws URISyntaxException {
-    return ClientFactory.createClient(ConnectionStringBuilder.createWithAadAccessTokenAuthentication(dataExplorerUrl,"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjlHbW55RlBraGMzaE91UjIybXZTdmduTG83WSIsImtpZCI6IjlHbW55RlBraGMzaE91UjIybXZTdmduTG83WSJ9.eyJhdWQiOiJodHRwczovL3BhZ29wYWRkYXRhZXhwbG9yZXIud2VzdGV1cm9wZS5rdXN0by53aW5kb3dzLm5ldCIsImlzcyI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0Lzc3ODhlZGFmLTAzNDYtNDA2OC05ZDc5LWM4NjhhZWQxNWIzZC8iLCJpYXQiOjE3MDAwNjY3MTMsIm5iZiI6MTcwMDA2NjcxMywiZXhwIjoxNzAwMDcyMDc1LCJhY3IiOiIxIiwiYWlvIjoiQWFRQVcvOFZBQUFBMTRkWEFDMjBkLzNJYWxSS3JXVWZzM3NZVkFhclhLVDV3b0theUd0NVdXNFJEZnFBS2xqWVU5S0pvaTFKZVZQWXFBQjVUU1ovd3BmWk40UzV1Tjl3dmtJZDVPNGZwMTFmZ0ZHZnFENlFYMzVuZ0NvZzNPRDZPaXI1dzBJTWx3UWtLQmZPRE5BZWJGaHZiVk1LUzFYOW9UeUZFbW1IdlJUa0djZkZCclhiaGZBcHRML1ZYdnNiNGN2ck8vUjRjQTBScFJaeExiTVRxZmlXZUk0Y3Bib3piZz09IiwiYW1yIjpbIm90cCIsIm1mYSJdLCJhcHBpZCI6IjA0YjA3Nzk1LThkZGItNDYxYS1iYmVlLTAyZjllMWJmN2I0NiIsImFwcGlkYWNyIjoiMCIsImVtYWlsIjoibG9yZW56by5jYXRhbGFub0B0YXNncm91cC5ldSIsImlkcCI6Im1haWwiLCJpcGFkZHIiOiI5My4zOS4xODQuMTY1IiwibmFtZSI6IkxvcmVuem8gQ2F0YWxhbm8iLCJvaWQiOiJmNDdmMjVlZi02ZWFlLTQ0NGQtODE2Zi1hMWFiMzgwMTkzZTQiLCJwdWlkIjoiMTAwMzIwMDMwM0NCQUNFNyIsInJoIjoiMC5BVWdBci0ySWQwWURhRUNkZWNob3J0RmJQWGZxUmljQ1IwVkxnTW84bC1hQTZMZElBQXcuIiwic2NwIjoidXNlcl9pbXBlcnNvbmF0aW9uIiwic3ViIjoiSnFOZ1hoakxldnRNWEE5NjF0OW5TSFRHaGhWQ19pYkZsVEp1cTRTTk8tMCIsInRlbmFudF9jdHJ5IjoiSVQiLCJ0ZW5hbnRfcmVnaW9uX3Njb3BlIjoiRVUiLCJ0aWQiOiI3Nzg4ZWRhZi0wMzQ2LTQwNjgtOWQ3OS1jODY4YWVkMTViM2QiLCJ1bmlxdWVfbmFtZSI6Im1haWwjbG9yZW56by5jYXRhbGFub0B0YXNncm91cC5ldSIsInV0aSI6IlVfVV90NFVXb1VxQmlfOHlJWDRWQUEiLCJ2ZXIiOiIxLjAifQ.zcl1k6pPEPWyy1iC4UiA-uCo4x3hrKrLsso9_EMEJLJo2lp806ze3KrRybDTJufel3npH5XTccg3sT4PSCc_Cb5XF44uCG6FlF5kfzgMzgXqvp-OLGH7vlzbczcoydFwqF_UV85fnZ6c_J1txDyuOC-X9Ubn0RBUW4K-GUK6S1W3uudL4l18FzOw9OMIPFEhOzuiiAX-dMA15hQjhS6ueu90p520fHbYpVo5BdBPHfoYIIaokfIv770KFSZQwjJQ_XeFVZE89v4s8kXiO3MHnwU5tZMy60qn-LqmmyxuYNmsc0xs4XfTJXS7s4-afkaH0F8bD5TdP63r1JZCy3qQHA"));
+    return ClientFactory.createClient(ConnectionStringBuilder.createWithAadManagedIdentity(dataExplorerUrl));
+  }
+
+  @Bean
+  public CosmosClient getCosmosClient() {
+    return new CosmosClientBuilder().endpoint(cosmosEndpoint).key(cosmosKey).buildClient();
   }
 
 }

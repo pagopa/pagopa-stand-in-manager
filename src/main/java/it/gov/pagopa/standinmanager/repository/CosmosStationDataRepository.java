@@ -1,16 +1,16 @@
 package it.gov.pagopa.standinmanager.repository;
 
-import com.azure.cosmos.CosmosClientBuilder;
+import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.CosmosQueryRequestOptions;
 import com.azure.cosmos.models.SqlParameter;
 import com.azure.cosmos.models.SqlQuerySpec;
 import com.azure.cosmos.util.CosmosPagedIterable;
-import it.gov.pagopa.standinmanager.repository.model.StationCounts;
+import it.gov.pagopa.standinmanager.repository.model.NodeCallCounts;
 import it.gov.pagopa.standinmanager.util.Util;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -21,39 +21,27 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class CosmosDataClient {
+public class CosmosStationDataRepository {
 
-  @Value("${cosmos.endpoint}")
-  private String endpoint;
-
-  @Value("${cosmos.key}")
-  private String key;
+  @Autowired
+  private CosmosClient cosmosClient;
 
   public static String dbname = "db";
-  public static String tablename = "data";
-
-  private com.azure.cosmos.CosmosClient client;
+  public static String tablename = "stationData";
 
 
-  private com.azure.cosmos.CosmosClient getClient() {
-    if (client == null) {
-      client = new CosmosClientBuilder().endpoint(endpoint).key(key).buildClient();
-    }
-    return client;
-  }
-
-  private CosmosPagedIterable<StationCounts> query(SqlQuerySpec query) {
+  private CosmosPagedIterable<NodeCallCounts> query(SqlQuerySpec query) {
     log.info("executing query:" + query.getQueryText());
-    CosmosContainer container = getClient().getDatabase(dbname).getContainer(tablename);
-    return container.queryItems(query, new CosmosQueryRequestOptions(), StationCounts.class);
+    CosmosContainer container = cosmosClient.getDatabase(dbname).getContainer(tablename);
+    return container.queryItems(query, new CosmosQueryRequestOptions(), NodeCallCounts.class);
   }
 
   public CosmosItemResponse<Object> save(Object item) {
-    CosmosContainer container = getClient().getDatabase(dbname).getContainer(tablename);
+    CosmosContainer container = cosmosClient.getDatabase(dbname).getContainer(tablename);
     return container.createItem(item);
   }
 
-  public List<StationCounts> getStationCounts(
+  public List<NodeCallCounts> getStationCounts(
       List<String> stations,
       LocalDate dateFrom) {
     List<SqlParameter> paramList = new ArrayList<>();

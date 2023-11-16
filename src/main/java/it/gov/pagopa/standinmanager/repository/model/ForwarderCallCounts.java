@@ -11,10 +11,9 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StationCounts {
+public class ForwarderCallCounts {
+  private String id;
   private String station;
-  private Instant datetime;
-  private Long total;
-  private Long faults;
-
+  private Instant timestamp;
+  private Boolean outcome;
 }

@@ -7,8 +7,9 @@ import com.microsoft.azure.kusto.data.KustoResultSetTable;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
 import it.gov.pagopa.standinmanager.repository.BlacklistStationsRepository;
-import it.gov.pagopa.standinmanager.repository.CosmosDataClient;
+import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.StandInStationsRepository;
+import it.gov.pagopa.standinmanager.repository.model.NodeCallCounts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +57,7 @@ public class NodoMonitorService {
     @Autowired
     private Client kustoClient;
     @Autowired
-    private CosmosDataClient cosmosDataClient;
+    private CosmosNodeDataRepository cosmosRepository;
 
 
 
@@ -72,7 +73,7 @@ public class NodoMonitorService {
     }
 
     private Map<String,Integer> getCount(String query,List<String> filterStations,ZonedDateTime timelimit) throws URISyntaxException, DataServiceException, DataClientException {
-        log.info("Running query [{}]", query);
+        log.debug("Running query [{}]", query);
         String replacedQuery = null;
         if(!filterStations.isEmpty()){
             String stations = String.join(",",filterStations.stream().map(s -> "'" + s + "'").collect(Collectors.toList()));
@@ -91,19 +92,21 @@ public class NodoMonitorService {
         return results;
     }
 
-    public void check() throws URISyntaxException, DataServiceException, DataClientException {
-        List<String> excludedStations = blacklistStationsRepository.findAll().stream().map(s->s.getStation()).collect(Collectors.toList());
+    public void getAndSaveData() throws URISyntaxException, DataServiceException, DataClientException {
         ZonedDateTime now = ZonedDateTime.now();
+        log.info("getAndSaveData [{}]",now);
+        List<String> excludedStations = blacklistStationsRepository.findAll().stream().map(s->s.getStation()).collect(Collectors.toList());
+
         Map<String, Integer> totals = getCount(TOTALS_QUERY,excludedStations,now.minusYears(5));
         Map<String, Integer> faults = getCount(FAULT_QUERY,excludedStations,now.minusYears(5));
-        Map<String, Double> faultsPerc = new HashMap<>();
-        totals.forEach((station,totalCount)->{
-            Integer faultCount = faults.getOrDefault(station, 0);
-            faultsPerc.put(station,((faultCount/(double)totalCount) * 100));
-        });
-        log.info("totals:{}",totals);
-        log.info("faults:{}",faults);
-        log.info("faultsPerc:{}",faultsPerc);
+        List<NodeCallCounts> stationCounts = totals.entrySet().stream().map(entry -> {
+            Integer faultCount = faults.getOrDefault(entry.getKey(), 0);
+            double faultperc = ((faultCount / (double) entry.getValue()) * 100);
+            return NodeCallCounts.builder().id((entry.getKey()+now).hashCode()+"").station(entry.getKey()).total(entry.getValue()).faults(faultCount).perc(faultperc).timestamp(now.toInstant()).build();
+        }).collect(Collectors.toList());
+        log.debug("totals:{}",totals);
+        log.debug("faults:{}",faults);
+        stationCounts.forEach(cosmosRepository::save);
     }
 
 }
