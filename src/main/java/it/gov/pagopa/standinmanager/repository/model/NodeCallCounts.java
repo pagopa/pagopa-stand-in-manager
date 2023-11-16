@@ -17,6 +17,9 @@ public class NodeCallCounts {
   private Instant timestamp;
   private Integer total;
   private Integer faults;
-  private Double perc;
+
+  public double getPerc(){
+    return ((getFaults() / (double) getTotal()) * 100);
+  }
 
 }

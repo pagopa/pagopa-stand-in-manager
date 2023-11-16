@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,19 +42,14 @@ public class CosmosNodeDataRepository {
     return container.createItem(item);
   }
 
-  public List<NodeCallCounts> getStationCounts(
-      List<String> stations,
-      LocalDate dateFrom) {
+  public List<NodeCallCounts> getStationCounts(ZonedDateTime dateFrom) {
     List<SqlParameter> paramList = new ArrayList<>();
     paramList.addAll(Arrays.asList(
-            new SqlParameter("@stations", stations),
-            new SqlParameter("@from", Util.format(dateFrom))
+            new SqlParameter("@from", dateFrom.toInstant())
         ));
     SqlQuerySpec q =
         new SqlQuerySpec(
-                "SELECT * FROM c where"
-                    + " c.stazione in @stations"
-                    + " and c.datetime >= @from"
+                "SELECT * FROM c where c.timestamp >= @from"
         )
             .setParameters(paramList);
     return query(q).stream().collect(Collectors.toList());

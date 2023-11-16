@@ -51,8 +51,6 @@ public class NodoMonitorService {
             "| summarize count = count() by (stazione)";
 
     @Autowired
-    private StandInStationsRepository standInStationsRepository;
-    @Autowired
     private BlacklistStationsRepository blacklistStationsRepository;
     @Autowired
     private Client kustoClient;
@@ -97,12 +95,11 @@ public class NodoMonitorService {
         log.info("getAndSaveData [{}]",now);
         List<String> excludedStations = blacklistStationsRepository.findAll().stream().map(s->s.getStation()).collect(Collectors.toList());
 
-        Map<String, Integer> totals = getCount(TOTALS_QUERY,excludedStations,now.minusYears(5));
-        Map<String, Integer> faults = getCount(FAULT_QUERY,excludedStations,now.minusYears(5));
+        Map<String, Integer> totals = getCount(TOTALS_QUERY,excludedStations,now.minusMinutes(5));
+        Map<String, Integer> faults = getCount(FAULT_QUERY,excludedStations,now.minusMinutes(5));
         List<NodeCallCounts> stationCounts = totals.entrySet().stream().map(entry -> {
             Integer faultCount = faults.getOrDefault(entry.getKey(), 0);
-            double faultperc = ((faultCount / (double) entry.getValue()) * 100);
-            return NodeCallCounts.builder().id((entry.getKey()+now).hashCode()+"").station(entry.getKey()).total(entry.getValue()).faults(faultCount).perc(faultperc).timestamp(now.toInstant()).build();
+            return NodeCallCounts.builder().id((entry.getKey()+now).hashCode()+"").station(entry.getKey()).total(entry.getValue()).faults(faultCount).timestamp(now.toInstant()).build();
         }).collect(Collectors.toList());
         log.debug("totals:{}",totals);
         log.debug("faults:{}",faults);

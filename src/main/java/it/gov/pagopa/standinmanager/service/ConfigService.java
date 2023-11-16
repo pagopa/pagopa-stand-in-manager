@@ -18,7 +18,6 @@ public class ConfigService {
     private CacheApi cacheApi;
 
     public ConfigDataV1 getCache(){
-        log.info("getCache");
         if(configData==null){
             loadCache();
         }
@@ -26,7 +25,7 @@ public class ConfigService {
     }
 
     public void loadCache(){
-        log.info("refreshCache");
+        log.info("loadCache");
         configData = cacheApi.cache(false, new ArrayList<>());
     }
 

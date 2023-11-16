@@ -38,7 +38,6 @@ public class StationMonitorService {
 
         ConfigDataV1 cache = configService.getCache();
         List<StandInStation> stations = standInStationsRepository.findAll();
-        stations.add(new StandInStation("stazioneLorenz"));
         stations.forEach(s->checkStation(cache,now,s));
     }
 
@@ -47,7 +46,7 @@ public class StationMonitorService {
     private CompletableFuture<Boolean> checkStation(ConfigDataV1 cache, ZonedDateTime now,StandInStation standInStation){
         log.info("checkStation {}",standInStation.getStation());
         Station station = cache.getStations().get(standInStation.getStation());
-        boolean b = forwarderClient.verifyPaymentNotice(station);
+        boolean b = true;//forwarderClient.verifyPaymentNotice(station);
         ForwarderCallCounts forwarderCallCounts = ForwarderCallCounts.builder()
                 .id((standInStation.getStation() + now).hashCode() + "")
                 .station(standInStation.getStation())

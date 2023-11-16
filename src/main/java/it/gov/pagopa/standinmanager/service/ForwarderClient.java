@@ -8,6 +8,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -38,7 +39,12 @@ public class ForwarderClient {
         requestBuilder.header("SOAPAction","paVerifyPaymentNotice");
 
         RequestEntity<String> body = requestBuilder.body(paVerifyRequestBody);
-        ResponseEntity<String> responseEntity = restTemplate.exchange(body, String.class);
+        ResponseEntity<String> responseEntity = null;
+        try {
+            responseEntity = restTemplate.exchange(body, String.class);
+        } catch(HttpStatusCodeException e) {
+            return false;
+        }
 
         if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody().contains("SCONOSCIUTO")) {
             return true;

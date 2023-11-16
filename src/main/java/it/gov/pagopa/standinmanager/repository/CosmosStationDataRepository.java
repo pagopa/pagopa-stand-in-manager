@@ -7,6 +7,7 @@ import com.azure.cosmos.models.CosmosQueryRequestOptions;
 import com.azure.cosmos.models.SqlParameter;
 import com.azure.cosmos.models.SqlQuerySpec;
 import com.azure.cosmos.util.CosmosPagedIterable;
+import it.gov.pagopa.standinmanager.repository.model.ForwarderCallCounts;
 import it.gov.pagopa.standinmanager.repository.model.NodeCallCounts;
 import it.gov.pagopa.standinmanager.util.Util;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,10 +32,10 @@ public class CosmosStationDataRepository {
   public static String tablename = "stationData";
 
 
-  private CosmosPagedIterable<NodeCallCounts> query(SqlQuerySpec query) {
+  private CosmosPagedIterable<ForwarderCallCounts> query(SqlQuerySpec query) {
     log.info("executing query:" + query.getQueryText());
     CosmosContainer container = cosmosClient.getDatabase(dbname).getContainer(tablename);
-    return container.queryItems(query, new CosmosQueryRequestOptions(), NodeCallCounts.class);
+    return container.queryItems(query, new CosmosQueryRequestOptions(), ForwarderCallCounts.class);
   }
 
   public CosmosItemResponse<Object> save(Object item) {
@@ -41,21 +43,16 @@ public class CosmosStationDataRepository {
     return container.createItem(item);
   }
 
-  public List<NodeCallCounts> getStationCounts(
-      List<String> stations,
-      LocalDate dateFrom) {
+  public List<ForwarderCallCounts> getStationCounts(ZonedDateTime dateFrom) {
     List<SqlParameter> paramList = new ArrayList<>();
     paramList.addAll(Arrays.asList(
-            new SqlParameter("@stations", stations),
-            new SqlParameter("@from", Util.format(dateFrom))
-        ));
+            new SqlParameter("@from", dateFrom.toInstant())
+    ));
     SqlQuerySpec q =
-        new SqlQuerySpec(
-                "SELECT * FROM c where"
-                    + " c.stazione in @stations"
-                    + " and c.datetime >= @from"
-        )
-            .setParameters(paramList);
+            new SqlQuerySpec(
+                    "SELECT * FROM c where c.timestamp >= @from"
+            )
+                    .setParameters(paramList);
     return query(q).stream().collect(Collectors.toList());
   }
 
