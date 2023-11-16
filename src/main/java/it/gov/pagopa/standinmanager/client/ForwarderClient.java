@@ -1,4 +1,4 @@
-package it.gov.pagopa.standinmanager.service;
+package it.gov.pagopa.standinmanager.client;
 
 import it.gov.pagopa.standinmanager.config.model.Station;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,20 @@ public class ForwarderClient {
     @Autowired
     private RestTemplate restTemplate;
 
-    private String paVerifyRequestBody = "";
+    private String paVerifyRequestBody = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:paf=\"http://pagopa-api.pagopa.gov.it/pa/paForNode.xsd\">\n" +
+            "   <soapenv:Header/>\n" +
+            "   <soapenv:Body>\n" +
+            "      <paf:paVerifyPaymentNoticeReq>\n" +
+            "         <idPA>{idPA}</idPA>\n" +
+            "         <idBrokerPA>{idBrokerPA}</idBrokerPA>\n" +
+            "         <idStation>{idStation}</idStation>\n" +
+            "         <qrCode>\n" +
+            "            <fiscalCode>{fiscalCode}</fiscalCode>\n" +
+            "            <noticeNumber>{noticeNumber}</noticeNumber>\n" +
+            "         </qrCode>\n" +
+            "      </paf:paVerifyPaymentNoticeReq>\n" +
+            "   </soapenv:Body>\n" +
+            "</soapenv:Envelope>";
 
     public boolean verifyPaymentNotice(Station station){
 
@@ -37,6 +50,13 @@ public class ForwarderClient {
         requestBuilder.header("X-Host-Port",station.getServicePof().getTargetPort()+"");
         requestBuilder.header("X-Host-Path",station.getServicePof().getTargetPath());
         requestBuilder.header("SOAPAction","paVerifyPaymentNotice");
+
+        String replacedBody = paVerifyRequestBody
+                .replace("{idPA}","")
+                .replace("{idBrokerPA}",station.getBrokerCode())
+                .replace("{idStation}",station.getStationCode())
+                .replace("{fiscalCode}","")
+                .replace("{noticeNumber}","000000000000000000");
 
         RequestEntity<String> body = requestBuilder.body(paVerifyRequestBody);
         ResponseEntity<String> responseEntity = null;
