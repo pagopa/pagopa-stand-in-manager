@@ -46,7 +46,7 @@ public class StationMonitorService {
     private CompletableFuture<Boolean> checkStation(ConfigDataV1 cache, ZonedDateTime now,StandInStation standInStation){
         log.info("checkStation {}",standInStation.getStation());
         Station station = cache.getStations().get(standInStation.getStation());
-        boolean b = true;//forwarderClient.verifyPaymentNotice(station);
+        boolean b = forwarderClient.verifyPaymentNotice(station);
         ForwarderCallCounts forwarderCallCounts = ForwarderCallCounts.builder()
                 .id((standInStation.getStation() + now).hashCode() + "")
                 .station(standInStation.getStation())
