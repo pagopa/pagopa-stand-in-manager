@@ -1,13 +1,12 @@
 package it.gov.pagopa.standinmanager.repository.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "STAND_IN_STATIONS")
@@ -15,7 +14,7 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StandInStation {
-    @Id
-    @Column(name = "STATION_CODE")
-    private String station;
+  @Id
+  @Column(name = "STATION_CODE")
+  private String station;
 }

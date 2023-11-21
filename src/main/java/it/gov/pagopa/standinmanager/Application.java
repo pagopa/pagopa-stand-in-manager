@@ -6,6 +6,8 @@ import com.microsoft.azure.kusto.data.Client;
 import com.microsoft.azure.kusto.data.ClientFactory;
 import com.microsoft.azure.kusto.data.auth.ConnectionStringBuilder;
 import it.gov.pagopa.standinmanager.config.ApiClient;
+import java.net.URISyntaxException;
+import java.time.Duration;
 import org.openapitools.client.api.CacheApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -14,11 +16,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URISyntaxException;
-import java.time.Duration;
-
-@SpringBootApplication(
-)
+@SpringBootApplication()
 public class Application {
 
   public static void main(String[] args) {
@@ -47,7 +45,7 @@ public class Application {
   private String cosmosKey;
 
   @Bean
-  public CacheApi cacheApi(){
+  public CacheApi cacheApi() {
     ApiClient apiClient = new ApiClient();
     apiClient.setBasePath(basePath);
     apiClient.setApiKey(apiKey);
@@ -57,18 +55,20 @@ public class Application {
 
   @Bean
   public RestTemplate restTemplate(RestTemplateBuilder builder) {
-    return
-            builder.setReadTimeout(Duration.ofSeconds(5)).setConnectTimeout(Duration.ofSeconds(10)).build();
+    return builder
+        .setReadTimeout(Duration.ofSeconds(5))
+        .setConnectTimeout(Duration.ofSeconds(10))
+        .build();
   }
 
   @Bean
   public Client getClient() throws URISyntaxException {
-    return ClientFactory.createClient(ConnectionStringBuilder.createWithAadManagedIdentity(dataExplorerUrl));
+    return ClientFactory.createClient(
+        ConnectionStringBuilder.createWithAadManagedIdentity(dataExplorerUrl));
   }
 
   @Bean
   public CosmosClient getCosmosClient() {
     return new CosmosClientBuilder().endpoint(cosmosEndpoint).key(cosmosKey).buildClient();
   }
-
 }

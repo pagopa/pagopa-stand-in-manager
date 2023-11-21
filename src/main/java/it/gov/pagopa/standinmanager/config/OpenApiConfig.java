@@ -50,10 +50,7 @@ public class OpenApiConfig {
   public OpenApiCustomiser sortOperationsAlphabetically() {
     return openApi -> {
       Paths paths =
-          openApi
-              .getPaths()
-              .entrySet()
-              .stream()
+          openApi.getPaths().entrySet().stream()
               .sorted(Map.Entry.comparingByKey())
               .collect(
                   Paths::new,
@@ -67,10 +64,7 @@ public class OpenApiConfig {
                   .forEach(
                       operation -> {
                         var responses =
-                            operation
-                                .getResponses()
-                                .entrySet()
-                                .stream()
+                            operation.getResponses().entrySet().stream()
                                 .sorted(Map.Entry.comparingByKey())
                                 .collect(
                                     ApiResponses::new,
@@ -105,7 +99,8 @@ public class OpenApiConfig {
                             .name(HEADER_REQUEST_ID)
                             .schema(new StringSchema())
                             .description(
-                                "This header identifies the call, if not passed it is self-generated. This ID is returned in the response."));
+                                "This header identifies the call, if not passed it is"
+                                    + " self-generated. This ID is returned in the response."));
                   }
 
                   // add Request-ID as response header
