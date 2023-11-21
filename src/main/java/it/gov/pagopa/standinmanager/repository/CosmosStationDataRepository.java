@@ -38,7 +38,7 @@ public class CosmosStationDataRepository {
     return container.queryItems(query, new CosmosQueryRequestOptions(), ForwarderCallCounts.class);
   }
 
-  public CosmosItemResponse<Object> save(Object item) {
+  public CosmosItemResponse<ForwarderCallCounts> save(ForwarderCallCounts item) {
     CosmosContainer container = cosmosClient.getDatabase(dbname).getContainer(tablename);
     return container.createItem(item);
   }

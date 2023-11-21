@@ -37,7 +37,7 @@ public class CosmosNodeDataRepository {
     return container.queryItems(query, new CosmosQueryRequestOptions(), NodeCallCounts.class);
   }
 
-  public CosmosItemResponse<Object> save(Object item) {
+  public CosmosItemResponse<NodeCallCounts> save(NodeCallCounts item) {
     CosmosContainer container = cosmosClient.getDatabase(dbname).getContainer(tablename);
     return container.createItem(item);
   }

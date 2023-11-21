@@ -2,10 +2,7 @@ package it.gov.pagopa.standinmanager.scheduler;
 
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
-import it.gov.pagopa.standinmanager.service.NodoCalcService;
-import it.gov.pagopa.standinmanager.service.NodoMonitorService;
-import it.gov.pagopa.standinmanager.service.StationCalcService;
-import it.gov.pagopa.standinmanager.service.StationMonitorService;
+import it.gov.pagopa.standinmanager.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +19,9 @@ import java.time.ZonedDateTime;
 public class ScheduledJobs {
 
     @Autowired
+    private ConfigService configService;
+
+    @Autowired
     private NodoMonitorService nodoMonitorService;
 
     @Autowired
@@ -32,6 +32,12 @@ public class ScheduledJobs {
 
     @Autowired
     private StationCalcService stationCalcService;
+
+    @Scheduled(cron = "${config.refresh.cron:-}")
+    public void refreshCache() throws InterruptedException, URISyntaxException, DataServiceException, DataClientException,DataServiceException {
+        log.info("[Scheduled] Starting config refresh {}", ZonedDateTime.now());
+        configService.loadCache();
+    }
 
     @Scheduled(cron = "${nodo.monitor.cron:-}")
     public void checkNodo() throws InterruptedException, URISyntaxException, DataServiceException, DataClientException,DataServiceException {

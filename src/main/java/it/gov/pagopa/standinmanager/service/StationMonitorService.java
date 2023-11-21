@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -35,26 +36,26 @@ public class StationMonitorService {
     public void checkStations(){
         ZonedDateTime now = ZonedDateTime.now();
         log.info("checkStations [{}]",now);
-
         ConfigDataV1 cache = configService.getCache();
         List<StandInStation> stations = standInStationsRepository.findAll();
-        stations.forEach(s->checkStation(cache,now,s));
+        stations.stream().map(s -> checkStation(now,cache.getStations().get(s.getStation()),  s)).collect(Collectors.toList());
     }
 
 
     @Async
-    private CompletableFuture<Boolean> checkStation(ConfigDataV1 cache, ZonedDateTime now,StandInStation standInStation){
-        log.info("checkStation {}",standInStation.getStation());
-        Station station = cache.getStations().get(standInStation.getStation());
-        boolean b = forwarderClient.verifyPaymentNotice(station);
-        ForwarderCallCounts forwarderCallCounts = ForwarderCallCounts.builder()
-                .id((standInStation.getStation() + now).hashCode() + "")
-                .station(standInStation.getStation())
-                .timestamp(now.toInstant())
-                .outcome(b)
-                .build();
-        cosmosStationDataRepository.save(forwarderCallCounts);
-        return CompletableFuture.completedFuture(b);
+    private CompletableFuture<Boolean> checkStation(ZonedDateTime now,Station station, StandInStation standInStation){
+        return CompletableFuture.supplyAsync(()->{
+            log.info("checkStation [{}] [{}]",now,standInStation.getStation());
+            boolean b = forwarderClient.verifyPaymentNotice(station);
+            ForwarderCallCounts forwarderCallCounts = ForwarderCallCounts.builder()
+                    .id((standInStation.getStation() + now).hashCode() + "")
+                    .station(standInStation.getStation())
+                    .timestamp(now.toInstant())
+                    .outcome(b)
+                    .build();
+            cosmosStationDataRepository.save(forwarderCallCounts);
+            return b;
+        });
     }
 
 }
