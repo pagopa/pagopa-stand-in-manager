@@ -70,7 +70,14 @@ microservice-chart:
     DATAEXPLORER_CLIENTID:
     DATAEXPLORER_DBNAME: "re"
     COSMOS_ENDPOINT:
-    FORWARDER_URL:
+    FORWARDER_URL: "https://api.dev.platform.pagopa.it/pagopa-node-forwarder/api/v1/forward"
+
+    CONFIG_REFRESH_CRON: "0 * * * * *"
+    NODO_MONITOR_CRON: "0 * * * * *"
+    NODO_CALC_CRON: "30 * * * * *"
+    STATION_MONITOR_CRON: "15 * * * * *"
+    STATION_CALC_CRON: "45 * * * * *"
+
 
     OTEL_SERVICE_NAME: "pagopa-stand-in-manager"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
