@@ -36,7 +36,7 @@ public class CosmosNodeDataRepository {
             .map(
                 s ->
                     CosmosBulkOperations.getCreateItemOperation(
-                        s, new PartitionKey(s.getTimestamp())))
+                        s, new PartitionKey(s.getPartitionKey())))
             .collect(Collectors.toList());
     return container.executeBulkOperations(cosmosItemOperationStream);
   }

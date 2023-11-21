@@ -17,6 +17,10 @@ public class NodeCallCounts {
   private Integer total;
   private Integer faults;
 
+  public String getPartitionKey() {
+    return timestamp.toString().substring(0, 10);
+  }
+
   public double getPerc() {
     return ((getFaults() / (double) getTotal()) * 100);
   }

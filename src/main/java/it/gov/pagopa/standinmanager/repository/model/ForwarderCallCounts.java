@@ -15,4 +15,8 @@ public class ForwarderCallCounts {
   private String station;
   private Instant timestamp;
   private Boolean outcome;
+
+  public String getPartitionKey() {
+    return timestamp.toString().substring(0, 10);
+  }
 }

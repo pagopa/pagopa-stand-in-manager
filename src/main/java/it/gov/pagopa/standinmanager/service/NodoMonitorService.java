@@ -117,9 +117,16 @@ public class NodoMonitorService {
                       .build();
                 })
             .collect(Collectors.toList());
-    log.debug("totals:{}", totals);
-    log.debug("faults:{}", faults);
+    if (log.isDebugEnabled()) {
+      final StringBuilder totalsString = new StringBuilder();
+      totals.entrySet().stream()
+          .forEach(
+              s -> {
+                totalsString.append(
+                    "\n" + s.getKey() + " calls:" + s.getValue() + " faults:" + faults.get(s));
+              });
+      log.debug("totals:{}", totalsString.toString());
+    }
     cosmosRepository.saveAll(stationCounts);
-    //        stationCounts.forEach(cosmosRepository::save);
   }
 }
