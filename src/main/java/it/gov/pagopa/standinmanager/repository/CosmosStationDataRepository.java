@@ -7,7 +7,7 @@ import com.azure.cosmos.models.CosmosQueryRequestOptions;
 import com.azure.cosmos.models.SqlParameter;
 import com.azure.cosmos.models.SqlQuerySpec;
 import com.azure.cosmos.util.CosmosPagedIterable;
-import it.gov.pagopa.standinmanager.repository.model.ForwarderCallCounts;
+import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,18 +26,19 @@ public class CosmosStationDataRepository {
   public static String dbname = "db";
   public static String tablename = "stationData";
 
-  private CosmosPagedIterable<ForwarderCallCounts> query(SqlQuerySpec query) {
+  private CosmosPagedIterable<CosmosForwarderCallCounts> query(SqlQuerySpec query) {
     log.info("executing query:" + query.getQueryText());
     CosmosContainer container = cosmosClient.getDatabase(dbname).getContainer(tablename);
-    return container.queryItems(query, new CosmosQueryRequestOptions(), ForwarderCallCounts.class);
+    return container.queryItems(
+        query, new CosmosQueryRequestOptions(), CosmosForwarderCallCounts.class);
   }
 
-  public CosmosItemResponse<ForwarderCallCounts> save(ForwarderCallCounts item) {
+  public CosmosItemResponse<CosmosForwarderCallCounts> save(CosmosForwarderCallCounts item) {
     CosmosContainer container = cosmosClient.getDatabase(dbname).getContainer(tablename);
     return container.createItem(item);
   }
 
-  public List<ForwarderCallCounts> getStationCounts(ZonedDateTime dateFrom) {
+  public List<CosmosForwarderCallCounts> getStationCounts(ZonedDateTime dateFrom) {
     List<SqlParameter> paramList = new ArrayList<>();
     paramList.addAll(Arrays.asList(new SqlParameter("@from", dateFrom.toInstant())));
     SqlQuerySpec q =

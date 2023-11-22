@@ -3,9 +3,11 @@ package it.gov.pagopa.standinmanager.service;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
 import it.gov.pagopa.standinmanager.repository.BlacklistStationsRepository;
+import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
 import it.gov.pagopa.standinmanager.repository.StandInStationsRepository;
-import it.gov.pagopa.standinmanager.repository.model.ForwarderCallCounts;
+import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
+import it.gov.pagopa.standinmanager.util.Constants;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.time.ZonedDateTime;
@@ -30,6 +32,7 @@ public class StationCalcService {
   @Autowired private StandInStationsRepository standInStationsRepository;
   @Autowired private BlacklistStationsRepository blacklistStationsRepository;
   @Autowired private CosmosStationDataRepository cosmosRepository;
+  @Autowired private CosmosEventsRepository cosmosEventsRepository;
 
   private DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
@@ -42,10 +45,10 @@ public class StationCalcService {
         rangeMinutes,
         rangeLimit);
 
-    List<ForwarderCallCounts> allCounts =
+    List<CosmosForwarderCallCounts> allCounts =
         cosmosRepository.getStationCounts(now.minusMinutes(rangeMinutes));
-    Map<String, List<ForwarderCallCounts>> allStationCounts =
-        allCounts.stream().collect(Collectors.groupingBy(ForwarderCallCounts::getStation));
+    Map<String, List<CosmosForwarderCallCounts>> allStationCounts =
+        allCounts.stream().collect(Collectors.groupingBy(CosmosForwarderCallCounts::getStation));
 
     allStationCounts.forEach(
         (station, stationCounts) -> {
@@ -66,6 +69,11 @@ public class StationCalcService {
                 successfulCalls,
                 rangeMinutes);
             standInStationsRepository.deleteById(station);
+
+            cosmosEventsRepository.newEvent(
+                Constants.EVENT_ADD_TO_STANDIN,
+                "removing station [{}] from standIn stations because {} calls were successful in"
+                    + " the last {} minutes");
           }
         });
   }

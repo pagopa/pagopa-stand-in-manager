@@ -6,7 +6,7 @@ import it.gov.pagopa.standinmanager.config.model.Station;
 import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
 import it.gov.pagopa.standinmanager.repository.StandInStationsRepository;
 import it.gov.pagopa.standinmanager.repository.entity.StandInStation;
-import it.gov.pagopa.standinmanager.repository.model.ForwarderCallCounts;
+import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -45,8 +45,8 @@ public class StationMonitorService {
         () -> {
           log.info("checkStation [{}] [{}]", now, standInStation.getStation());
           boolean b = forwarderClient.verifyPaymentNotice(station);
-          ForwarderCallCounts forwarderCallCounts =
-              ForwarderCallCounts.builder()
+          CosmosForwarderCallCounts forwarderCallCounts =
+              CosmosForwarderCallCounts.builder()
                   .id((standInStation.getStation() + now).hashCode() + "")
                   .station(standInStation.getStation())
                   .timestamp(now.toInstant())

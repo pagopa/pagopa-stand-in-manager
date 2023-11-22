@@ -3,10 +3,12 @@ package it.gov.pagopa.standinmanager.service;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
 import it.gov.pagopa.standinmanager.repository.BlacklistStationsRepository;
+import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.StandInStationsRepository;
 import it.gov.pagopa.standinmanager.repository.entity.StandInStation;
-import it.gov.pagopa.standinmanager.repository.model.NodeCallCounts;
+import it.gov.pagopa.standinmanager.repository.model.CosmosNodeCallCounts;
+import it.gov.pagopa.standinmanager.util.Constants;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.time.Instant;
@@ -39,6 +41,7 @@ public class NodoCalcService {
   @Autowired private StandInStationsRepository standInStationsRepository;
   @Autowired private BlacklistStationsRepository blacklistStationsRepository;
   @Autowired private CosmosNodeDataRepository cosmosRepository;
+  @Autowired private CosmosEventsRepository cosmosEventsRepository;
 
   private DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
@@ -58,25 +61,25 @@ public class NodoCalcService {
         rangeMinutes,
         slotMinutes);
 
-    List<NodeCallCounts> allCounts =
+    List<CosmosNodeCallCounts> allCounts =
         cosmosRepository.getStationCounts(now.minusMinutes(rangeMinutes));
-    Map<String, List<NodeCallCounts>> allStationCounts =
-        allCounts.stream().collect(Collectors.groupingBy(NodeCallCounts::getStation));
+    Map<String, List<CosmosNodeCallCounts>> allStationCounts =
+        allCounts.stream().collect(Collectors.groupingBy(CosmosNodeCallCounts::getStation));
 
     allStationCounts.forEach(
         (station, stationCounts) -> {
-          Map<Instant, List<NodeCallCounts>> fiveMinutesIntervals =
+          Map<Instant, List<CosmosNodeCallCounts>> fiveMinutesIntervals =
               stationCounts.stream()
                   .collect(
                       Collectors.groupingBy(item -> roundToNearest5Minutes(item.getTimestamp())));
-          List<NodeCallCounts> collect =
+          List<CosmosNodeCallCounts> collect =
               fiveMinutesIntervals.entrySet().stream()
                   .map(
                       entry -> {
-                        NodeCallCounts reduced =
+                        CosmosNodeCallCounts reduced =
                             entry.getValue().stream()
                                 .reduce(
-                                    new NodeCallCounts(null, null, entry.getKey(), 0, 0),
+                                    new CosmosNodeCallCounts(null, null, entry.getKey(), 0, 0),
                                     (f, d) -> {
                                       f.setTotal(f.getTotal() + d.getTotal());
                                       f.setFaults(f.getFaults() + d.getFaults());
@@ -113,11 +116,15 @@ public class NodoCalcService {
 
           if (failedSlotPerc > rangeThreshold) {
             log.info(
-                "adding station [{}] to standIn stations because {} of {} slots failed",
+                "adding station [{}] to standIn stations because {} of {} slots failed in the last {} minutes",
                 station,
                 failedSlots,
-                totalSlots);
+                totalSlots,
+                    rangeMinutes);
             standInStationsRepository.save(new StandInStation(station));
+            cosmosEventsRepository.newEvent(
+                Constants.EVENT_ADD_TO_STANDIN,
+                "adding station [{}] to standIn stations because {} of {} slots failed");
           }
         });
   }

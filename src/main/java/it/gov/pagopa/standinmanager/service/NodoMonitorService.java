@@ -8,7 +8,7 @@ import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
 import it.gov.pagopa.standinmanager.repository.BlacklistStationsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
-import it.gov.pagopa.standinmanager.repository.model.NodeCallCounts;
+import it.gov.pagopa.standinmanager.repository.model.CosmosNodeCallCounts;
 import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -103,12 +103,12 @@ public class NodoMonitorService {
 
     Map<String, Integer> totals = getCount(TOTALS_QUERY, excludedStations, now.minusMinutes(5));
     Map<String, Integer> faults = getCount(FAULT_QUERY, excludedStations, now.minusMinutes(5));
-    List<NodeCallCounts> stationCounts =
+    List<CosmosNodeCallCounts> stationCounts =
         totals.entrySet().stream()
             .map(
                 entry -> {
                   Integer faultCount = faults.getOrDefault(entry.getKey(), 0);
-                  return NodeCallCounts.builder()
+                  return CosmosNodeCallCounts.builder()
                       .id((entry.getKey() + now).hashCode() + "")
                       .station(entry.getKey())
                       .total(entry.getValue())

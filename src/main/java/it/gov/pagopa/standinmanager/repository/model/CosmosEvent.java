@@ -10,18 +10,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NodeCallCounts {
-  private String id;
-  private String station;
+public class CosmosEvent {
   private Instant timestamp;
-  private Integer total;
-  private Integer faults;
+  private String type;
+  private String info;
 
   public String getPartitionKey() {
     return timestamp.toString().substring(0, 10);
-  }
-
-  public double getPerc() {
-    return ((getFaults() / (double) getTotal()) * 100);
   }
 }

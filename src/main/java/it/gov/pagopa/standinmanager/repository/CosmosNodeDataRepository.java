@@ -4,7 +4,7 @@ import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.models.*;
 import com.azure.cosmos.util.CosmosPagedIterable;
-import it.gov.pagopa.standinmanager.repository.model.NodeCallCounts;
+import it.gov.pagopa.standinmanager.repository.model.CosmosNodeCallCounts;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,13 +23,13 @@ public class CosmosNodeDataRepository {
   public static String dbname = "db";
   public static String tablename = "nodeData";
 
-  private CosmosPagedIterable<NodeCallCounts> query(SqlQuerySpec query) {
+  private CosmosPagedIterable<CosmosNodeCallCounts> query(SqlQuerySpec query) {
     log.info("executing query:" + query.getQueryText());
     CosmosContainer container = cosmosClient.getDatabase(dbname).getContainer(tablename);
-    return container.queryItems(query, new CosmosQueryRequestOptions(), NodeCallCounts.class);
+    return container.queryItems(query, new CosmosQueryRequestOptions(), CosmosNodeCallCounts.class);
   }
 
-  public Iterable<CosmosBulkOperationResponse<Object>> saveAll(List<NodeCallCounts> items) {
+  public Iterable<CosmosBulkOperationResponse<Object>> saveAll(List<CosmosNodeCallCounts> items) {
     CosmosContainer container = cosmosClient.getDatabase(dbname).getContainer(tablename);
     List<CosmosItemOperation> cosmosItemOperationStream =
         items.stream()
@@ -41,12 +41,12 @@ public class CosmosNodeDataRepository {
     return container.executeBulkOperations(cosmosItemOperationStream);
   }
 
-  public CosmosItemResponse<NodeCallCounts> save(NodeCallCounts item) {
+  public CosmosItemResponse<CosmosNodeCallCounts> save(CosmosNodeCallCounts item) {
     CosmosContainer container = cosmosClient.getDatabase(dbname).getContainer(tablename);
     return container.createItem(item);
   }
 
-  public List<NodeCallCounts> getStationCounts(ZonedDateTime dateFrom) {
+  public List<CosmosNodeCallCounts> getStationCounts(ZonedDateTime dateFrom) {
     List<SqlParameter> paramList = new ArrayList<>();
     paramList.addAll(Arrays.asList(new SqlParameter("@from", dateFrom.toInstant())));
     SqlQuerySpec q =

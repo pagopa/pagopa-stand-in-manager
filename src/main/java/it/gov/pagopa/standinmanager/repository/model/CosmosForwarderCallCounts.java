@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ForwarderCallCounts {
+public class CosmosForwarderCallCounts {
   private String id;
   private String station;
   private Instant timestamp;
