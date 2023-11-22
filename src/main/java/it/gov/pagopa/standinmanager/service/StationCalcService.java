@@ -71,9 +71,11 @@ public class StationCalcService {
             standInStationsRepository.deleteById(station);
 
             cosmosEventsRepository.newEvent(
-                Constants.EVENT_ADD_TO_STANDIN,
-                "removing station [{}] from standIn stations because {} calls were successful in"
-                    + " the last {} minutes");
+                Constants.EVENT_REMOVE_FROM_STANDIN,
+                String.format(
+                    "removing station [%s] from standIn stations because %s calls were successful"
+                        + " in the last %s minutes",
+                    station, successfulCalls, rangeMinutes));
           }
         });
   }

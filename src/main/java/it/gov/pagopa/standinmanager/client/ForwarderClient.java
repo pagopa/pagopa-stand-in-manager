@@ -1,6 +1,8 @@
 package it.gov.pagopa.standinmanager.client;
 
 import it.gov.pagopa.standinmanager.config.model.Station;
+import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
+import it.gov.pagopa.standinmanager.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -21,6 +23,7 @@ public class ForwarderClient {
   private String key;
 
   @Autowired private RestTemplate restTemplate;
+  @Autowired private CosmosEventsRepository cosmosEventsRepository;
 
   private String paVerifyRequestBody =
       "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\""
@@ -40,7 +43,9 @@ public class ForwarderClient {
           + "</soapenv:Envelope>";
 
   public boolean verifyPaymentNotice(Station station) {
-
+    cosmosEventsRepository.newEvent(
+        Constants.EVENT_FORWARDER_CALL,
+        String.format("call forwarder for station [%s]", station.getStationCode()));
     final RequestEntity.BodyBuilder requestBuilder =
         RequestEntity.method(
             HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(url).build().toUri());

@@ -116,15 +116,18 @@ public class NodoCalcService {
 
           if (failedSlotPerc > rangeThreshold) {
             log.info(
-                "adding station [{}] to standIn stations because {} of {} slots failed in the last {} minutes",
+                "adding station [{}] to standIn stations because {} of {} slots failed in the last"
+                    + " {} minutes",
                 station,
                 failedSlots,
                 totalSlots,
-                    rangeMinutes);
+                rangeMinutes);
             standInStationsRepository.save(new StandInStation(station));
             cosmosEventsRepository.newEvent(
                 Constants.EVENT_ADD_TO_STANDIN,
-                "adding station [{}] to standIn stations because {} of {} slots failed");
+                String.format(
+                    "adding station [%s] to standIn stations because [%s] of [%s] slots failed",
+                    failedSlots, totalSlots));
           }
         });
   }
