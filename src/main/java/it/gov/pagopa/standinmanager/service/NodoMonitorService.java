@@ -14,6 +14,7 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,7 +110,7 @@ public class NodoMonitorService {
                 entry -> {
                   Integer faultCount = faults.getOrDefault(entry.getKey(), 0);
                   return CosmosNodeCallCounts.builder()
-                      .id((entry.getKey() + now).hashCode() + "")
+                      .id(UUID.randomUUID().toString())
                       .station(entry.getKey())
                       .total(entry.getValue())
                       .faults(faultCount)

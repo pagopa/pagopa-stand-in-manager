@@ -9,6 +9,7 @@ import it.gov.pagopa.standinmanager.repository.entity.StandInStation;
 import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +48,7 @@ public class StationMonitorService {
           boolean b = forwarderClient.verifyPaymentNotice(station);
           CosmosForwarderCallCounts forwarderCallCounts =
               CosmosForwarderCallCounts.builder()
-                  .id((standInStation.getStation() + now).hashCode() + "")
+                  .id(UUID.randomUUID().toString())
                   .station(standInStation.getStation())
                   .timestamp(now.toInstant())
                   .outcome(b)

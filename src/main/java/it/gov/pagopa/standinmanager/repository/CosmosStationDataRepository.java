@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -23,8 +24,10 @@ public class CosmosStationDataRepository {
 
   @Autowired private CosmosClient cosmosClient;
 
-  public static String dbname = "db";
-  public static String tablename = "stationData";
+  @Value("${cosmos.db.name}")
+  private String dbname;
+
+  public static String tablename = "station_data";
 
   private CosmosPagedIterable<CosmosForwarderCallCounts> query(SqlQuerySpec query) {
     log.info("executing query:" + query.getQueryText());

@@ -69,13 +69,27 @@ public class ForwarderClient {
     try {
       responseEntity = restTemplate.exchange(body, String.class);
     } catch (HttpStatusCodeException e) {
+      cosmosEventsRepository.newEvent(
+          Constants.EVENT_FORWARDER_CALL_RESP_ERROR,
+          String.format(
+              "call forwarder for station [%s] returned",
+              station.getStationCode(), e.getStatusCode()));
       return false;
     }
 
     if (responseEntity.getStatusCode().is2xxSuccessful()
         && responseEntity.getBody().contains("SCONOSCIUTO")) {
+      cosmosEventsRepository.newEvent(
+          Constants.EVENT_FORWARDER_CALL_RESP_SUCCCESS,
+          String.format(
+              "call forwarder for station [%s] returned SCONOSCIUTO", station.getStationCode()));
       return true;
     } else {
+      cosmosEventsRepository.newEvent(
+          Constants.EVENT_FORWARDER_CALL_RESP_ERROR,
+          String.format(
+              "call forwarder for station [%s] did not return SCONOSCIUTO",
+              station.getStationCode()));
       return false;
     }
   }

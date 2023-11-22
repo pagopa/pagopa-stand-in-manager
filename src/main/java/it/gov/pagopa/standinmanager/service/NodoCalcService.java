@@ -127,7 +127,7 @@ public class NodoCalcService {
                 Constants.EVENT_ADD_TO_STANDIN,
                 String.format(
                     "adding station [%s] to standIn stations because [%s] of [%s] slots failed",
-                    failedSlots, totalSlots));
+                    station, failedSlots, totalSlots));
           }
         });
   }
