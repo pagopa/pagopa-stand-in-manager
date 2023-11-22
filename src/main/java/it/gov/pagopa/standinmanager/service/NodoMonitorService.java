@@ -97,10 +97,7 @@ public class NodoMonitorService {
       throws URISyntaxException, DataServiceException, DataClientException {
     ZonedDateTime now = ZonedDateTime.now();
     log.info("getAndSaveData [{}]", now);
-    List<String> excludedStations =
-        blacklistStationsRepository.findAll().stream()
-            .map(s -> s.getStation())
-            .collect(Collectors.toList());
+    List<String> excludedStations = blacklistStationsRepository.findAllStations();
 
     Map<String, Integer> totals = getCount(TOTALS_QUERY, excludedStations, now.minusMinutes(5));
     Map<String, Integer> faults = getCount(FAULT_QUERY, excludedStations, now.minusMinutes(5));

@@ -22,11 +22,8 @@ import org.springframework.stereotype.Service;
 public class StationMonitorService {
 
   @Autowired private ConfigService configService;
-
   @Autowired private StandInStationsRepository standInStationsRepository;
-
   @Autowired private CosmosStationDataRepository cosmosStationDataRepository;
-
   @Autowired private ForwarderClient forwarderClient;
 
   public void checkStations() {
