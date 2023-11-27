@@ -25,18 +25,18 @@ public class ForwarderClient {
   @Autowired private RestTemplate restTemplate;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
 
-  private String paVerifyRequestBody =
+  private static String paVerifyRequestBody =
       "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\""
           + " xmlns:paf=\"http://pagopa-api.pagopa.gov.it/pa/paForNode.xsd\">\n"
           + "   <soapenv:Header/>\n"
           + "   <soapenv:Body>\n"
           + "      <paf:paVerifyPaymentNoticeReq>\n"
-          + "         <idPA>{idPA}</idPA>\n"
+          + "         <idPA>00000000000</idPA>\n"
           + "         <idBrokerPA>{idBrokerPA}</idBrokerPA>\n"
           + "         <idStation>{idStation}</idStation>\n"
           + "         <qrCode>\n"
-          + "            <fiscalCode>{fiscalCode}</fiscalCode>\n"
-          + "            <noticeNumber>{noticeNumber}</noticeNumber>\n"
+          + "            <fiscalCode>00000000000</fiscalCode>\n"
+          + "            <noticeNumber>000000000000000000</noticeNumber>\n"
           + "         </qrCode>\n"
           + "      </paf:paVerifyPaymentNoticeReq>\n"
           + "   </soapenv:Body>\n"
@@ -58,11 +58,8 @@ public class ForwarderClient {
 
     String replacedBody =
         paVerifyRequestBody
-            .replace("{idPA}", "")
             .replace("{idBrokerPA}", station.getBrokerCode())
-            .replace("{idStation}", station.getStationCode())
-            .replace("{fiscalCode}", "")
-            .replace("{noticeNumber}", "000000000000000000");
+            .replace("{idStation}", station.getStationCode());
 
     RequestEntity<String> body = requestBuilder.body(paVerifyRequestBody);
     ResponseEntity<String> responseEntity = null;
