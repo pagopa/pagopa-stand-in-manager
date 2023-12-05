@@ -22,10 +22,11 @@ public class CosmosEventsRepository {
 
   public static String tablename = "events";
 
-  public void newEvent(String type, String info) {
+  public void newEvent(String station, String type, String info) {
     save(
         CosmosEvent.builder()
             .id(UUID.randomUUID().toString())
+            .station(station)
             .timestamp(Instant.now())
             .info(info)
             .type(type)

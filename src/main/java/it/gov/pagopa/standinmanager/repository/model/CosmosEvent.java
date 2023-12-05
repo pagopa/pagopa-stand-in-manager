@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CosmosEvent {
   private String id;
+  private String station;
   private Instant timestamp;
   private String type;
   private String info;

@@ -44,6 +44,7 @@ public class ForwarderClient {
 
   public boolean verifyPaymentNotice(Station station) {
     cosmosEventsRepository.newEvent(
+        station.getStationCode(),
         Constants.EVENT_FORWARDER_CALL,
         String.format("call forwarder for station [%s]", station.getStationCode()));
     final RequestEntity.BodyBuilder requestBuilder =
@@ -67,6 +68,7 @@ public class ForwarderClient {
       responseEntity = restTemplate.exchange(body, String.class);
     } catch (HttpStatusCodeException e) {
       cosmosEventsRepository.newEvent(
+          station.getStationCode(),
           Constants.EVENT_FORWARDER_CALL_RESP_ERROR,
           String.format(
               "call forwarder for station [%s] returned",
@@ -77,12 +79,14 @@ public class ForwarderClient {
     if (responseEntity.getStatusCode().is2xxSuccessful()
         && responseEntity.getBody().contains("SCONOSCIUTO")) {
       cosmosEventsRepository.newEvent(
+          station.getStationCode(),
           Constants.EVENT_FORWARDER_CALL_RESP_SUCCCESS,
           String.format(
               "call forwarder for station [%s] returned SCONOSCIUTO", station.getStationCode()));
       return true;
     } else {
       cosmosEventsRepository.newEvent(
+          station.getStationCode(),
           Constants.EVENT_FORWARDER_CALL_RESP_ERROR,
           String.format(
               "call forwarder for station [%s] did not return SCONOSCIUTO",

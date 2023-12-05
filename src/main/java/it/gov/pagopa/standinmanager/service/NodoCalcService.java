@@ -122,6 +122,7 @@ public class NodoCalcService {
                 rangeMinutes);
             standInStationsRepository.save(new StandInStation(station));
             cosmosEventsRepository.newEvent(
+                station,
                 Constants.EVENT_ADD_TO_STANDIN,
                 String.format(
                     "adding station [%s] to standIn stations because [%s] of [%s] slots failed",

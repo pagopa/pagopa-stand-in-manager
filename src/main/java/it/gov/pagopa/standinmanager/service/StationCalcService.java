@@ -69,6 +69,7 @@ public class StationCalcService {
             standInStationsRepository.deleteById(station);
 
             cosmosEventsRepository.newEvent(
+                station,
                 Constants.EVENT_REMOVE_FROM_STANDIN,
                 String.format(
                     "removing station [%s] from standIn stations because %s calls were successful"
