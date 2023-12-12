@@ -15,6 +15,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.ses.SesClient;
 
 @SpringBootApplication()
 public class Application {
@@ -43,6 +45,14 @@ public class Application {
 
   @Value("${cosmos.key}")
   private String cosmosKey;
+
+  @Value("${aws.region}")
+  private String region;
+
+  @Bean
+  public SesClient sesClient() {
+    return SesClient.builder().region(Region.of(region)).build();
+  }
 
   @Bean
   public CacheApi cacheApi() {

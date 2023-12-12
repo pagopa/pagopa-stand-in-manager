@@ -2,6 +2,7 @@ package it.gov.pagopa.standinmanager.service;
 
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
+import it.gov.pagopa.standinmanager.client.AwsSesClient;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.StandInStationsRepository;
@@ -37,9 +38,13 @@ public class NodoCalcService {
   @Value("${adder.range.fault.threshold}")
   private double rangeThreshold;
 
+  @Value("${aws.mailto}")
+  private String mailto;
+
   @Autowired private StandInStationsRepository standInStationsRepository;
   @Autowired private CosmosNodeDataRepository cosmosRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
+  @Autowired private AwsSesClient awsSesClient;
 
   private DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
@@ -127,6 +132,13 @@ public class NodoCalcService {
                 String.format(
                     "adding station [%s] to standIn stations because [%s] of [%s] slots failed",
                     station, failedSlots, totalSlots));
+            awsSesClient.sendEmail(
+                String.format("[StandInManager]Station [%s] added to standin"),
+                String.format(
+                    "[StandInManager]Station [%s] has been added to standin"
+                        + "\nbecause [%s] of [%s] slots failed",
+                    station, failedSlots, totalSlots),
+                mailto);
           }
         });
   }
