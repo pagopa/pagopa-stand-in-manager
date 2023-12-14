@@ -57,7 +57,7 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
-    WEBSITE_SITE_NAME: 'yourProjectName' # required to show cloud role name in application insights
+    WEBSITE_SITE_NAME: 'pagopa-stand-in-manager' # required to show cloud role name in application insights
     ENV: 'dev'
     APP_LOGGING_LEVEL: 'DEBUG'
     DEFAULT_LOGGING_LEVEL: 'INFO'
@@ -67,10 +67,14 @@ microservice-chart:
     SPRING_DATASOURCE_USERNAME: "cfg"
     API_CONFIG_CACHE_BASE_PATH: "https://api.dev.platform.pagopa.it/api-config-cache/p/v1"
     DATAEXPLORER_URL: "https://pagopaddataexplorer.westeurope.kusto.windows.net"
-    DATAEXPLORER_CLIENTID:
+    DATAEXPLORER_CLIENTID: ""
     DATAEXPLORER_DBNAME: "re"
-    COSMOS_ENDPOINT:
+    COSMOS_ENDPOINT: "https://pagopa-d-weu-nodo-standin-cosmos-account.documents.azure.com:443/"
     FORWARDER_URL: "https://api.dev.platform.pagopa.it/pagopa-node-forwarder/api/v1/forward"
+
+    AWS_REGION: ""
+    AWS_SES_USER: ""
+    AWS_MAILTO: ""
 
     CONFIG_REFRESH_CRON: "0 * * * * *"
     NODO_MONITOR_CRON: "0 * * * * *"
@@ -92,6 +96,7 @@ microservice-chart:
     OTEL_EXPORTER_OTLP_HEADERS: elastic-apm-secret-token
     SPRING_DATASOURCE_PASSWORD: "db-cfg-password"
     API_CONFIG_CACHE_API_KEY: "api-config-cache-subscription-key-string"
+    DATA_EXPLORER_APP_KEY: ""
     COSMOS_KEY: ""
     FORWARDER_KEY: "node-forwarder-subscription-key-string"
   keyvault:

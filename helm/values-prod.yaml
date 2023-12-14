@@ -3,7 +3,7 @@ microservice-chart:
   nameOverride: ""
   fullnameOverride: ""
   image:
-    repository: ghcr.io/pagopa/yourname # TODO
+    repository: ghcr.io/pagopa/pagopa-stand-in-manager
     tag: "0.0.0"
     pullPolicy: Always
   livenessProbe:
@@ -28,10 +28,7 @@ microservice-chart:
     ports:
       - 8080
   ingress:
-    create: true
-    host: "your.host" # TODO: set the host
-    path: /your-path-here/(.*) # TODO: set your path
-    servicePort: 8080
+    create: false
   serviceAccount:
     create: false
     annotations: { }
@@ -51,7 +48,7 @@ microservice-chart:
       cpu: "0.25"
   autoscaling:
     enable: true
-    minReplica: 3
+    minReplica: 1
     maxReplica: 10
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
@@ -62,15 +59,34 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
-    # TODO: set your name
-    WEBSITE_SITE_NAME: 'yourProjectName' # required to show cloud role name in application insights
-    ENV: 'azure-prod'
-    APP_LOGGING_LEVEL: 'INFO'
+    WEBSITE_SITE_NAME: 'pagopa-stand-in-manager' # required to show cloud role name in application insights
+    ENV: 'prod'
+    APP_LOGGING_LEVEL: 'DEBUG'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
 
-    OTEL_SERVICE_NAME: # TODO
-    OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=prod"
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://pagopa-d-weu-nodo-flexible-postgresql.postgres.database.azure.com:6432/nodo?prepareThreshold=0"
+    SPRING_DATASOURCE_USERNAME: "cfg"
+    API_CONFIG_CACHE_BASE_PATH: "https://api.dev.platform.pagopa.it/api-config-cache/p/v1"
+    DATAEXPLORER_URL: "https://pagopaddataexplorer.westeurope.kusto.windows.net"
+    DATAEXPLORER_CLIENTID: ""
+    DATAEXPLORER_DBNAME: "re"
+    COSMOS_ENDPOINT: "https://pagopa-d-weu-nodo-standin-cosmos-account.documents.azure.com:443/"
+    FORWARDER_URL: "https://api.dev.platform.pagopa.it/pagopa-node-forwarder/api/v1/forward"
+
+    AWS_REGION: ""
+    AWS_SES_USER: ""
+    AWS_MAILTO: ""
+
+    CONFIG_REFRESH_CRON: "0 * * * * *"
+    NODO_MONITOR_CRON: "0 * * * * *"
+    NODO_CALC_CRON: "30 * * * * *"
+    STATION_MONITOR_CRON: "15 * * * * *"
+    STATION_CALC_CRON: "45 * * * * *"
+
+
+    OTEL_SERVICE_NAME: "pagopa-stand-in-manager"
+    OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_TRACES_EXPORTER: otlp
     OTEL_METRICS_EXPORTER: otlp
@@ -80,8 +96,13 @@ microservice-chart:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-p-connection-string'
     OTEL_EXPORTER_OTLP_HEADERS: elastic-apm-secret-token
+    SPRING_DATASOURCE_PASSWORD: "db-cfg-password"
+    API_CONFIG_CACHE_API_KEY: "api-config-cache-subscription-key-string"
+    DATA_EXPLORER_APP_KEY: ""
+    COSMOS_KEY: ""
+    FORWARDER_KEY: "node-forwarder-subscription-key-string"
   keyvault:
-    name: "pagopa-p-name-kv" #TODO
+    name: "pagopa-p-name-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
   nodeSelector: { }
   tolerations: [ ]
@@ -94,23 +115,3 @@ microservice-chart:
                 operator: In
                 values:
                   - user
-  canaryDelivery:
-    create: true
-    ingress:
-      create: true
-      canary:
-        type: header
-        headerName: X-Canary
-        headerValue: canary
-        weightPercent: 0
-    service:
-      create: true
-    deployment:
-      create: true
-      image:
-        repository: ghcr.io/pagopa/yourname # TODO
-        tag: "0.0.0"
-        pullPolicy: Always
-      envConfig: { }
-      envSecret: { }
-
