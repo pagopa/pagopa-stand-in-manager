@@ -22,15 +22,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class NodoMonitorService {
 
-  @Value("${dataexplorer.url}")
-  private String dataExplorerUrl;
-
-  @Value("${dataexplorer.clientId}")
-  private String dataExplorerClientId;
-
-  @Value("${dataexplorer.appKey}")
-  private String dataExplorerKey;
-
   @Value("${dataexplorer.dbName}")
   private String database = "NetDefaultDB";
 
