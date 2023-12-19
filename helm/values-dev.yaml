@@ -93,7 +93,6 @@ microservice-chart:
     OTEL_EXPORTER_OTLP_HEADERS: elastic-apm-secret-token
     SPRING_DATASOURCE_PASSWORD: "db-cfg-password"
     API_CONFIG_CACHE_API_KEY: "api-config-cache-subscription-key-string"
-    DATA_EXPLORER_APP_KEY: ""
     AWS_SES_USER: standin-aws-ses-user
     AWS_MAILTO: standin-mail-to
     COSMOS_KEY: cosmos-standin-account-key
