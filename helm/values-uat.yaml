@@ -2,7 +2,7 @@ microservice-chart:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.0.0"
+    tag: "0.0.0-1-develop"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -29,9 +29,9 @@ microservice-chart:
     create: false
   serviceAccount:
     create: false
-    annotations: { }
+    annotations: {}
     name: ""
-  podAnnotations: { }
+  podAnnotations: {}
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -62,7 +62,6 @@ microservice-chart:
     APP_LOGGING_LEVEL: 'DEBUG'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
-
     SPRING_DATASOURCE_URL: "jdbc:postgresql://pagopa-d-weu-nodo-flexible-postgresql.postgres.database.azure.com:6432/nodo?prepareThreshold=0"
     SPRING_DATASOURCE_USERNAME: "cfg"
     API_CONFIG_CACHE_BASE_PATH: "https://api.dev.platform.pagopa.it/api-config-cache/p/v1"
@@ -71,16 +70,12 @@ microservice-chart:
     DATAEXPLORER_DBNAME: "re"
     COSMOS_ENDPOINT: "https://pagopa-d-weu-nodo-standin-cosmos-account.documents.azure.com:443/"
     FORWARDER_URL: "https://api.dev.platform.pagopa.it/pagopa-node-forwarder/api/v1/forward"
-
     AWS_REGION: "eu-south-1"
-
     CONFIG_REFRESH_CRON: "0 * * * * *"
     NODO_MONITOR_CRON: "0 * * * * *"
     NODO_CALC_CRON: "30 * * * * *"
     STATION_MONITOR_CRON: "15 * * * * *"
     STATION_CALC_CRON: "45 * * * * *"
-
-
     OTEL_SERVICE_NAME: "pagopa-stand-in-manager"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=uat"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
@@ -102,8 +97,8 @@ microservice-chart:
   keyvault:
     name: "pagopa-u-name-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-  nodeSelector: { }
-  tolerations: [ ]
+  nodeSelector: {}
+  tolerations: []
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -114,7 +109,7 @@ microservice-chart:
                 values:
                   - user
   canaryDelivery:
-    create: true
+    create: false
     ingress:
       create: true
       canary:
@@ -130,6 +125,5 @@ microservice-chart:
         repository: ghcr.io/pagopa/pagopa-stand-in-manager
         tag: "0.0.0"
         pullPolicy: Always
-      envConfig: { }
-      envSecret: { }
-
+      envConfig: {}
+      envSecret: {}
