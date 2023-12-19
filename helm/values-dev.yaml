@@ -96,7 +96,7 @@ microservice-chart:
     DATA_EXPLORER_APP_KEY: ""
     AWS_SES_USER: standin-aws-ses-user
     AWS_MAILTO: standin-mail-to
-    COSMOS_KEY: cosmos-standin-connection-string
+    COSMOS_KEY: cosmos-standin-account-key
     FORWARDER_KEY: "node-forwarder-subscription-key-string"
   keyvault:
     name: "pagopa-d-name-kv"
