@@ -72,8 +72,8 @@ microservice-chart:
     COSMOS_ENDPOINT: "https://pagopa-d-weu-nodo-standin-cosmos-account.documents.azure.com:443/"
     FORWARDER_URL: "https://api.dev.platform.pagopa.it/pagopa-node-forwarder/api/v1/forward"
 
-    AWS_REGION: ""
-    AWS_SES_USER: ""
+    AWS_REGION: "eu-south-1"
+    AWS_SES_USER: "standin.ndp@platform.pagopa.it"
     AWS_MAILTO: ""
 
     CONFIG_REFRESH_CRON: "0 * * * * *"
