@@ -5,9 +5,11 @@ import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
 import it.gov.pagopa.standinmanager.client.AwsSesClient;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
-import it.gov.pagopa.standinmanager.repository.StandInStationsRepository;
+import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
+//import it.gov.pagopa.standinmanager.repository.StandInStationsRepository;
 import it.gov.pagopa.standinmanager.repository.entity.StandInStation;
 import it.gov.pagopa.standinmanager.repository.model.CosmosNodeCallCounts;
+import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import it.gov.pagopa.standinmanager.util.Constants;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
@@ -41,7 +43,8 @@ public class NodoCalcService {
   @Value("${aws.mailto}")
   private String mailto;
 
-  @Autowired private StandInStationsRepository standInStationsRepository;
+  @Autowired private CosmosStationRepository cosmosStationRepository;
+//  @Autowired private StandInStationsRepository standInStationsRepository;
   @Autowired private CosmosNodeDataRepository cosmosRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
   @Autowired private AwsSesClient awsSesClient;
@@ -125,7 +128,8 @@ public class NodoCalcService {
                 failedSlots,
                 totalSlots,
                 rangeMinutes);
-            standInStationsRepository.save(new StandInStation(station));
+//            standInStationsRepository.save(new StandInStation(station));
+              cosmosStationRepository.save(new CosmosStandInStation(station,Instant.now()));
             cosmosEventsRepository.newEvent(
                 station,
                 Constants.EVENT_ADD_TO_STANDIN,

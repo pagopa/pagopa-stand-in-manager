@@ -6,15 +6,12 @@ import com.microsoft.azure.kusto.data.KustoOperationResult;
 import com.microsoft.azure.kusto.data.KustoResultSetTable;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
-import it.gov.pagopa.standinmanager.repository.BlacklistStationsRepository;
+//import it.gov.pagopa.standinmanager.repository.BlacklistStationsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosNodeCallCounts;
 import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +49,7 @@ public class NodoMonitorService {
           + "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"
           + "| summarize count = count() by (stazione)";
 
-  @Autowired private BlacklistStationsRepository blacklistStationsRepository;
+//  @Autowired private BlacklistStationsRepository blacklistStationsRepository;
   @Autowired private Client kustoClient;
   @Autowired private CosmosNodeDataRepository cosmosRepository;
 
@@ -97,7 +94,7 @@ public class NodoMonitorService {
       throws URISyntaxException, DataServiceException, DataClientException {
     ZonedDateTime now = ZonedDateTime.now();
     log.info("getAndSaveData [{}]", now);
-    List<String> excludedStations = blacklistStationsRepository.findAllStations();
+    List<String> excludedStations = new ArrayList<>();
 
     Map<String, Integer> totals = getCount(TOTALS_QUERY, excludedStations, now.minusMinutes(5));
     Map<String, Integer> faults = getCount(FAULT_QUERY, excludedStations, now.minusMinutes(5));
