@@ -5,19 +5,20 @@ import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
 import it.gov.pagopa.standinmanager.client.AwsSesClient;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
-import it.gov.pagopa.standinmanager.repository.StandInStationsRepository;
+import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
 import it.gov.pagopa.standinmanager.util.Constants;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -32,7 +33,8 @@ public class StationCalcService {
   @Value("${aws.mailto}")
   private String mailto;
 
-  @Autowired private StandInStationsRepository standInStationsRepository;
+//  @Autowired private StandInStationsRepository standInStationsRepository;
+  @Autowired private CosmosStationRepository cosmosStationRepository;
   @Autowired private CosmosStationDataRepository cosmosRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
   @Autowired private AwsSesClient awsSesClient;
@@ -71,9 +73,10 @@ public class StationCalcService {
                 station,
                 successfulCalls,
                 rangeMinutes);
-            standInStationsRepository.deleteById(station);
+//            standInStationsRepository.deleteById(station);
+              cosmosStationRepository.removeStation(station);
 
-            cosmosEventsRepository.newEvent(
+              cosmosEventsRepository.newEvent(
                 station,
                 Constants.EVENT_REMOVE_FROM_STANDIN,
                 String.format(
