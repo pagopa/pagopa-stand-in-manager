@@ -30,7 +30,7 @@
     <dependency>
       <groupId>it.gov.pagopa.api-config</groupId>
       <artifactId>starter</artifactId>
-      <version>1.15.0</version>
+      <version>1.18.0</version>
     </dependency>
 
     <dependency>
