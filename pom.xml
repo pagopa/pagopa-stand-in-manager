@@ -19,6 +19,13 @@
     <java.version>11</java.version>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>github</id>
+      <url>https://public:${env.GITHUB_TOKEN_READ_PACKAGES}@maven.pkg.github.com/pagopa/pagopa-api-config-starter</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>it.gov.pagopa.api-config</groupId>
