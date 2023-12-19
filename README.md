@@ -1,19 +1,9 @@
-# Template for Java Spring Microservice project
+# StandIn Manager
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=TODO-set-your-id&metric=alert_status)](https://sonarcloud.io/dashboard?id=TODO-set-your-id)
 [![Integration Tests](https://github.com/pagopa/<TODO-repo>/actions/workflows/integration_test.yml/badge.svg?branch=main)](https://github.com/pagopa/<TODO-repo>/actions/workflows/integration_test.yml)
 
-TODO: add a description
-
-TODO: generate a index with this tool: https://ecotrust-canada.github.io/markdown-toc/
-
-TODO: resolve all the TODOs in this template
-
----
-
-## Api Documentation 📖
-
-See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/<TODO-repo>/main/openapi/openapi.json)
+Monitors the events of nodo-dei-pagamenti for station problems and activates/deactivates the standIn for that station.
 
 ---
 
@@ -34,6 +24,8 @@ See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubuserc
 ### Prerequisites
 
 - docker
+- cosmosdb emulator
+- dataexplorer emulator
 
 ### Run docker container
 
