@@ -1,10 +1,11 @@
 apiVersion: v2
-name: pagopa-afm-calculator
-description: Microservice that handles calculation for pagoPA Advanced Fees Management
+name: pagopa-stand-in-manager
+description: Microservice that handles Stand-In activation/deactivation process
 type: application
 version: 0.0.0
 appVersion: 0.0.0
 dependencies:
   - name: microservice-chart
-    version: 2.8.0
+    version: 3.0.0
+    alias: standinmanager
     repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"

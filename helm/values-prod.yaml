@@ -1,9 +1,7 @@
 microservice-chart:
-  namespace: "your-namespace" # TODO: set your AKS namespace
-  nameOverride: ""
-  fullnameOverride: ""
+  namespace: "nodo"
   image:
-    repository: ghcr.io/pagopa/yourname # TODO
+    repository: ghcr.io/pagopa/pagopa-stand-in-manager
     tag: "0.0.0"
     pullPolicy: Always
   livenessProbe:
@@ -29,8 +27,8 @@ microservice-chart:
       - 8080
   ingress:
     create: true
-    host: "your.host" # TODO: set the host
-    path: /your-path-here/(.*) # TODO: set your path
+    host: "weuprod.nodo.internal.platform.pagopa.it"
+    path: /stand-in-manager/(/|$)(.*)
     servicePort: 8080
   serviceAccount:
     create: false
@@ -47,12 +45,12 @@ microservice-chart:
       memory: "512Mi"
       cpu: "0.25"
     limits:
-      memory: "512Mi"
-      cpu: "0.25"
+      memory: "768Mi"
+      cpu: "0.5"
   autoscaling:
     enable: true
-    minReplica: 3
-    maxReplica: 10
+    minReplica: 1
+    maxReplica: 1
     pollingInterval: 10 # seconds
     cooldownPeriod: 50 # seconds
     triggers:
@@ -94,6 +92,15 @@ microservice-chart:
                 operator: In
                 values:
                   - user
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/instance: "standinmanager"
+            namespaces: [ "nodo" ]
+            topologyKey: topology.kubernetes.io/zone
   canaryDelivery:
     create: true
     ingress:
