@@ -99,8 +99,7 @@ jobs:
         uses: pagopa/github-actions-template/ghcr-build-push@v1.5.4
         with:
           branch: ${{ github.ref_name}}
-#          github_token: ${{ secrets.GITHUB_TOKEN }}
-          github_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.release.outputs.version }}
 
   deploy_aks:
