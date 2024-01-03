@@ -21,7 +21,7 @@ resource "github_repository_environment" "github_repository_environment" {
 
 locals {
   env_secrets = {
-    "CLIENT_ID" : module.github_runner_app.application_id,
+    "CLIENT_ID" : module.identity_cd.identity_client_id,
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
     "SUBKEY" : data.azurerm_key_vault_secret.key_vault_integration_test_subkey.value,
@@ -82,6 +82,7 @@ resource "github_actions_secret" "repo_secrets" {
 ############
 ## Labels ##
 ############
+
 resource "github_issue_label" "patch" {
   repository = local.github.repository
   name       = "patch"
