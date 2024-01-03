@@ -28,13 +28,12 @@ environment_cd_roles = {
     "Storage Table Data Contributor",
     "Key Vault Contributor"
   ]
-  resource_groups = {}
-#  resource_groups = {
-#    "pagopa-u-gps-sec-rg" = [
-#      "Key Vault Contributor"
-#    ],
-#    "pagopa-u-weu-dev-aks-rg" = [
-#      "Contributor"
-#    ]
-#  }
+ resource_groups = {
+   "pagopa-u-nodo-sec-rg" = [
+     "Key Vault Contributor"
+   ],
+   "pagopa-u-weu-uat-aks-rg" = [
+     "Contributor"
+   ]
+ }
 }
