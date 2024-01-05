@@ -29,7 +29,8 @@
         </appender>
 
         <root level="INFO">
-            <appender-ref ref="ECS_JSON_CONSOLE"/>
+<!--            <appender-ref ref="ECS_JSON_CONSOLE"/>-->
+            <appender-ref ref="CONSOLE_STD_OUT" />
         </root>
     </springProfile>
 
