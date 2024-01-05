@@ -126,3 +126,8 @@ standinmanager:
         pullPolicy: Always
       envConfig: {}
       envSecret: {}
+microservice-chart:
+  image:
+    tag: 0.0.1-19-fix_pom
+  canaryDelivery:
+    create: false
