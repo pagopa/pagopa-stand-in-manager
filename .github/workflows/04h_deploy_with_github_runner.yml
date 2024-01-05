@@ -40,7 +40,7 @@ jobs:
           subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
           container_app_environment_name: ${{ vars.CONTAINER_APP_ENVIRONMENT_NAME }}
           resource_group_name: ${{ vars.CONTAINER_APP_ENVIRONMENT_RESOURCE_GROUP_NAME }} # RG of the runner
-          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          pat_token: ${{ secrets.READ_PACKAGES_TOKEN }}
 
   deploy:
     needs: [ create_runner ]
