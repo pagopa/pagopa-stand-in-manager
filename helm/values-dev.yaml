@@ -2,7 +2,7 @@ standinmanager:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.0.1-21-fix_pom"
+    tag: "0.0.1-22-fix_pom"
     pullPolicy: Always
   livenessProbe:
     httpGet:
