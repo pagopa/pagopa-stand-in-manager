@@ -28,16 +28,6 @@ environment_cd_roles = {
     "Storage Table Data Contributor",
     "Key Vault Contributor"
   ]
-#  subscription = [
-#    "Contributor",
-#    "Storage Account Contributor",
-#    "Storage Blob Data Contributor",
-#    "Storage File Data SMB Share Contributor",
-#    "Storage Queue Data Contributor",
-#    "Storage Table Data Contributor",
-#    "Key Vault Contributor"
-#  ]
-#  resource_groups = {}
   resource_groups = {
     "pagopa-d-nodo-sec-rg" = [
       "Key Vault Contributor"
