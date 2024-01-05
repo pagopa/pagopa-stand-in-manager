@@ -1,4 +1,4 @@
-microservice-chart:
+standinmanager:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
