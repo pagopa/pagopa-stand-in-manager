@@ -24,8 +24,6 @@ locals {
     "CLIENT_ID" : module.identity_cd.identity_client_id,
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
-    "SUBKEY" : data.azurerm_key_vault_secret.key_vault_integration_test_subkey.value,
-    "READ_PACKAGES_TOKEN": data.azurerm_key_vault_secret.key_vault_read_package_token.value
   }
   env_variables = {
     "CONTAINER_APP_ENVIRONMENT_NAME" : local.container_app_environment.name,
@@ -34,12 +32,12 @@ locals {
     "CLUSTER_RESOURCE_GROUP" : local.aks_cluster.resource_group_name,
     "NAMESPACE" : local.domain,
   }
-  repo_secrets = {
-    "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,
-    "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_token.value,
-    "CUCUMBER_PUBLISH_TOKEN" : data.azurerm_key_vault_secret.key_vault_cucumber_token.value,
-    "SLACK_WEBHOOK_URL": data.azurerm_key_vault_secret.key_vault_slack_webhook_url.value
-  }
+#  repo_secrets = {
+#    "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,
+#    "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_token.value,
+#    "CUCUMBER_PUBLISH_TOKEN" : data.azurerm_key_vault_secret.key_vault_cucumber_token.value,
+#    "SLACK_WEBHOOK_URL": data.azurerm_key_vault_secret.key_vault_slack_webhook_url.value
+#  }
 }
 
 ###############
@@ -58,7 +56,6 @@ resource "github_actions_environment_secret" "github_environment_runner_secrets"
 # ENV Variables #
 #################
 
-
 resource "github_actions_environment_variable" "github_environment_runner_variables" {
   for_each      = local.env_variables
   repository    = local.github.repository
@@ -71,12 +68,35 @@ resource "github_actions_environment_variable" "github_environment_runner_variab
 # Secrets of the Repository #
 #############################
 
+#tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
+resource "github_actions_secret" "secret_sonar_token" {
+  repository       = local.github.repository
+  secret_name      = "SONAR_TOKEN"
+  plaintext_value  = data.azurerm_key_vault_secret.key_vault_sonar.value
+}
 
-resource "github_actions_secret" "repo_secrets" {
-  for_each        = local.repo_secrets
-  repository      = local.github.repository
-  secret_name     = each.key
-  plaintext_value = each.value
+#tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
+resource "github_actions_secret" "secret_bot_token" {
+
+  repository       = local.github.repository
+  secret_name      = "BOT_TOKEN_GITHUB"
+  plaintext_value  = data.azurerm_key_vault_secret.key_vault_bot_token.value
+}
+
+#tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
+resource "github_actions_secret" "secret_cucumber_token" {
+
+  repository       = local.github.repository
+  secret_name      = "CUCUMBER_PUBLISH_TOKEN"
+  plaintext_value  = data.azurerm_key_vault_secret.key_vault_cucumber_token.value
+}
+
+#tfsec:ignore:github-actions-no-plain-text-action-secrets # not real secret
+resource "github_actions_secret" "secret_read_package_token" {
+
+  repository       = local.github.repository
+  secret_name      = "READ_PACKAGES_TOKEN"
+  plaintext_value  = data.azurerm_key_vault_secret.key_vault_read_package_token.value
 }
 
 ############
