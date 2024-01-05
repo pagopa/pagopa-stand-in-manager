@@ -19,17 +19,31 @@
     </springProfile>
 
     <springProfile name="!local">
+        <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+        <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+        <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+
         <springProperty name="ECS_SERVICE_VERSION" source="info.application.version"/>
+        <springProperty name="ECS_SERVICE_NAME" source="info.application.name"/>
+
         <appender name="ECS_JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="co.elastic.logging.logback.EcsEncoder">
-                <serviceName>${OTEL_SERVICE_NAME}</serviceName>
+                <serviceName>${ECS_SERVICE_NAME}</serviceName>
                 <serviceVersion>${ECS_SERVICE_VERSION}</serviceVersion>
                 <serviceEnvironment>${ENV}</serviceEnvironment>
             </encoder>
         </appender>
 
+        <appender name="CONSOLE_STD_OUT" class="ch.qos.logback.core.ConsoleAppender">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <Pattern>
+                    %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %clr(%mdc){magenta} %m%n%wEx
+                </Pattern>
+            </layout>
+        </appender>
+
         <root level="INFO">
-<!--            <appender-ref ref="ECS_JSON_CONSOLE"/>-->
+            <!--            <appender-ref ref="ECS_JSON_CONSOLE"/>-->
             <appender-ref ref="CONSOLE_STD_OUT" />
         </root>
     </springProfile>
