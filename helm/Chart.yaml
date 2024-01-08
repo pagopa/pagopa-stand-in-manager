@@ -7,5 +7,4 @@ appVersion: 0.0.1-26-fix_pom
 dependencies:
   - name: microservice-chart
     version: 3.0.0
-    alias: standinmanager
     repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
