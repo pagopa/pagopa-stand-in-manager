@@ -132,6 +132,6 @@ standinmanager:
       envSecret: {}
 microservice-chart:
   image:
-    tag: 0.0.1-24-fix_pom
+    tag: 0.0.1-25-fix_pom
   canaryDelivery:
     create: false
