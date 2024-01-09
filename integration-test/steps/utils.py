@@ -56,70 +56,43 @@ def replace_global_variables(payload, context):
     return payload
 
 
-def get_fdr_url(request_type=""):
-    request_type_mapping = {
-        "create": {
-            "endpoint": "/psps/#psp#/fdrs/$flow_name$",
-            "method": "POST"
-        },
-        "add_payments": {
-            "endpoint": "/psps/#psp#/fdrs/$flow_name$/payments/add",
-            "method": "PUT"
-        },
-        "del_payments": {
-            "endpoint": "/psps/#psp#/fdrs/$flow_name$/payments/del",
-            "method": "PUT"
-        },
-        "del_flow": {
-          "endpoint": "/psps/#psp#/fdrs/$flow_name$",
-          "method": "DELETE"
-        },
-        "publish": {
-            "endpoint": "/psps/#psp#/fdrs/$flow_name$/publish",
-            "method": "POST"
-        },
-        "created_payments": {
-            "endpoint": "/psps/#psp#/created/fdrs/$flow_name$/organizations/#organization#/payments",
-            "method": "GET"
-        },
-        "created_fdr": {
-            "endpoint": "/psps/#psp#/created/fdrs/$flow_name$/organizations/#organization#",
-            "method": "GET"
-        },
-        "psp_get_published_payments": {
-            "endpoint": "/psps/#psp#/published/fdrs/$flow_name$/revisions/$revision$/organizations/#organization#/payments",
-            "method": "GET"
-        },
-        "psp_get_published_fdr": {
-            "endpoint": "/psps/#psp#/published/fdrs/$flow_name$/revisions/$revision$/organizations/#organization#",
-            "method": "GET"
-        },
-        "org_get_all_published_fdr": {
-            "endpoint": "/organizations/#organization#/fdrs",
-            "method": "GET"
-        },
-        "org_get_published_fdr": {
-            "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#",
-            "method": "GET"
-        },
-        "org_get_payments": {
-            "endpoint": "/organizations/#organization#/fdrs/$flow_name$/revisions/$revision$/psps/#psp#/payments",
-            "method": "GET"
-        },
-        "psp_get_all_published_fdr": {
-            "endpoint": "/psps/#psp#/published",
-            "method": "GET"
-        },
-        "org_get_all_published_fdr_by_psp": {
-            "endpoint": "/organizations/#organization#/fdrs?pspId=#psp#&page=1&size=1000&publishedGt=$today_date$",
-            "method": "GET"
-        },
-        "get_all_created": {
-            "endpoint": "/psps/#psp#/created",
-            "method": "GET"
-        }
+def get_soap_nodo_url(primitive=-1):
+    primitive_mapping = {
+        "verificaBollettino": "/node-for-psp/v1",
+        "verifyPaymentNotice": "/node-for-psp/v1",
+        "activatePaymentNotice": "/node-for-psp/v1",
+        "activatePaymentNoticeV2": "/node-for-psp/v1",
+        "sendPaymentOutcome": "/node-for-psp/v1",
+        "sendPaymentOutcomeV2": "/node-for-psp/v1",
+        "activateIOPayment": "/node-for-io/v1",
+        "nodoVerificaRPT": "/nodo-per-psp/v1",
+        "nodoAttivaRPT": "/nodo-per-psp/v1",
+        "nodoInviaFlussoRendicontazione": "/nodo-per-psp/v1",
+        "nodoChiediElencoFlussiRendicontazione": "/nodo-per-pa/v1",
+        "nodoChiediFlussoRendicontazione": "/nodo-per-pa/v1",
+        "demandPaymentNotice": "/node-for-psp/v1",
+        "nodoChiediCatalogoServizi": "/nodo-per-psp-richiesta-avvisi/v1",
+        "nodoChiediCatalogoServiziV2": "/node-for-psp/v1",
+        "nodoChiediCopiaRT": "/nodo-per-pa/v1",
+        "nodoChiediInformativaPA": "/nodo-per-psp/v1",
+        "nodoChiediListaPendentiRPT": "/nodo-per-pa/v1",
+        "nodoChiediNumeroAvviso": "/nodo-per-psp-richiesta-avvisi/v1",
+        "nodoChiediStatoRPT": "/nodo-per-pa/v1",
+        "nodoChiediTemplateInformativaPSP": "/nodo-per-psp/v1",
+        "nodoInviaCarrelloRPT": "/nodo-per-pa/v1",
+        "nodoInviaRPT": "/nodo-per-pa/v1",
+        "nodoInviaRT": "/nodo-per-psp/v1",
+        "nodoPAChiediInformativaPA": "/nodo-per-pa/v1",
+        "nodoChiediElencoQuadraturePSP": "/nodo-per-psp/v1",
+        "nodoChiediInformativaPSP": "/nodo-per-pa/v1",
+        "nodoChiediElencoQuadraturePA": "/nodo-per-pa/v1",
+        "nodoChiediQuadraturaPA": "/nodo-per-pa/v1"
     }
-    return request_type_mapping.get(request_type)
+
+    return {
+        "endpoint": primitive_mapping.get(primitive),
+        "method": "POST"
+    }
 
 
 def execute_request(url, method, headers, payload=None):
@@ -129,31 +102,22 @@ def execute_request(url, method, headers, payload=None):
     return req
 
 
-def get_subscription_key(context, partner):
-    data = get_config_by_partner(context, partner)
+def get_subscription_key(context, node_microservice):
+    data = context.config.userdata.get("services").get(node_microservice)
     return data.get("subscription_key")
 
 
-def get_url(context, partner):
-    data = get_config_by_partner(context, partner)
+def get_url(context, node_microservice):
+    data = context.config.userdata.get("services").get(node_microservice)
     return data.get("url")
 
 
-def get_config_by_partner(context, partner):
-    key = "fdr-psp" if partner.lower() == "psp" else "fdr-org"
-    return context.config.userdata.get("services").get(key)
-
-
-def generate_iuv():
-    return get_random_string(14)
-
-
-def generate_iur():
-    return get_random_string(10)
+# def generate_iuv():
+#     return get_random_string(14)
 
 
 def get_random_string(length):
-    return ''.join(random.choice(string.digits) for i in range(length))
+    return ''.join(random.choice(string.digits) for _ in range(length))
 
 
 def append_to_query_params(context, query_param):
@@ -162,8 +126,3 @@ def append_to_query_params(context, query_param):
         query_params = getattr(context, "query_params") + "&"
     query_params += query_param
     setattr(context, "query_params", query_params)
-
-
-def get_yesterday():
-    today = datetime.datetime.today().astimezone()
-    return (today - datetime.timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
