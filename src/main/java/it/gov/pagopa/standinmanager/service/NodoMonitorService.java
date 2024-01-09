@@ -40,6 +40,9 @@ public class NodoMonitorService {
           + "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"
           + "| summarize count = count() by (stazione)";
 
+  @Value("${adder.slot.minutes}")
+  private int slotMinutes;
+
 //  @Autowired private BlacklistStationsRepository blacklistStationsRepository;
   @Autowired private Client kustoClient;
   @Autowired private CosmosNodeDataRepository cosmosRepository;
@@ -87,8 +90,8 @@ public class NodoMonitorService {
     log.info("getAndSaveData [{}]", now);
     List<String> excludedStations = new ArrayList<>();
 
-    Map<String, Integer> totals = getCount(TOTALS_QUERY, excludedStations, now.minusMinutes(5));
-    Map<String, Integer> faults = getCount(FAULT_QUERY, excludedStations, now.minusMinutes(5));
+    Map<String, Integer> totals = getCount(TOTALS_QUERY, excludedStations, now.minusMinutes(slotMinutes));
+    Map<String, Integer> faults = getCount(FAULT_QUERY, excludedStations, now.minusMinutes(slotMinutes));
     List<CosmosNodeCallCounts> stationCounts =
         totals.entrySet().stream()
             .map(
