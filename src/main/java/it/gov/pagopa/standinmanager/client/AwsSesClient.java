@@ -21,7 +21,7 @@ public class AwsSesClient {
     try {
       result = sendEmailAux(subject, body, to);
     } catch (Exception e) {
-      result = "sendEmail error to = " + Arrays.toString(to) + ", subject = " + subject;
+      result = "sendEmail error to = " + Arrays.toString(to) + ", subject = " + subject+",error="+e.getMessage();
     }
     return result;
   }
