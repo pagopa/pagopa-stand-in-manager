@@ -86,6 +86,7 @@ microservice-chart:
     ADDER_RANGE_FAULT_THRESHOLD: "50"
     REMOVER_SLOT_MINUTES: "60"
     REMOVER_SLOT_FAULT_LIMIT: "6"
+    EXCLUDED_STATIONS: ""
     OTEL_SERVICE_NAME: "pagopa-stand-in-manager"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
