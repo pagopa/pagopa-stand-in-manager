@@ -40,7 +40,14 @@ public class NodoMonitorService {
           + "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"
           + "| summarize count = count() by (stazione)";
 
-//  @Autowired private BlacklistStationsRepository blacklistStationsRepository;
+  @Value("${adder.slot.minutes}")
+  private int slotMinutes;
+
+  @Value("${excludedStations}")
+  private String excludedStations;
+
+
+  //  @Autowired private BlacklistStationsRepository blacklistStationsRepository;
   @Autowired private Client kustoClient;
   @Autowired private CosmosNodeDataRepository cosmosRepository;
 
@@ -85,10 +92,13 @@ public class NodoMonitorService {
       throws URISyntaxException, DataServiceException, DataClientException {
     ZonedDateTime now = ZonedDateTime.now();
     log.info("getAndSaveData [{}]", now);
-    List<String> excludedStations = new ArrayList<>();
+    List<String> excludedStationsList = new ArrayList<>();
+    if(excludedStations!= null && !excludedStations.isEmpty()){
+      excludedStationsList = Arrays.asList(excludedStations.split(","));
+    }
 
-    Map<String, Integer> totals = getCount(TOTALS_QUERY, excludedStations, now.minusMinutes(5));
-    Map<String, Integer> faults = getCount(FAULT_QUERY, excludedStations, now.minusMinutes(5));
+    Map<String, Integer> totals = getCount(TOTALS_QUERY, excludedStationsList, now.minusMinutes(slotMinutes));
+    Map<String, Integer> faults = getCount(FAULT_QUERY, excludedStationsList, now.minusMinutes(slotMinutes));
     List<CosmosNodeCallCounts> stationCounts =
         totals.entrySet().stream()
             .map(

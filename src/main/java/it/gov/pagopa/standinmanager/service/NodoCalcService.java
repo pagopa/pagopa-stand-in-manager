@@ -6,11 +6,14 @@ import it.gov.pagopa.standinmanager.client.AwsSesClient;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
-//import it.gov.pagopa.standinmanager.repository.StandInStationsRepository;
-import it.gov.pagopa.standinmanager.repository.entity.StandInStation;
 import it.gov.pagopa.standinmanager.repository.model.CosmosNodeCallCounts;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import it.gov.pagopa.standinmanager.util.Constants;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.time.Instant;
@@ -19,10 +22,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -136,13 +135,14 @@ public class NodoCalcService {
                 String.format(
                     "adding station [%s] to standIn stations because [%s] of [%s] slots failed",
                     station, failedSlots, totalSlots));
-            awsSesClient.sendEmail(
-                String.format("[StandInManager]Station [%s] added to standin"),
-                String.format(
-                    "[StandInManager]Station [%s] has been added to standin"
-                        + "\nbecause [%s] of [%s] slots failed",
-                    station, failedSlots, totalSlots),
-                mailto);
+            String sendResult = awsSesClient.sendEmail(
+                    String.format("[StandInManager]Station [%s] added to standin"),
+                    String.format(
+                            "[StandInManager]Station [%s] has been added to standin"
+                                    + "\nbecause [%s] of [%s] slots failed",
+                            station, failedSlots, totalSlots),
+                    mailto);
+            log.info("email sender: {}",sendResult);
           }
         });
   }
