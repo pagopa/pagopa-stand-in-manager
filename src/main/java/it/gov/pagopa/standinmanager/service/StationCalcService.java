@@ -85,7 +85,7 @@ public class StationCalcService {
                     station, successfulCalls, rangeMinutes));
 
             awsSesClient.sendEmail(
-                String.format("[StandInManager]Station [%s] removed from standin"),
+                String.format("[StandInManager]Station [%s] removed from standin",station),
                 String.format(
                     "[StandInManager]Station [%s] has been removed from standin"
                         + "\nbecause [%s] calls were successful in the last %s minutes",

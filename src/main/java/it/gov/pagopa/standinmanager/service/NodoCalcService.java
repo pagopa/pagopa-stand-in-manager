@@ -137,7 +137,7 @@ public class NodoCalcService {
                     "adding station [%s] to standIn stations because [%s] of [%s] slots failed",
                     station, failedSlots, totalSlots));
             String sendResult = awsSesClient.sendEmail(
-                    String.format("[StandInManager]Station [%s] added to standin"),
+                    String.format("[StandInManager]Station [%s] added to standin",station),
                     String.format(
                             "[StandInManager]Station [%s] has been added to standin"
                                     + "\nbecause [%s] of [%s] slots failed",
