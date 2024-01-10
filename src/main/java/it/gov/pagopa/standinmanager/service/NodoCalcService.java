@@ -21,6 +21,7 @@ import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -128,7 +129,7 @@ public class NodoCalcService {
                 totalSlots,
                 rangeMinutes);
 //            standInStationsRepository.save(new StandInStation(station));
-              cosmosStationRepository.save(new CosmosStandInStation(station,Instant.now()));
+              cosmosStationRepository.save(new CosmosStandInStation(UUID.randomUUID().toString(),station,Instant.now()));
             cosmosEventsRepository.newEvent(
                 station,
                 Constants.EVENT_ADD_TO_STANDIN,
