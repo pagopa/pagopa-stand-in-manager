@@ -45,6 +45,7 @@ public class StationMonitorService {
         () -> {
           log.info("checkStation [{}] [{}]", now, standInStation.getStation());
           boolean b = forwarderClient.verifyPaymentNotice(station);
+         log.info("checkStation done success:[{}]", b);
           CosmosForwarderCallCounts forwarderCallCounts =
               CosmosForwarderCallCounts.builder()
                   .id(UUID.randomUUID().toString())

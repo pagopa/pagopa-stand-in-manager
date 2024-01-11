@@ -3,6 +3,7 @@ package it.gov.pagopa.standinmanager.client;
 import it.gov.pagopa.standinmanager.config.model.Station;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.util.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -13,6 +14,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@Slf4j
 @Component
 public class ForwarderClient {
 
@@ -43,6 +45,7 @@ public class ForwarderClient {
           + "</soapenv:Envelope>";
 
   public boolean verifyPaymentNotice(Station station) {
+    log.info("verifyPaymentNotice to station [{}]",station.getStationCode());
     cosmosEventsRepository.newEvent(
         station.getStationCode(),
         Constants.EVENT_FORWARDER_CALL,
