@@ -46,7 +46,12 @@ public class ForwarderClient {
     cosmosEventsRepository.newEvent(
         station.getStationCode(),
         Constants.EVENT_FORWARDER_CALL,
-        String.format("call forwarder for station [%s]", station.getStationCode()));
+        String.format("call forwarder for station [%s]\n[%s:%s%s]",
+                station.getStationCode(),
+                station.getServicePof().getTargetHost(),
+                station.getServicePof().getTargetPort(),
+                station.getServicePof().getTargetPath()
+        ));
     final RequestEntity.BodyBuilder requestBuilder =
         RequestEntity.method(
             HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(url).build().toUri());
@@ -55,7 +60,7 @@ public class ForwarderClient {
     requestBuilder.header("X-Host-Url", station.getServicePof().getTargetHost());
     requestBuilder.header("X-Host-Port", station.getServicePof().getTargetPort() + "");
     requestBuilder.header("X-Host-Path", station.getServicePof().getTargetPath());
-    requestBuilder.header("SOAPAction", "paVerifyPaymentNotice");
+    requestBuilder.header("SOAPAction", "\"paVerifyPaymentNotice\"");
 
     String replacedBody =
         paVerifyRequestBody
@@ -66,13 +71,13 @@ public class ForwarderClient {
     ResponseEntity<String> responseEntity = null;
     try {
       responseEntity = restTemplate.exchange(body, String.class);
-    } catch (HttpStatusCodeException e) {
+    } catch (Exception e) {
       cosmosEventsRepository.newEvent(
           station.getStationCode(),
           Constants.EVENT_FORWARDER_CALL_RESP_ERROR,
           String.format(
-              "call forwarder for station [%s] returned",
-              station.getStationCode(), e.getStatusCode()));
+              "call forwarder for station [%s] returned [%s]",
+              station.getStationCode(), e.getMessage()));
       return false;
     }
 
