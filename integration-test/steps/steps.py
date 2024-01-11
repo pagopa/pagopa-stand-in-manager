@@ -45,12 +45,12 @@ def step_impl(context, primitive, payload_name):
     setattr(context, primitive + "_" + payload_name, payload)
 
 
-@given('a notice number named {notice_number_name} with aux digit {aux_digit:d} and {code} as code')
-def step_impl(context, notice_number_name, aux_digit, code):
+@given('a notice number named {notice_number_name} with aux digit {aux_digit:d}, {code} as code and ends with {end_digits:d}')
+def step_impl(context, notice_number_name, aux_digit, code, end_digits):
     if aux_digit == 0 or aux_digit == 3:
         # iuv = f"11{random.randint(10000000000, 99999999999)}00"
-        iuv = utils.get_random_string(15)
-        notice_number = f"{aux_digit}{code}{iuv}"
+        iuv = utils.get_random_string(12)
+        notice_number = f"{aux_digit}{code}{iuv}{end_digits}"
     elif aux_digit == 1 or aux_digit == 2:
         # iuv = random.randint(10000000000000000, 99999999999999999)
         iuv = utils.get_random_string(17)
@@ -102,7 +102,9 @@ def step_impl(context, partner, http_status_code, primitive):
 def step_impl(context, partner, tag_value, tag_name, primitive):
     response = getattr(context, primitive + RESPONSE)
     my_document = parseString(response.content)
+    print(response.content)
     if len(my_document.getElementsByTagName(tag_name)) > 0:
         data = my_document.getElementsByTagName(tag_name)[0].firstChild.data
         assert data == tag_value, f"actual: {data}, expected: {tag_value}"
-    assert False, f"{tag_name} not found"
+    else:
+        assert False, f"{tag_name} not found"
