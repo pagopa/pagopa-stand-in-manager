@@ -2,7 +2,7 @@ microservice-chart:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.0.1-39-fix_pom"
+    tag: "0.0.1-40-fix_pom"
     pullPolicy: Always
   livenessProbe:
     httpGet:
