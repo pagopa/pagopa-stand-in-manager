@@ -27,7 +27,7 @@ Feature: Verify ko of payments
       """
     When PSP sends verifyPaymentNotice SOAP request to nodo with payload
     Then PSP receives the HTTP status code 200 to verifyPaymentNotice SOAP request
-    And PSP receives PPT_STAZIONE_INT_PA_IRRAGGIUNGIBILE as faultCode in verifyPaymentNotice SOAP response
+    And PSP receives PPT_STAZIONE_INT_PA_TIMEOUT as faultCode in verifyPaymentNotice SOAP response
 
 
 #  PPT_STAZIONE_INT_PA_TIMEOUT

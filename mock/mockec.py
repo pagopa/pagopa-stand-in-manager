@@ -26,7 +26,7 @@ class ResponseHandler(tornado.web.RequestHandler):
         root = et.fromstring(body)
         notice_number = root.find(".//noticeNumber").text
         if notice_number.endswith("999"):
-            time.sleep(10000)
+            time.sleep(10)
             response = """<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:common="http://pagopa-api.pagopa.gov.it/xsd/common-types/v1.0.0/" xmlns:nfp="http://pagopa-api.pagopa.gov.it/node/nodeForPsp.xsd">
                     <soapenv:Body>
                         <nfp:verifyPaymentNoticeRes>
