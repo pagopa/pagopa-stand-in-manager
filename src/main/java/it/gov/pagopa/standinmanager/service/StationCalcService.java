@@ -19,6 +19,7 @@ import java.text.DecimalFormat;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,7 +35,7 @@ public class StationCalcService {
   @Value("${aws.mailto}")
   private String mailto;
 
-//  @Autowired private StandInStationsRepository standInStationsRepository;
+  @Autowired private CosmosStationRepository standInStationsRepository;
   @Autowired private CosmosStationRepository cosmosStationRepository;
   @Autowired private CosmosStationDataRepository cosmosRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
@@ -51,13 +52,19 @@ public class StationCalcService {
         rangeMinutes,
         rangeLimit);
 
-    List<CosmosForwarderCallCounts> allCounts =
+      Set<String> standInStations = standInStationsRepository.getStations().stream().map(s->s.getStation()).collect(Collectors.toSet());
+
+      List<CosmosForwarderCallCounts> allCounts =
         cosmosRepository.getStationCounts(now.minusMinutes(rangeMinutes));
     Map<String, List<CosmosForwarderCallCounts>> allStationCounts =
         allCounts.stream().collect(Collectors.groupingBy(CosmosForwarderCallCounts::getStation));
 
     allStationCounts.forEach(
         (station, stationCounts) -> {
+
+            if(!standInStations.contains(station)){
+                return;
+            }
           long successfulCalls = stationCounts.stream().filter(d -> d.getOutcome()).count();
           if (log.isDebugEnabled()) {
             log.debug(
