@@ -44,8 +44,13 @@ public class StationMonitorService {
     return CompletableFuture.supplyAsync(
         () -> {
           log.info("checkStation [{}] [{}]", now, standInStation.getStation());
-          boolean b = forwarderClient.verifyPaymentNotice(station);
-         log.info("checkStation done success:[{}]", b);
+          boolean b = false;
+          try{
+              b = forwarderClient.verifyPaymentNotice(station);
+          }catch (Exception e){
+              log.error("error in verify",e);
+          }
+          log.info("checkStation done success:[{}]", b);
           CosmosForwarderCallCounts forwarderCallCounts =
               CosmosForwarderCallCounts.builder()
                   .id(UUID.randomUUID().toString())
