@@ -50,7 +50,7 @@ public class CosmosStationRepository {
   }
 
   public List<CosmosStandInStation> getStation(String station) {
-    SqlQuerySpec q = new SqlQuerySpec("SELECT * FROM c where station = @station");
+    SqlQuerySpec q = new SqlQuerySpec("SELECT * FROM c where c.station = @station");
     List<SqlParameter> paramList = new ArrayList<>();
     paramList.addAll(Arrays.asList(
             new SqlParameter("@station", station)

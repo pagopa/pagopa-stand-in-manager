@@ -19,6 +19,7 @@ import java.text.DecimalFormat;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,7 +35,7 @@ public class StationCalcService {
   @Value("${aws.mailto}")
   private String mailto;
 
-//  @Autowired private StandInStationsRepository standInStationsRepository;
+  @Autowired private CosmosStationRepository standInStationsRepository;
   @Autowired private CosmosStationRepository cosmosStationRepository;
   @Autowired private CosmosStationDataRepository cosmosRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
@@ -51,13 +52,19 @@ public class StationCalcService {
         rangeMinutes,
         rangeLimit);
 
-    List<CosmosForwarderCallCounts> allCounts =
+      Set<String> standInStations = standInStationsRepository.getStations().stream().map(s->s.getStation()).collect(Collectors.toSet());
+
+      List<CosmosForwarderCallCounts> allCounts =
         cosmosRepository.getStationCounts(now.minusMinutes(rangeMinutes));
     Map<String, List<CosmosForwarderCallCounts>> allStationCounts =
         allCounts.stream().collect(Collectors.groupingBy(CosmosForwarderCallCounts::getStation));
 
     allStationCounts.forEach(
         (station, stationCounts) -> {
+
+            if(!standInStations.contains(station)){
+                return;
+            }
           long successfulCalls = stationCounts.stream().filter(d -> d.getOutcome()).count();
           if (log.isDebugEnabled()) {
             log.debug(
@@ -88,13 +95,14 @@ public class StationCalcService {
                         + " in the last %s minutes",
                     station, successfulCalls, rangeMinutes));
 
-            awsSesClient.sendEmail(
+            String sendResult = awsSesClient.sendEmail(
                 String.format("[StandInManager]Station [%s] removed from standin",station),
                 String.format(
                     "[StandInManager]Station [%s] has been removed from standin"
                         + "\nbecause [%s] calls were successful in the last %s minutes",
                     station, successfulCalls, rangeMinutes),
                 mailto);
+              log.info("email sender: {}",sendResult);
           }
         });
   }
