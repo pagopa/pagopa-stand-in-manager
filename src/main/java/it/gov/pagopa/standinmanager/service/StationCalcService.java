@@ -7,6 +7,7 @@ import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
+import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import it.gov.pagopa.standinmanager.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +75,10 @@ public class StationCalcService {
                 successfulCalls,
                 rangeMinutes);
 //            standInStationsRepository.deleteById(station);
-              cosmosStationRepository.removeStation(station);
+              List<CosmosStandInStation> stations = cosmosStationRepository.getStation(station);
+              stations.forEach(s->{
+                  cosmosStationRepository.removeStation(s);
+              });
 
               cosmosEventsRepository.newEvent(
                 station,
@@ -85,7 +89,7 @@ public class StationCalcService {
                     station, successfulCalls, rangeMinutes));
 
             awsSesClient.sendEmail(
-                String.format("[StandInManager]Station [%s] removed from standin"),
+                String.format("[StandInManager]Station [%s] removed from standin",station),
                 String.format(
                     "[StandInManager]Station [%s] has been removed from standin"
                         + "\nbecause [%s] calls were successful in the last %s minutes",

@@ -13,6 +13,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CosmosStandInStation {
+  private String id;
   private String station;
   private Instant timestamp;
   @JsonProperty("PartitionKey")

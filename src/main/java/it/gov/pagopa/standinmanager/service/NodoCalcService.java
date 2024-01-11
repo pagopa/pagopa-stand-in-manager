@@ -18,10 +18,9 @@ import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -43,7 +42,7 @@ public class NodoCalcService {
   private String mailto;
 
   @Autowired private CosmosStationRepository cosmosStationRepository;
-//  @Autowired private StandInStationsRepository standInStationsRepository;
+  @Autowired private CosmosStationRepository standInStationsRepository;
   @Autowired private CosmosNodeDataRepository cosmosRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
   @Autowired private AwsSesClient awsSesClient;
@@ -66,13 +65,20 @@ public class NodoCalcService {
         rangeMinutes,
         slotMinutes);
 
-    List<CosmosNodeCallCounts> allCounts =
+      Set<String> standInStations = standInStationsRepository.getStations().stream().map(s->s.getStation()).collect(Collectors.toSet());
+
+      List<CosmosNodeCallCounts> allCounts =
         cosmosRepository.getStationCounts(now.minusMinutes(rangeMinutes));
+
+
     Map<String, List<CosmosNodeCallCounts>> allStationCounts =
         allCounts.stream().collect(Collectors.groupingBy(CosmosNodeCallCounts::getStation));
 
     allStationCounts.forEach(
         (station, stationCounts) -> {
+            if(standInStations.contains(station)){
+                return;
+            }
           Map<Instant, List<CosmosNodeCallCounts>> fiveMinutesIntervals =
               stationCounts.stream()
                   .collect(
@@ -128,7 +134,7 @@ public class NodoCalcService {
                 totalSlots,
                 rangeMinutes);
 //            standInStationsRepository.save(new StandInStation(station));
-              cosmosStationRepository.save(new CosmosStandInStation(station,Instant.now()));
+              cosmosStationRepository.save(new CosmosStandInStation(UUID.randomUUID().toString(),station,Instant.now()));
             cosmosEventsRepository.newEvent(
                 station,
                 Constants.EVENT_ADD_TO_STANDIN,
@@ -136,7 +142,7 @@ public class NodoCalcService {
                     "adding station [%s] to standIn stations because [%s] of [%s] slots failed",
                     station, failedSlots, totalSlots));
             String sendResult = awsSesClient.sendEmail(
-                    String.format("[StandInManager]Station [%s] added to standin"),
+                    String.format("[StandInManager]Station [%s] added to standin",station),
                     String.format(
                             "[StandInManager]Station [%s] has been added to standin"
                                     + "\nbecause [%s] of [%s] slots failed",
