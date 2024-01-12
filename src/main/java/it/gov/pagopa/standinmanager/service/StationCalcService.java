@@ -16,10 +16,11 @@ import org.springframework.stereotype.Service;
 
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,6 +35,9 @@ public class StationCalcService {
 
   @Value("${aws.mailto}")
   private String mailto;
+
+@Value("${info.properties.environment}")
+private String env;
 
   @Autowired private CosmosStationRepository standInStationsRepository;
   @Autowired private CosmosStationRepository cosmosStationRepository;
@@ -52,7 +56,10 @@ public class StationCalcService {
         rangeMinutes,
         rangeLimit);
 
-      Set<String> standInStations = standInStationsRepository.getStations().stream().map(s->s.getStation()).collect(Collectors.toSet());
+      Map<String, Instant> standInStations = standInStationsRepository.getStations().stream().collect(Collectors.toMap(
+              d->d.getStation(),
+              d->d.getTimestamp()
+      ));
 
       List<CosmosForwarderCallCounts> allCounts =
         cosmosRepository.getStationCounts(now.minusMinutes(rangeMinutes));
@@ -61,11 +68,11 @@ public class StationCalcService {
 
     allStationCounts.forEach(
         (station, stationCounts) -> {
-
-            if(!standInStations.contains(station)){
+            if(!standInStations.containsKey(station)){
                 return;
             }
-          long successfulCalls = stationCounts.stream().filter(d -> d.getOutcome()).count();
+            Instant insertTime = standInStations.get(station);
+            long successfulCalls = stationCounts.stream().filter(d -> d.getOutcome()).count();
           if (log.isDebugEnabled()) {
             log.debug(
                 "station [{}] data:\n{} of {} calls were successful",
@@ -74,7 +81,7 @@ public class StationCalcService {
                 stationCounts.size());
           }
 
-          if (successfulCalls > rangeLimit) {
+          if (insertTime.plus(rangeMinutes, ChronoUnit.MINUTES).isBefore(Instant.now()) && successfulCalls > rangeLimit) {
             log.info(
                 "removing station [{}] from standIn stations because {} calls were successful in"
                     + " the last {} minutes",
@@ -96,7 +103,7 @@ public class StationCalcService {
                     station, successfulCalls, rangeMinutes));
 
             String sendResult = awsSesClient.sendEmail(
-                String.format("[StandInManager]Station [%s] removed from standin",station),
+                String.format("[StandInManager][%s] Station [%s] removed from standin",env,station),
                 String.format(
                     "[StandInManager]Station [%s] has been removed from standin"
                         + "\nbecause [%s] calls were successful in the last %s minutes",

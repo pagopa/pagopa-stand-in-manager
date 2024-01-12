@@ -20,7 +20,6 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -40,6 +39,9 @@ public class NodoCalcService {
 
   @Value("${aws.mailto}")
   private String mailto;
+
+    @Value("${info.properties.environment}")
+    private String env;
 
   @Autowired private CosmosStationRepository cosmosStationRepository;
   @Autowired private CosmosStationRepository standInStationsRepository;
@@ -142,7 +144,7 @@ public class NodoCalcService {
                     "adding station [%s] to standIn stations because [%s] of [%s] slots failed",
                     station, failedSlots, totalSlots));
             String sendResult = awsSesClient.sendEmail(
-                    String.format("[StandInManager]Station [%s] added to standin",station),
+                    String.format("[StandInManager][%s] Station [%s] added to standin",env,station),
                     String.format(
                             "[StandInManager]Station [%s] has been added to standin"
                                     + "\nbecause [%s] of [%s] slots failed",
