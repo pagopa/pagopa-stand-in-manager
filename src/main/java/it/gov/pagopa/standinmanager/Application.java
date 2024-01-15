@@ -1,4 +1,4 @@
-package it.gov.pagopa.standinmanager; // TODO: refactor the package
+package it.gov.pagopa.standinmanager;
 
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosClientBuilder;
