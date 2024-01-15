@@ -12,18 +12,25 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>stand-in-manager</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.1-44-fix_pom</version>
   <description>Stand in Manager</description>
 
   <properties>
     <java.version>11</java.version>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>github</id>
+      <url>https://public:${env.GITHUB_TOKEN_READ_PACKAGES}@maven.pkg.github.com/pagopa/pagopa-api-config-starter</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>it.gov.pagopa.api-config</groupId>
       <artifactId>starter</artifactId>
-      <version>1.15.0</version>
+      <version>1.18.5</version>
     </dependency>
 
     <dependency>
@@ -140,6 +147,12 @@
           <artifactId>slf4j-simple</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>co.elastic.logging</groupId>
+      <artifactId>logback-ecs-encoder</artifactId>
+      <version>1.5.0</version>
     </dependency>
   </dependencies>
 

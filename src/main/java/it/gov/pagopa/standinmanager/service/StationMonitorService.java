@@ -8,6 +8,7 @@ import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,9 @@ public class StationMonitorService {
     log.info("checkStations [{}]", now);
     ConfigDataV1 cache = configService.getCache();
     List<CosmosStandInStation> stations = cosmosStationRepository.getStations();
-    stations.stream()
-        .map(s -> checkStation(now, cache.getStations().get(s.getStation()), s))
+    stations.stream().map(s-> Pair.of(s,cache.getStations().get(s.getStation())))
+                    .filter(s->s.getRight()!=null)
+        .map(s -> checkStation(now, s.getRight(), s.getLeft()))
         .collect(Collectors.toList());
   }
 
@@ -44,7 +46,13 @@ public class StationMonitorService {
     return CompletableFuture.supplyAsync(
         () -> {
           log.info("checkStation [{}] [{}]", now, standInStation.getStation());
-          boolean b = forwarderClient.verifyPaymentNotice(station);
+          boolean b = false;
+          try{
+              b = forwarderClient.verifyPaymentNotice(station);
+          }catch (Exception e){
+              log.error("error in verify",e);
+          }
+          log.info("checkStation done success:[{}]", b);
           CosmosForwarderCallCounts forwarderCallCounts =
               CosmosForwarderCallCounts.builder()
                   .id(UUID.randomUUID().toString())

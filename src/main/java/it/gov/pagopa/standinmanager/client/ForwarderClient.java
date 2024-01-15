@@ -3,6 +3,7 @@ package it.gov.pagopa.standinmanager.client;
 import it.gov.pagopa.standinmanager.config.model.Station;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.util.Constants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -13,6 +14,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@Slf4j
 @Component
 public class ForwarderClient {
 
@@ -43,10 +45,16 @@ public class ForwarderClient {
           + "</soapenv:Envelope>";
 
   public boolean verifyPaymentNotice(Station station) {
+    log.info("verifyPaymentNotice to station [{}]",station.getStationCode());
     cosmosEventsRepository.newEvent(
         station.getStationCode(),
         Constants.EVENT_FORWARDER_CALL,
-        String.format("call forwarder for station [%s]", station.getStationCode()));
+        String.format("call forwarder for station [%s]\n[%s:%s%s]",
+                station.getStationCode(),
+                station.getServicePof().getTargetHost(),
+                station.getServicePof().getTargetPort(),
+                station.getServicePof().getTargetPath()
+        ));
     final RequestEntity.BodyBuilder requestBuilder =
         RequestEntity.method(
             HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(url).build().toUri());
@@ -55,7 +63,7 @@ public class ForwarderClient {
     requestBuilder.header("X-Host-Url", station.getServicePof().getTargetHost());
     requestBuilder.header("X-Host-Port", station.getServicePof().getTargetPort() + "");
     requestBuilder.header("X-Host-Path", station.getServicePof().getTargetPath());
-    requestBuilder.header("SOAPAction", "paVerifyPaymentNotice");
+    requestBuilder.header("SOAPAction", "\"paVerifyPaymentNotice\"");
 
     String replacedBody =
         paVerifyRequestBody
@@ -66,13 +74,13 @@ public class ForwarderClient {
     ResponseEntity<String> responseEntity = null;
     try {
       responseEntity = restTemplate.exchange(body, String.class);
-    } catch (HttpStatusCodeException e) {
+    } catch (Exception e) {
       cosmosEventsRepository.newEvent(
           station.getStationCode(),
           Constants.EVENT_FORWARDER_CALL_RESP_ERROR,
           String.format(
-              "call forwarder for station [%s] returned",
-              station.getStationCode(), e.getStatusCode()));
+              "call forwarder for station [%s] returned [%s]",
+              station.getStationCode(), e.getMessage()));
       return false;
     }
 
