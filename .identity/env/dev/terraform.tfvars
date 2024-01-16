@@ -10,34 +10,3 @@ tags = {
   Source      = "https://github.com/pagopa/pagopa-stand-in-manager"
   CostCenter  = "TS310 - PAGAMENTI & SERVIZI"
 }
-
-cd_github_federations = [
-  {
-    repository = "pagopa-stand-in-manager"
-    subject    = "dev"
-  }
-]
-
-environment_cd_roles = {
-#  subscription = [
-#    "Contributor",
-#    "Storage Account Contributor",
-#    "Storage Blob Data Contributor",
-#    "Storage File Data SMB Share Contributor",
-#    "Storage Queue Data Contributor",
-#    "Storage Table Data Contributor",
-#    "Key Vault Contributor"
-#  ]
-  subscription = [
-    "Contributor",
-    "Key Vault Reader"
-  ]
-  resource_groups = {
-    "pagopa-d-nodo-sec-rg" = [
-      "Key Vault Reader"
-    ],
-    "pagopa-d-weu-dev-aks-rg" = [
-      "Contributor"
-    ]
-  }
-}
