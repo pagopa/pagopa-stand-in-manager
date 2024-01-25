@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.0.2-1-fix-identity"
+    tag: "0.0.2-2-develop"
     pullPolicy: Always
   livenessProbe:
     httpGet:

@@ -12,7 +12,7 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>stand-in-manager</artifactId>
-  <version>0.0.2-1-fix-identity</version>
+  <version>0.0.2-2-develop</version>
   <description>Stand in Manager</description>
 
   <properties>
