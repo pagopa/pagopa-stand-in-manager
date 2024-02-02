@@ -96,7 +96,7 @@ microservice-chart:
     create: true
     envSecrets:
       # required
-      APPLICATIONINSIGHTS_CONNECTION_STRING: "ai-u-connection-string"
+      APPLICATIONINSIGHTS_CONNECTION_STRING: "azure-insight-connection-string"
       OTEL_EXPORTER_OTLP_HEADERS: "elastic-apm-secret-token"
       SPRING_DATASOURCE_PASSWORD: "db-cfg-password"
       API_CONFIG_CACHE_API_KEY: "api-config-cache-subscription-key-string"
