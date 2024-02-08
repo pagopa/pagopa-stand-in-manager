@@ -71,7 +71,17 @@ public class Initializer implements ApplicationContextInitializer<ConfigurableAp
         try {
             tempFolder.create();
             Path keyStoreFile = tempFolder.newFile("azure-cosmos-emulator.keystore").toPath();
-            KeyStore keyStore = emulator.buildNewKeyStore();
+            KeyStore keyStore = null;
+            int c=1;
+            while(c<10){
+                try{
+                    keyStore = emulator.buildNewKeyStore();
+                    break;
+                }catch (Exception e){}
+                c++;
+                Thread.sleep(10000);
+            }
+
             keyStore.store(new FileOutputStream(keyStoreFile.toFile()), emulator.getEmulatorKey().toCharArray());
 
             System.setProperty("javax.net.ssl.trustStore", keyStoreFile.toString());
