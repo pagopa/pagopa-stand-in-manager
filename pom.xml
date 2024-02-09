@@ -12,7 +12,7 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>stand-in-manager</artifactId>
-  <version>0.0.2-1-fix-identity</version>
+  <version>0.0.2-3-develop</version>
   <description>Stand in Manager</description>
 
   <properties>
@@ -27,11 +27,36 @@
   </repositories>
 
   <dependencies>
-    <dependency>
-      <groupId>it.gov.pagopa.api-config</groupId>
-      <artifactId>starter</artifactId>
-      <version>1.18.5</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>it.gov.pagopa.api-config</groupId>-->
+<!--      <artifactId>starter</artifactId>-->
+<!--      <version>1.18.5</version>-->
+<!--    </dependency>-->
+
+      <dependency>
+          <groupId>com.azure</groupId>
+          <artifactId>azure-cosmos</artifactId>
+          <version>4.52.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.testcontainers</groupId>
+          <artifactId>azure</artifactId>
+          <version>1.17.2</version>
+          <scope>test</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.testcontainers</groupId>
+          <artifactId>testcontainers</artifactId>
+          <version>1.17.2</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>com.github.terma</groupId>
+          <artifactId>javaniotcpproxy</artifactId>
+          <version>1.6</version>
+          <scope>test</scope>
+      </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -174,7 +199,7 @@
               <goal>generate</goal>
             </goals>
             <configuration>
-              <inputSpec>${project.basedir}/src/main/resources/openapi_config.json</inputSpec>
+              <inputSpec>${project.basedir}/src/main/resources/openapi_standinv1.json</inputSpec>
               <generatorName>java</generatorName>
               <generateApiTests>false</generateApiTests>
               <generateModelTests>false</generateModelTests>
@@ -238,7 +263,7 @@
       <plugin>
         <groupId>org.sonarsource.scanner.maven</groupId>
         <artifactId>sonar-maven-plugin</artifactId>
-        <version>3.3.0.603</version>
+        <version>3.10.0.2594</version>
         <executions>
           <execution>
             <phase>verify</phase>

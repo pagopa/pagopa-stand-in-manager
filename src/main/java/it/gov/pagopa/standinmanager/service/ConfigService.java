@@ -1,7 +1,6 @@
 package it.gov.pagopa.standinmanager.service;
 
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
-import java.util.ArrayList;
 import lombok.extern.slf4j.Slf4j;
 import org.openapitools.client.api.CacheApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,10 @@ public class ConfigService {
 
   public void loadCache() {
     log.info("loadCache from cache api");
-    configData = cacheApi.cache(false, new ArrayList<>());
+    try {
+      configData = cacheApi.cache();
+    }catch(Exception e){
+      log.error("Can not get cache",e);
+    }
   }
 }

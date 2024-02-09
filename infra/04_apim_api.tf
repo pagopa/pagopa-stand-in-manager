@@ -1,8 +1,8 @@
 locals {
-  repo_name = "TODO" # TODO add the name of the repository
+  repo_name = "pagopa-stand-in-manager"
 
-  display_name = "TODO" # TODO
-  description  = "TODO" # TODO
+  display_name = "pagoPA Stand-In Manager"
+  description  = "Manage business logic about ingress and egress from stand-in mode"
   path  = "TODO" # TODO add your base path
 
   host         = "api.${var.apim_dns_zone_prefix}.${var.external_domain}"

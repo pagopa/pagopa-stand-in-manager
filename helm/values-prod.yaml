@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.0.2-1-fix-identity"
+    tag: "0.0.2-3-develop"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -96,7 +96,7 @@ microservice-chart:
     create: true
     envSecrets:
       # required
-      APPLICATIONINSIGHTS_CONNECTION_STRING: "ai-p-connection-string"
+      APPLICATIONINSIGHTS_CONNECTION_STRING: "azure-insight-connection-string"
       OTEL_EXPORTER_OTLP_HEADERS: "elastic-apm-secret-token"
       SPRING_DATASOURCE_PASSWORD: "db-cfg-password"
       API_CONFIG_CACHE_API_KEY: "api-config-cache-subscription-key-string"

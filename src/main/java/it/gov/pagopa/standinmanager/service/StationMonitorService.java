@@ -33,11 +33,16 @@ public class StationMonitorService {
     ZonedDateTime now = ZonedDateTime.now();
     log.info("checkStations [{}]", now);
     ConfigDataV1 cache = configService.getCache();
-    List<CosmosStandInStation> stations = cosmosStationRepository.getStations();
-    stations.stream().map(s-> Pair.of(s,cache.getStations().get(s.getStation())))
-                    .filter(s->s.getRight()!=null)
-        .map(s -> checkStation(now, s.getRight(), s.getLeft()))
-        .collect(Collectors.toList());
+    if(cache!=null){
+        List<CosmosStandInStation> stations = cosmosStationRepository.getStations();
+        stations.stream().map(s-> Pair.of(s,cache.getStations().get(s.getStation())))
+                .filter(s->s.getRight()!=null)
+                .map(s -> checkStation(now, s.getRight(), s.getLeft()))
+                .collect(Collectors.toList());
+    }else{
+        log.warn("Can not run,cache is null");
+    }
+
   }
 
   @Async
