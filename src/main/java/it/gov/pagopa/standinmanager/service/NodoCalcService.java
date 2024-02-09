@@ -3,7 +3,7 @@ package it.gov.pagopa.standinmanager.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
-import it.gov.pagopa.standinmanager.client.AwsSesClient;
+import it.gov.pagopa.standinmanager.client.MailService;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
@@ -39,23 +39,20 @@ public class NodoCalcService {
   @Value("${adder.range.fault.threshold}")
   private double rangeThreshold;
 
-  @Value("${aws.mailto}")
-  private String mailto;
-
   @Value("${info.properties.environment}")
   private String env;
 
-  @Value("#{'${saveDB}'=='true'}")
+  @Value("${saveDB}")
   private Boolean saveDB;
 
-  @Value("#{'${sendEvent}'=='true'}")
+  @Value("${sendEvent}")
   private Boolean sendEvent;
 
   @Autowired private CosmosStationRepository cosmosStationRepository;
   @Autowired private CosmosStationRepository standInStationsRepository;
   @Autowired private CosmosNodeDataRepository cosmosRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
-  @Autowired private AwsSesClient awsSesClient;
+  @Autowired private MailService awsSesClient;
   @Autowired private DatabaseStationsRepository dbStationsRepository;
   @Autowired private EventHubService eventHubService;
 
@@ -175,8 +172,7 @@ public class NodoCalcService {
                     String.format(
                         "[StandInManager]Station [%s] has been added to standin"
                             + "\nbecause [%s] of [%s] slots failed",
-                        station, failedSlots, totalSlots),
-                    mailto);
+                        station, failedSlots, totalSlots));
             log.info("email sender: {}", sendResult);
           }
         });

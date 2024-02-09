@@ -3,7 +3,7 @@ package it.gov.pagopa.standinmanager.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
-import it.gov.pagopa.standinmanager.client.AwsSesClient;
+import it.gov.pagopa.standinmanager.client.MailService;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
@@ -34,9 +34,6 @@ public class StationCalcService {
   @Value("${remover.range.fault.limit}")
   private double rangeLimit;
 
-  @Value("${aws.mailto}")
-  private String mailto;
-
   @Value("${info.properties.environment}")
   private String env;
 
@@ -50,7 +47,7 @@ public class StationCalcService {
   @Autowired private CosmosStationRepository cosmosStationRepository;
   @Autowired private CosmosStationDataRepository cosmosRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
-  @Autowired private AwsSesClient awsSesClient;
+  @Autowired private MailService awsSesClient;
   @Autowired private DatabaseStationsRepository dbStationsRepository;
   @Autowired private EventHubService eventHubService;
 
@@ -133,8 +130,7 @@ public class StationCalcService {
                     String.format(
                         "[StandInManager]Station [%s] has been removed from standin"
                             + "\nbecause [%s] calls were successful in the last %s minutes",
-                        station, successfulCalls, rangeMinutes),
-                    mailto);
+                        station, successfulCalls, rangeMinutes));
             log.info("email sender: {}", sendResult);
           }
         });

@@ -48,6 +48,10 @@ public class Application {
 
   @Value("${aws.region}")
   private String region;
+  @Value("${forwarder.connectionTimeout}")
+  private Integer forwarderConnectTimeout;
+  @Value("${forwarder.readTimeout}")
+  private Integer forwarderReadTimeout;
 
   @Bean
   public SesClient sesClient() {
@@ -66,8 +70,8 @@ public class Application {
   @Bean
   public RestTemplate restTemplate(RestTemplateBuilder builder) {
     return builder
-        .setReadTimeout(Duration.ofSeconds(5))
-        .setConnectTimeout(Duration.ofSeconds(10))
+        .setReadTimeout(Duration.ofSeconds(forwarderReadTimeout))
+        .setConnectTimeout(Duration.ofSeconds(forwarderConnectTimeout))
         .build();
   }
 
