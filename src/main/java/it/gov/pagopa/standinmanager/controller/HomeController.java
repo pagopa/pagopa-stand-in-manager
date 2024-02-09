@@ -24,8 +24,7 @@ import org.springframework.web.servlet.view.RedirectView;
 @Validated
 public class HomeController {
 
-  @Autowired
-  private MailService mailService;
+  @Autowired private MailService mailService;
 
   @Value("${server.servlet.context-path}")
   String basePath;
@@ -99,12 +98,7 @@ public class HomeController {
   @GetMapping("/info")
   public ResponseEntity<AppInfo> healthCheck() {
 
-    AppInfo info =
-        AppInfo.builder()
-            .name(name)
-            .version(version)
-            .environment(environment)
-            .build();
+    AppInfo info = AppInfo.builder().name(name).version(version).environment(environment).build();
     return ResponseEntity.status(HttpStatus.OK).body(info);
   }
 

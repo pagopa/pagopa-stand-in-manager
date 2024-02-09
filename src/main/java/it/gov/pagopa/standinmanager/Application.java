@@ -48,8 +48,10 @@ public class Application {
 
   @Value("${aws.region}")
   private String region;
+
   @Value("${forwarder.connectionTimeout}")
   private Integer forwarderConnectTimeout;
+
   @Value("${forwarder.readTimeout}")
   private Integer forwarderReadTimeout;
 
@@ -63,7 +65,6 @@ public class Application {
     ApiClient apiClient = new ApiClient();
     apiClient.setBasePath(basePath);
     apiClient.setApiKey(apiKey);
-
     return new CacheApi(apiClient);
   }
 

@@ -19,7 +19,6 @@ public class MailService {
   @Value("${aws.mailto}")
   private String mailto;
 
-
   public String sendEmail(String subject, String body) {
     String result = null;
     try {

@@ -145,7 +145,7 @@ public class NodoCalcService {
                 totalSlots,
                 rangeMinutes);
             if (sendEvent) {
-                log.info("sending {} event for station {}",Constants.type_added,station);
+              log.info("sending {} event for station {}", Constants.type_added, station);
               try {
                 eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.type_added);
               } catch (JsonProcessingException e) {
@@ -154,7 +154,7 @@ public class NodoCalcService {
               }
             }
             if (saveDB) {
-                log.info("adding {} to standin database",station);
+              log.info("adding {} to standin database", station);
               dbStationsRepository.save(new StandInStation(station));
             }
             cosmosStationRepository.save(

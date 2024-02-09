@@ -102,7 +102,7 @@ public class StationCalcService {
                 });
 
             if (sendEvent) {
-              log.info("sending {} event for station {}",Constants.type_removed,station);
+              log.info("sending {} event for station {}", Constants.type_removed, station);
               try {
                 eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.type_removed);
               } catch (JsonProcessingException e) {
@@ -111,7 +111,7 @@ public class StationCalcService {
               }
             }
             if (saveDB) {
-              log.info("removing {} from standin database",station);
+              log.info("removing {} from standin database", station);
               dbStationsRepository.deleteById(station);
             }
 
