@@ -72,6 +72,8 @@ public class Initializer implements ApplicationContextInitializer<ConfigurableAp
             tempFolder.create();
             Path keyStoreFile = tempFolder.newFile("azure-cosmos-emulator.keystore").toPath();
             KeyStore keyStore = null;
+
+            // this is a workaround to execute test locally
             int c=1;
             while(c<10){
                 try{
