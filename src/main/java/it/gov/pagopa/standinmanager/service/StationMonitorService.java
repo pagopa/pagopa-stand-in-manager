@@ -7,24 +7,23 @@ import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-
 @Slf4j
 @Service
 public class StationMonitorService {
 
   @Autowired private ConfigService configService;
-//  @Autowired private StandInStationsRepository standInStationsRepository;
+  //  @Autowired private StandInStationsRepository standInStationsRepository;
   @Autowired private CosmosStationRepository cosmosStationRepository;
   @Autowired private CosmosStationDataRepository cosmosStationDataRepository;
   @Autowired private ForwarderClient forwarderClient;
@@ -33,16 +32,16 @@ public class StationMonitorService {
     ZonedDateTime now = ZonedDateTime.now();
     log.info("checkStations [{}]", now);
     ConfigDataV1 cache = configService.getCache();
-    if(cache!=null){
-        List<CosmosStandInStation> stations = cosmosStationRepository.getStations();
-        stations.stream().map(s-> Pair.of(s,cache.getStations().get(s.getStation())))
-                .filter(s->s.getRight()!=null)
-                .map(s -> checkStation(now, s.getRight(), s.getLeft()))
-                .collect(Collectors.toList());
-    }else{
-        log.warn("Can not run,cache is null");
+    if (cache != null) {
+      List<CosmosStandInStation> stations = cosmosStationRepository.getStations();
+      stations.stream()
+          .map(s -> Pair.of(s, cache.getStations().get(s.getStation())))
+          .filter(s -> s.getRight() != null)
+          .map(s -> checkStation(now, s.getRight(), s.getLeft()))
+          .collect(Collectors.toList());
+    } else {
+      log.warn("Can not run,cache is null");
     }
-
   }
 
   @Async
@@ -52,10 +51,10 @@ public class StationMonitorService {
         () -> {
           log.info("checkStation [{}] [{}]", now, standInStation.getStation());
           boolean b = false;
-          try{
-              b = forwarderClient.verifyPaymentNotice(station);
-          }catch (Exception e){
-              log.error("error in verify",e);
+          try {
+            b = forwarderClient.verifyPaymentNotice(station);
+          } catch (Exception e) {
+            log.error("error in verify", e);
           }
           log.info("checkStation done success:[{}]", b);
           CosmosForwarderCallCounts forwarderCallCounts =

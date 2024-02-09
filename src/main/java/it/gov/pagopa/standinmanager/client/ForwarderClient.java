@@ -10,7 +10,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -45,16 +44,16 @@ public class ForwarderClient {
           + "</soapenv:Envelope>";
 
   public boolean verifyPaymentNotice(Station station) {
-    log.info("verifyPaymentNotice to station [{}]",station.getStationCode());
+    log.info("verifyPaymentNotice to station [{}]", station.getStationCode());
     cosmosEventsRepository.newEvent(
         station.getStationCode(),
         Constants.EVENT_FORWARDER_CALL,
-        String.format("call forwarder for station [%s]\n[%s:%s%s]",
-                station.getStationCode(),
-                station.getServicePof().getTargetHost(),
-                station.getServicePof().getTargetPort(),
-                station.getServicePof().getTargetPath()
-        ));
+        String.format(
+            "call forwarder for station [%s]\n[%s:%s%s]",
+            station.getStationCode(),
+            station.getServicePof().getTargetHost(),
+            station.getServicePof().getTargetPort(),
+            station.getServicePof().getTargetPath()));
     final RequestEntity.BodyBuilder requestBuilder =
         RequestEntity.method(
             HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(url).build().toUri());

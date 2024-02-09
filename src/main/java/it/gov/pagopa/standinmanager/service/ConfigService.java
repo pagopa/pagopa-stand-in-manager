@@ -25,8 +25,8 @@ public class ConfigService {
     log.info("loadCache from cache api");
     try {
       configData = cacheApi.cache();
-    }catch(Exception e){
-      log.error("Can not get cache",e);
+    } catch (Exception e) {
+      log.error("Can not get cache", e);
     }
   }
 }

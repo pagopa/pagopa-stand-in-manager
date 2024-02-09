@@ -6,7 +6,7 @@ import com.microsoft.azure.kusto.data.KustoOperationResult;
 import com.microsoft.azure.kusto.data.KustoResultSetTable;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
-//import it.gov.pagopa.standinmanager.repository.BlacklistStationsRepository;
+// import it.gov.pagopa.standinmanager.repository.BlacklistStationsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosNodeCallCounts;
 import java.net.URISyntaxException;
@@ -45,7 +45,6 @@ public class NodoMonitorService {
 
   @Value("${excludedStations}")
   private String excludedStations;
-
 
   //  @Autowired private BlacklistStationsRepository blacklistStationsRepository;
   @Autowired private Client kustoClient;
@@ -93,12 +92,14 @@ public class NodoMonitorService {
     ZonedDateTime now = ZonedDateTime.now();
     log.info("getAndSaveData [{}]", now);
     List<String> excludedStationsList = new ArrayList<>();
-    if(excludedStations!= null && !excludedStations.isEmpty()){
+    if (excludedStations != null && !excludedStations.isEmpty()) {
       excludedStationsList = Arrays.asList(excludedStations.split(","));
     }
 
-    Map<String, Integer> totals = getCount(TOTALS_QUERY, excludedStationsList, now.minusMinutes(slotMinutes));
-    Map<String, Integer> faults = getCount(FAULT_QUERY, excludedStationsList, now.minusMinutes(slotMinutes));
+    Map<String, Integer> totals =
+        getCount(TOTALS_QUERY, excludedStationsList, now.minusMinutes(slotMinutes));
+    Map<String, Integer> faults =
+        getCount(FAULT_QUERY, excludedStationsList, now.minusMinutes(slotMinutes));
     List<CosmosNodeCallCounts> stationCounts =
         totals.entrySet().stream()
             .map(
