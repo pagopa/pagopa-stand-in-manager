@@ -62,7 +62,7 @@ public class OpenApiConfig {
                         .in(SecurityScheme.In.HEADER)))
         .info(
             new Info()
-                .title(appName + " ${service}")
+                .title(appName)
                 .version(appVersion)
                 .description(appDescription)
                 .termsOfService("https://www.pagopa.gov.it/"));
