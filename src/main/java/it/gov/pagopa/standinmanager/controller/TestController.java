@@ -1,10 +1,10 @@
 package it.gov.pagopa.standinmanager.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import it.gov.pagopa.standinmanager.client.MailService;
-import it.gov.pagopa.standinmanager.service.NodoCalcService;
-import it.gov.pagopa.standinmanager.service.NodoMonitorService;
-import it.gov.pagopa.standinmanager.service.StationCalcService;
-import it.gov.pagopa.standinmanager.service.StationMonitorService;
+import it.gov.pagopa.standinmanager.service.*;
+import it.gov.pagopa.standinmanager.util.Constants;
+import java.time.ZonedDateTime;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +32,8 @@ public class TestController {
   StationCalcService stationCalcService;
   @Autowired
   StationMonitorService stationMonitorService;
+  @Autowired
+  EventHubService eventHubService;
 
   @SneakyThrows
   @GetMapping("/test-1")
@@ -55,6 +57,17 @@ public class TestController {
   @GetMapping("/test-4")
   public ResponseEntity test4() {
     stationCalcService.runCalculations();
+    return ResponseEntity.status(HttpStatus.OK).body("OK");
+  }
+
+  @SneakyThrows
+  @GetMapping("/test-event")
+  public ResponseEntity test5() {
+    try {
+      eventHubService.publishEvent(ZonedDateTime.now(), "test", Constants.type_added);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
     return ResponseEntity.status(HttpStatus.OK).body("OK");
   }
 }
