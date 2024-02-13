@@ -11,10 +11,10 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.servers.ServerVariable;
+import io.swagger.v3.oas.models.servers.ServerVariables;
+import java.util.*;
 import org.springdoc.core.customizers.OpenApiCustomiser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,10 +25,32 @@ public class OpenApiConfig {
 
   @Bean
   public OpenAPI customOpenAPI(
-      @Value("${info.application.artifactId}") String appName,
+      @Value("${info.application.name}") String appName,
       @Value("${info.application.description}") String appDescription,
       @Value("${info.application.version}") String appVersion) {
     return new OpenAPI()
+        .servers(
+            List.of(
+                new Server()
+                    .url("https://{host}/{basePath}")
+                    .variables(
+                        new ServerVariables()
+                            .addServerVariable(
+                                "host",
+                                new io.swagger.v3.oas.models.servers.ServerVariable()
+                                    ._enum(
+                                        List.of(
+                                            "api.dev.platform.pagopa.it",
+                                            "api.uat.platform.pagopa.it",
+                                            "api.platform.pagopa.it"))
+                                    ._default("api.dev.platform.pagopa.it"))
+                            .addServerVariable(
+                                "basePath",
+                                new ServerVariable()
+                                    ._enum(
+                                        List.of(
+                                            "stand-in-manager/v1"))
+                                    ._default("api-config-cache/o/v1")))))
         .components(
             new Components()
                 .addSecuritySchemes(

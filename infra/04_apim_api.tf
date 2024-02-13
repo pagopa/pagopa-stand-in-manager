@@ -3,7 +3,7 @@ locals {
 
   display_name = "pagoPA Stand-In Manager"
   description  = "Manage business logic about ingress and egress from stand-in mode"
-  path  = "TODO" # TODO add your base path
+  path  = "stand-in-manager/api"
 
   host         = "api.${var.apim_dns_zone_prefix}.${var.external_domain}"
   hostname     = var.hostname

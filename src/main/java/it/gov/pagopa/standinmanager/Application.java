@@ -12,20 +12,13 @@ import org.openapitools.client.api.CacheApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ses.SesClient;
 
-@SpringBootApplication(exclude = {
-        DataSourceAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class
-})
+@SpringBootApplication
 public class Application {
 
   public static void main(String[] args) {
@@ -56,6 +49,12 @@ public class Application {
   @Value("${aws.region}")
   private String region;
 
+  @Value("${forwarder.connectionTimeout}")
+  private Integer forwarderConnectTimeout;
+
+  @Value("${forwarder.readTimeout}")
+  private Integer forwarderReadTimeout;
+
   @Bean
   public SesClient sesClient() {
     return SesClient.builder().region(Region.of(region)).build();
@@ -66,15 +65,14 @@ public class Application {
     ApiClient apiClient = new ApiClient();
     apiClient.setBasePath(basePath);
     apiClient.setApiKey(apiKey);
-
     return new CacheApi(apiClient);
   }
 
   @Bean
   public RestTemplate restTemplate(RestTemplateBuilder builder) {
     return builder
-        .setReadTimeout(Duration.ofSeconds(5))
-        .setConnectTimeout(Duration.ofSeconds(10))
+        .setReadTimeout(Duration.ofSeconds(forwarderReadTimeout))
+        .setConnectTimeout(Duration.ofSeconds(forwarderConnectTimeout))
         .build();
   }
 

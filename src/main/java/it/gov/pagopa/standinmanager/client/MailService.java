@@ -9,19 +9,28 @@ import software.amazon.awssdk.services.ses.model.SendEmailRequest;
 import software.amazon.awssdk.services.ses.model.SendEmailResponse;
 
 @Service
-public class AwsSesClient {
+public class MailService {
 
   @Autowired private SesClient sesClient;
 
   @Value("${aws.ses.user}")
   private String from;
 
-  public String sendEmail(String subject, String body, String... to) {
+  @Value("${aws.mailto}")
+  private String mailto;
+
+  public String sendEmail(String subject, String body) {
     String result = null;
     try {
-      result = sendEmailAux(subject, body, to);
+      result = sendEmailAux(subject, body, mailto.split(";"));
     } catch (Exception e) {
-      result = "sendEmail error to = " + Arrays.toString(to) + ", subject = " + subject+",error="+e.getMessage();
+      result =
+          "sendEmail error to = "
+              + Arrays.toString(mailto.split(";"))
+              + ", subject = "
+              + subject
+              + ",error="
+              + e.getMessage();
     }
     return result;
   }

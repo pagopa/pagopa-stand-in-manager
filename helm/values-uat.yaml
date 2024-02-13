@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.0.3"
+    tag: "0.0.2-5-NOD-693_standin_endpoints"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -92,6 +92,7 @@ microservice-chart:
     OTEL_METRICS_EXPORTER: otlp
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
+    STAND_IN_TX_NAME: "nodo-dei-pagamenti-stand-in"
   secretProvider:
     create: true
     envSecrets:
@@ -106,6 +107,7 @@ microservice-chart:
       AWS_MAILTO: "standin-mail-to"
       COSMOS_KEY: "cosmos-standin-account-key"
       FORWARDER_KEY: "node-forwarder-subscription-key-string"
+      STAND_IN_TX_CONNECTION_STRING: "nodo-dei-pagamenti-stand-in-tx-connection-string-key"
     keyvault:
       name: "pagopa-u-nodo-kv"
       tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"

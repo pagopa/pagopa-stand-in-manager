@@ -12,4 +12,10 @@ public class Constants {
   public static final String EVENT_FORWARDER_CALL_RESP_ERROR = "FORWARDER_CALL_RESP_ERROR";
   public static final String EVENT_ADD_TO_STANDIN = "ADD_TO_STANDIN";
   public static final String EVENT_REMOVE_FROM_STANDIN = "REMOVE_FROM_STANDIN";
+
+  public static String type_added = "ADDED";
+  public static String type_removed = "REMOVED";
+  public static String type = "type";
+  public static String station = "station";
+  public static String timestamp = "timestamp";
 }
