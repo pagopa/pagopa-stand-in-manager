@@ -6,7 +6,6 @@ import com.microsoft.azure.kusto.data.KustoOperationResult;
 import com.microsoft.azure.kusto.data.KustoResultSetTable;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
-// import it.gov.pagopa.standinmanager.repository.BlacklistStationsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosNodeCallCounts;
 import java.net.URISyntaxException;
@@ -17,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.utils.Either;
 
 @Slf4j
 @Service
@@ -30,6 +30,7 @@ public class NodoMonitorService {
           + "FAULT_CODE\n"
           + "{stationsFilter}| where faultCode in"
           + " ('PPT_STAZIONE_INT_PA_IRRAGGIUNGIBILE','PPT_STAZIONE_INT_PA_TIMEOUT','PPT_STAZIONE_INT_PA_SERVIZIO_NON_ATTIVO')\n"
+          + "| where tipoEvento in ('verifyPaymentNotice','activatePaymentNotice')\n"
           + "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"
           + "| summarize count = count() by (stazione)";
   private String TOTALS_QUERY =
@@ -62,16 +63,24 @@ public class NodoMonitorService {
   }
 
   private Map<String, Integer> getCount(
-      String query, List<String> filterStations, ZonedDateTime timelimit)
+          String query,
+          Either<Set<String>,Set<String>> includedOrExcludedStations,
+          ZonedDateTime timelimit)
       throws URISyntaxException, DataServiceException, DataClientException {
     log.debug("Running query [{}]", query);
     String replacedQuery = null;
-    if (!filterStations.isEmpty()) {
+    if (!includedOrExcludedStations.left().isPresent()) {
       String stations =
           String.join(
-              ",", filterStations.stream().map(s -> "'" + s + "'").collect(Collectors.toList()));
+              ",", includedOrExcludedStations.left().stream().map(s -> "'" + s + "'").collect(Collectors.toList()));
       replacedQuery =
-          query.replace("{stationsFilter}", "\n| where not(stazione in (" + stations + "))\n");
+          query.replace("{stationsFilter}", "\n| where stazione in  not((" + stations + "))\n");
+    } else if (!includedOrExcludedStations.right().isPresent()) {
+      String stations =
+              String.join(
+                      ",", includedOrExcludedStations.right().stream().map(s -> "'" + s + "'").collect(Collectors.toList()));
+      replacedQuery =
+              query.replace("{stationsFilter}", "\n| where stazione in (" + stations + ")\n");
     } else {
       replacedQuery = query.replace("{stationsFilter}", "");
     }
@@ -91,15 +100,14 @@ public class NodoMonitorService {
       throws URISyntaxException, DataServiceException, DataClientException {
     ZonedDateTime now = ZonedDateTime.now();
     log.info("getAndSaveData [{}]", now);
-    List<String> excludedStationsList = new ArrayList<>();
-    if (excludedStations != null && !excludedStations.isEmpty()) {
-      excludedStationsList = Arrays.asList(excludedStations.split(","));
+    Set<String> excludedStationsList = new HashSet<>();
+    if(excludedStations!= null && !excludedStations.isEmpty()){
+      excludedStationsList = Arrays.asList(excludedStations.split(",")).stream().collect(Collectors.toSet());
     }
 
-    Map<String, Integer> totals =
-        getCount(TOTALS_QUERY, excludedStationsList, now.minusMinutes(slotMinutes));
-    Map<String, Integer> faults =
-        getCount(FAULT_QUERY, excludedStationsList, now.minusMinutes(slotMinutes));
+    Map<String, Integer> totals = getCount(TOTALS_QUERY, Either.right(excludedStationsList), now.minusMinutes(slotMinutes));
+    Set<String> allstations = totals.keySet();
+    Map<String, Integer> faults = getCount(FAULT_QUERY,Either.left(allstations), now.minusMinutes(slotMinutes));
     List<CosmosNodeCallCounts> stationCounts =
         totals.entrySet().stream()
             .map(
