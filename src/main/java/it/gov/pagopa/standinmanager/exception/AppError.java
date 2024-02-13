@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum AppError {
   INTERNAL_SERVER_ERROR(
-      HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "Something was wrong");
+      HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "Something was wrong"),
+  UNKNOWN(null, null, null);
 
   public final HttpStatus httpStatus;
   public final String title;
