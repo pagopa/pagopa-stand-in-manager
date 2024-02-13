@@ -12,7 +12,7 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>stand-in-manager</artifactId>
-  <version>0.0.2-4-NOD-693_standin_endpoints</version>
+  <version>0.0.2-5-NOD-693_standin_endpoints</version>
   <description>Stand in Manager</description>
 
   <properties>
