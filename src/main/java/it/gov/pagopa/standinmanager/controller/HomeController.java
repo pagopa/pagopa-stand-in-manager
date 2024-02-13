@@ -101,10 +101,5 @@ public class HomeController {
     AppInfo info = AppInfo.builder().name(name).version(version).environment(environment).build();
     return ResponseEntity.status(HttpStatus.OK).body(info);
   }
-
-  @GetMapping("/testEmail")
-  public ResponseEntity testEmail() {
-    String s = mailService.sendEmail("test subject", "test message");
-    return ResponseEntity.status(HttpStatus.OK).body(s);
-  }
+  
 }
