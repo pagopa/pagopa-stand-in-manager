@@ -4,7 +4,7 @@
     "description": "Stand in Manager",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "stand-in-manager",
-    "version": "0.0.2-5-NOD-693_standin_endpoints"
+    "version": "0.0.3"
   },
   "servers": [
     {
