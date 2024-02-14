@@ -29,7 +29,7 @@ microservice-chart:
       - 8080
   ingress:
     create: true
-    host: "weudev.nodo.internal.dev.platform.pagopa.it"
+    host: "weuuat.nodo.internal.uat.platform.pagopa.it"
     path: /pagopa-stand-in-manager(/|$)(.*)
   serviceAccount:
     create: false
