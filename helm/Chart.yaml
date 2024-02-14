@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-stand-in-manager
 description: Microservice that handles Stand-In activation/deactivation process
 type: application
-version: 0.55.0
-appVersion: 0.0.5
+version: 0.56.0
+appVersion: 0.0.6
 dependencies:
   - name: microservice-chart
     version: 3.0.0
