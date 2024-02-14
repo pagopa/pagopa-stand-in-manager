@@ -28,7 +28,9 @@ microservice-chart:
     ports:
       - 8080
   ingress:
-    create: false
+    create: true
+    host: "weudev.nodo.internal.dev.platform.pagopa.it"
+    path: /pagopa-stand-in-manager(/|$)(.*)
   serviceAccount:
     create: false
     annotations: {}
