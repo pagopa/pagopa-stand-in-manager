@@ -9,8 +9,12 @@ import it.gov.pagopa.standinmanager.model.GetResponse;
 import it.gov.pagopa.standinmanager.service.DataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 @RestController
 @Slf4j
@@ -32,7 +36,8 @@ public class DataController {
         @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
       })
   @GetMapping("/stations")
-  public GetResponse getEvents() {
-    return GetResponse.builder().stations(dataService.getStations()).build();
+  @Valid
+  public ResponseEntity<GetResponse> getEvents() {
+    return ResponseEntity.status(HttpStatus.OK).body(GetResponse.builder().stations(dataService.getStations()).build());
   }
 }

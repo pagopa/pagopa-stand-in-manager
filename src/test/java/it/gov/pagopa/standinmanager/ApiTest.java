@@ -52,6 +52,11 @@ class ApiTest {
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
     }
     @Test
+    void notfound() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/notfound").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+    }
+    @Test
     void info() throws Exception {
         when(cosmosStationRepository.getStations()).thenReturn(Arrays.asList(new CosmosStandInStation("","station1", Instant.now()),new CosmosStandInStation("","station2", Instant.now())));
         mvc.perform(MockMvcRequestBuilders.get("/info").accept(MediaType.APPLICATION_JSON))

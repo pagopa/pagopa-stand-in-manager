@@ -92,7 +92,7 @@ class NodoCalcServiceTest {
 
         when(cosmosClient.getDatabase(any())).thenReturn(cosmosDatabase);
         when(cosmosDatabase.getContainer(any())).thenReturn(cosmosContainer);
-        when(testBatch.tryAdd(any())).thenReturn(true);
+        when(testBatch.tryAdd(any())).thenReturn(false,true);
         when(testBatch.getCount()).thenReturn(2);
         when(producer.createBatch()).thenReturn(testBatch);
         when(sesClient.sendEmail(any(SendEmailRequest.class))).thenReturn(testResponse);
@@ -116,7 +116,7 @@ class NodoCalcServiceTest {
     @Test
     void test1() throws Exception {
         nodoCalcService.runCalculations();
-        verify(producer, times(2)).send(any(EventDataBatch.class));
+        verify(producer, times(3)).send(any(EventDataBatch.class));
         verify(databaseStationsRepository, times(2)).save(any());
         verify(cosmosStationRepository, times(2)).save(any());
         verify(cosmosEventsRepository, times(2)).newEvent(any(),any(),any());
