@@ -29,8 +29,7 @@ class NodoMonitorServiceTest {
 
 
 
-    @Mock
-    private Client kustoClient;
+    @Mock private Client kustoClient;
     @Mock private CosmosClient cosmosClient;
     @Mock private CosmosDatabase cosmosDatabase;
     @Mock private CosmosContainer cosmosContainer;

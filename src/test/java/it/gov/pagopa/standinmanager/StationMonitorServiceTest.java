@@ -4,6 +4,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.azure.cosmos.CosmosClient;
+import com.azure.cosmos.CosmosContainer;
+import com.azure.cosmos.CosmosDatabase;
+import com.azure.cosmos.models.SqlQuerySpec;
+import com.azure.cosmos.util.CosmosPagedFlux;
+import com.azure.cosmos.util.CosmosPagedIterable;
 import com.microsoft.azure.kusto.data.Client;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
@@ -20,6 +25,7 @@ import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import it.gov.pagopa.standinmanager.service.ConfigService;
 import it.gov.pagopa.standinmanager.service.StationMonitorService;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,15 +46,18 @@ class StationMonitorServiceTest {
 
     @Mock private Client kustoClient;
     @Mock private CosmosClient cosmosClient;
-    @Mock private CosmosNodeDataRepository cosmosNodeDataRepository = mock(CosmosNodeDataRepository.class);
-    @Mock private CosmosStationDataRepository cosmosStationDataRepository = mock(CosmosStationDataRepository.class);
-    @Mock private CosmosStationRepository cosmosStationRepository = mock(CosmosStationRepository.class);
-    @Mock private CosmosEventsRepository cosmosEventsRepository = mock(CosmosEventsRepository.class);
-
-
-    private ForwarderClient forwarderClient = new ForwarderClient();
+    @Mock private CosmosDatabase cosmosDatabase;
+    @Mock private CosmosContainer cosmosContainer;
     @Mock private ConfigService configService = mock(ConfigService.class);
     @Mock private RestTemplate restTemplate;
+    @Mock private CosmosPagedIterable cosmosPagedIterable;
+
+    private CosmosNodeDataRepository cosmosNodeDataRepository = spy(new CosmosNodeDataRepository());
+    private CosmosStationDataRepository cosmosStationDataRepository = spy(new CosmosStationDataRepository());
+    private CosmosStationRepository cosmosStationRepository = spy(new CosmosStationRepository());
+    private CosmosEventsRepository cosmosEventsRepository = spy(CosmosEventsRepository.class);
+
+    private ForwarderClient forwarderClient = new ForwarderClient();
 
 
     @InjectMocks
@@ -74,15 +83,33 @@ class StationMonitorServiceTest {
         stations.put("station2",station2);
         configDataV1.setStations(stations);
 
+
+
+        when(configService.getCache()).thenReturn(configDataV1);
+//        when(cosmosStationRepository.getStations()).thenReturn(List.of(new CosmosStandInStation("","station1", Instant.now().minusSeconds(600)),new CosmosStandInStation("","station2", Instant.now().minusSeconds(600))));
+        when(restTemplate.exchange(any(), any(Class.class))).thenReturn(new ResponseEntity<String>("", HttpStatus.OK));
+        when(cosmosClient.getDatabase(any())).thenReturn(cosmosDatabase);
+        when(cosmosDatabase.getContainer(any())).thenReturn(cosmosContainer);
+//        when(cosmosContainer.executeBulkOperations(any())).thenReturn(null);
+        when(cosmosContainer.queryItems(any(SqlQuerySpec.class),any(),any())).thenReturn(cosmosPagedIterable);
+        when(cosmosPagedIterable.stream()).thenReturn(Arrays.asList(
+                new CosmosStandInStation("","station1",Instant.now()),
+                new CosmosStandInStation("","station2",Instant.now())
+        ).stream());
+
+        org.springframework.test.util.ReflectionTestUtils.setField(cosmosNodeDataRepository, "cosmosClient", cosmosClient);
+        org.springframework.test.util.ReflectionTestUtils.setField(cosmosStationDataRepository, "cosmosClient", cosmosClient);
+        org.springframework.test.util.ReflectionTestUtils.setField(cosmosStationRepository, "cosmosClient", cosmosClient);
+        org.springframework.test.util.ReflectionTestUtils.setField(cosmosEventsRepository, "cosmosClient", cosmosClient);
         org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "cosmosEventsRepository", cosmosEventsRepository);
         org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "url", "http://forwarder.it");
         org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "key", "key");
         org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "restTemplate", restTemplate);
         org.springframework.test.util.ReflectionTestUtils.setField(stationMonitorService, "forwarderClient", forwarderClient);
-
-        when(configService.getCache()).thenReturn(configDataV1);
-        when(cosmosStationRepository.getStations()).thenReturn(List.of(new CosmosStandInStation("","station1", Instant.now().minusSeconds(600)),new CosmosStandInStation("","station2", Instant.now().minusSeconds(600))));
-        when(restTemplate.exchange(any(), any(Class.class))).thenReturn(new ResponseEntity<String>("", HttpStatus.OK));
+//        org.springframework.test.util.ReflectionTestUtils.setField(stationMonitorService, "cosmosNodeDataRepository", cosmosNodeDataRepository);
+        org.springframework.test.util.ReflectionTestUtils.setField(stationMonitorService, "cosmosStationDataRepository", cosmosStationDataRepository);
+        org.springframework.test.util.ReflectionTestUtils.setField(stationMonitorService, "cosmosStationRepository", cosmosStationRepository);
+//        org.springframework.test.util.ReflectionTestUtils.setField(stationMonitorService, "cosmosEventsRepository", cosmosEventsRepository);
     }
 
     @Test
