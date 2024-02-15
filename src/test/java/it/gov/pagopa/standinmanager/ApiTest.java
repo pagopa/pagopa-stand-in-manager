@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.azure.cosmos.CosmosClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.kusto.data.Client;
+import it.gov.pagopa.standinmanager.model.AppInfo;
 import it.gov.pagopa.standinmanager.model.GetResponse;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
@@ -26,6 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
@@ -44,7 +46,33 @@ class ApiTest {
     @MockBean private EntityManager entityManager;
     @MockBean private DataSource dataSource;
     @MockBean private CosmosClient cosmosClient;
+    @Test
+    void swagger() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get(UriComponentsBuilder.fromUriString("").build().toUri()).accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
+    }
+    @Test
+    void notfound() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/notfound").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+    }
+    @Test
+    void info() throws Exception {
+        when(cosmosStationRepository.getStations()).thenReturn(Arrays.asList(new CosmosStandInStation("","station1", Instant.now()),new CosmosStandInStation("","station2", Instant.now())));
+        mvc.perform(MockMvcRequestBuilders.get("/info").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andDo(
+                        (result) -> {
+                            assertNotNull(result);
+                            assertNotNull(result.getResponse());
+                            final String content = result.getResponse().getContentAsString();
+                            assertFalse(content.isBlank());
+                            AppInfo res =
+                                    objectMapper.readValue(result.getResponse().getContentAsString(), AppInfo.class);
+                            assertEquals(res.getEnvironment(), "test");
+                        });
 
+    }
     @Test
     void stations() throws Exception {
         when(cosmosStationRepository.getStations()).thenReturn(Arrays.asList(new CosmosStandInStation("","station1", Instant.now()),new CosmosStandInStation("","station2", Instant.now())));
