@@ -17,9 +17,10 @@
 
   <properties>
     <java.version>11</java.version>
+    <sonar.exclusions>it.gov.pagopa.standinmanager.controller.TestController</sonar.exclusions>
   </properties>
 
-  <repositories>
+  <repositories>9000
     <repository>
       <id>github</id>
       <url>https://public:${env.GITHUB_TOKEN_READ_PACKAGES}@maven.pkg.github.com/pagopa/pagopa-api-config-starter</url>

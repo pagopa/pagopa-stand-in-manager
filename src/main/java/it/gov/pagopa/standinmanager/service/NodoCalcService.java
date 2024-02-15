@@ -49,7 +49,6 @@ public class NodoCalcService {
   private Boolean sendEvent;
 
   @Autowired private CosmosStationRepository cosmosStationRepository;
-  @Autowired private CosmosStationRepository standInStationsRepository;
   @Autowired private CosmosNodeDataRepository cosmosRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
   @Autowired private MailService awsSesClient;
@@ -75,7 +74,7 @@ public class NodoCalcService {
         slotMinutes);
 
     Set<String> standInStations =
-        standInStationsRepository.getStations().stream()
+        cosmosStationRepository.getStations().stream()
             .map(s -> s.getStation())
             .collect(Collectors.toSet());
 

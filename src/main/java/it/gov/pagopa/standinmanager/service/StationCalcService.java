@@ -43,7 +43,6 @@ public class StationCalcService {
   @Value("#{'${sendEvent}'=='true'}")
   private Boolean sendEvent;
 
-  @Autowired private CosmosStationRepository standInStationsRepository;
   @Autowired private CosmosStationRepository cosmosStationRepository;
   @Autowired private CosmosStationDataRepository cosmosRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
@@ -63,7 +62,7 @@ public class StationCalcService {
         rangeLimit);
 
     Map<String, Instant> standInStations =
-        standInStationsRepository.getStations().stream()
+            cosmosStationRepository.getStations().stream()
             .collect(Collectors.toMap(d -> d.getStation(), d -> d.getTimestamp()));
 
     List<CosmosForwarderCallCounts> allCounts =
