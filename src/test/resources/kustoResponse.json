@@ -1,0 +1,9 @@
+[{
+  "FrameType" : "DataTable",
+  "TableName": "RE",
+  "Columns": [{"ColumnName":"stazione"},{"ColumnName":"count"}],
+  "Rows": [
+    ["station1",1],
+    ["station2",1]
+  ]
+}]

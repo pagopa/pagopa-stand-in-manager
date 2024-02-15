@@ -18,6 +18,7 @@
   <properties>
     <java.version>11</java.version>
     <sonar.exclusions>it.gov.pagopa.standinmanager.controller.TestController</sonar.exclusions>
+    <sonar.exclusions>it.gov.pagopa.standinmanager.config</sonar.exclusions>
   </properties>
 
   <repositories>

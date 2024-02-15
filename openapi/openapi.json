@@ -1,9 +1,9 @@
 {
   "openapi" : "3.0.1",
   "info" : {
-    "description" : "Stand in Manager",
+    "description" : "@project.description@",
     "termsOfService" : "https://www.pagopa.gov.it/",
-    "title" : "stand-in-manager",
+    "title" : "@project.name@",
     "version" : "0.0.6"
   },
   "servers" : [ {

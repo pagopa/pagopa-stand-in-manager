@@ -51,7 +51,7 @@ public class NodoCalcService {
   @Autowired private CosmosStationRepository cosmosStationRepository;
   @Autowired private CosmosNodeDataRepository cosmosRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
-  @Autowired private MailService awsSesClient;
+  @Autowired private MailService mailService;
   @Autowired private DatabaseStationsRepository dbStationsRepository;
   @Autowired private EventHubService eventHubService;
 
@@ -165,7 +165,7 @@ public class NodoCalcService {
                     "adding station [%s] to standIn stations because [%s] of [%s] slots failed",
                     station, failedSlots, totalSlots));
             String sendResult =
-                awsSesClient.sendEmail(
+                mailService.sendEmail(
                     String.format(
                         "[StandInManager][%s] Station [%s] added to standin", env, station),
                     String.format(
