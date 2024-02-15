@@ -27,6 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
@@ -45,6 +46,11 @@ class ApiTest {
     @MockBean private EntityManager entityManager;
     @MockBean private DataSource dataSource;
     @MockBean private CosmosClient cosmosClient;
+    @Test
+    void swagger() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get(UriComponentsBuilder.fromUriString("").build().toUri()).accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
+    }
     @Test
     void info() throws Exception {
         when(cosmosStationRepository.getStations()).thenReturn(Arrays.asList(new CosmosStandInStation("","station1", Instant.now()),new CosmosStandInStation("","station2", Instant.now())));

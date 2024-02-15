@@ -17,7 +17,10 @@
 
   <properties>
     <java.version>11</java.version>
-    <sonar.exclusions>it/gov/pagopa/standinmanager/controller/TestController,it/gov/pagopa/standinmanager/config/**/*,org/openapitools/client/api/**/*,it/gov/pagopa/standinmanager/scheduler/**/*</sonar.exclusions>
+      <sonar.projectKey>pagopa-stand-in-manager</sonar.projectKey>
+      <sonar.login>admin</sonar.login>
+      <sonar.password>pass</sonar.password>
+    <sonar.exclusions>**/scheduler/*,**/model/*,**/entity/*,**/TestController.java</sonar.exclusions>
   </properties>
 
   <repositories>
