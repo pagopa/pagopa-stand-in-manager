@@ -44,7 +44,7 @@ public class StationCalcService {
   private Boolean sendEvent;
 
   @Autowired private CosmosStationRepository cosmosStationRepository;
-  @Autowired private CosmosStationDataRepository cosmosRepository;
+  @Autowired private CosmosStationDataRepository cosmosStationDataRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
   @Autowired private MailService awsSesClient;
   @Autowired private DatabaseStationsRepository dbStationsRepository;
@@ -66,7 +66,7 @@ public class StationCalcService {
             .collect(Collectors.toMap(d -> d.getStation(), d -> d.getTimestamp()));
 
     List<CosmosForwarderCallCounts> allCounts =
-        cosmosRepository.getStationCounts(now.minusMinutes(rangeMinutes));
+        cosmosStationDataRepository.getStationCounts(now.minusMinutes(rangeMinutes));
     Map<String, List<CosmosForwarderCallCounts>> allStationCounts =
         allCounts.stream().collect(Collectors.groupingBy(CosmosForwarderCallCounts::getStation));
 

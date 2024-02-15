@@ -48,9 +48,9 @@ class StationMonitorServiceTest {
     @Mock private CosmosClient cosmosClient;
     @Mock private CosmosDatabase cosmosDatabase;
     @Mock private CosmosContainer cosmosContainer;
+    @Mock private CosmosPagedIterable cosmosPagedIterable;
     @Mock private ConfigService configService = mock(ConfigService.class);
     @Mock private RestTemplate restTemplate;
-    @Mock private CosmosPagedIterable cosmosPagedIterable;
 
     private CosmosNodeDataRepository cosmosNodeDataRepository = spy(new CosmosNodeDataRepository());
     private CosmosStationDataRepository cosmosStationDataRepository = spy(new CosmosStationDataRepository());

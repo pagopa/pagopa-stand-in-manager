@@ -49,7 +49,7 @@ public class NodoCalcService {
   private Boolean sendEvent;
 
   @Autowired private CosmosStationRepository cosmosStationRepository;
-  @Autowired private CosmosNodeDataRepository cosmosRepository;
+  @Autowired private CosmosNodeDataRepository cosmosNodeDataRepository;
   @Autowired private CosmosEventsRepository cosmosEventsRepository;
   @Autowired private MailService mailService;
   @Autowired private DatabaseStationsRepository dbStationsRepository;
@@ -79,7 +79,7 @@ public class NodoCalcService {
             .collect(Collectors.toSet());
 
     List<CosmosNodeCallCounts> allCounts =
-        cosmosRepository.getStationCounts(now.minusMinutes(rangeMinutes));
+        cosmosNodeDataRepository.getStationCounts(now.minusMinutes(rangeMinutes));
 
     Map<String, List<CosmosNodeCallCounts>> allStationCounts =
         allCounts.stream().collect(Collectors.groupingBy(CosmosNodeCallCounts::getStation));

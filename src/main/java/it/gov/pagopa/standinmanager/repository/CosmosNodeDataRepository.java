@@ -44,10 +44,10 @@ public class CosmosNodeDataRepository {
     return container.executeBulkOperations(cosmosItemOperationStream);
   }
 
-  public CosmosItemResponse<CosmosNodeCallCounts> save(CosmosNodeCallCounts item) {
-    CosmosContainer container = cosmosClient.getDatabase(dbname).getContainer(tablename);
-    return container.createItem(item);
-  }
+//  public CosmosItemResponse<CosmosNodeCallCounts> save(CosmosNodeCallCounts item) {
+//    CosmosContainer container = cosmosClient.getDatabase(dbname).getContainer(tablename);
+//    return container.createItem(item);
+//  }
 
   public List<CosmosNodeCallCounts> getStationCounts(ZonedDateTime dateFrom) {
     List<SqlParameter> paramList = new ArrayList<>();

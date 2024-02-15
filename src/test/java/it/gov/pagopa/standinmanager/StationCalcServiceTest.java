@@ -4,6 +4,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.azure.cosmos.CosmosClient;
+import com.azure.cosmos.CosmosContainer;
+import com.azure.cosmos.CosmosDatabase;
+import com.azure.cosmos.models.SqlQuerySpec;
+import com.azure.cosmos.util.CosmosPagedIterable;
 import com.microsoft.azure.kusto.data.Client;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
@@ -15,6 +19,7 @@ import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import it.gov.pagopa.standinmanager.service.EventHubService;
 import it.gov.pagopa.standinmanager.service.StationCalcService;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,13 +35,18 @@ class StationCalcServiceTest {
 
     @Mock private Client kustoClient;
     @Mock private CosmosClient cosmosClient;
-    @Mock private CosmosNodeDataRepository cosmosNodeDataRepository = mock(CosmosNodeDataRepository.class);
-    @Mock private CosmosStationRepository cosmosStationsRepository = mock(CosmosStationRepository.class);
-    @Mock private CosmosStationDataRepository cosmosStationDataRepository = mock(CosmosStationDataRepository.class);
-    @Mock private DatabaseStationsRepository databaseStationsRepository = mock(DatabaseStationsRepository.class);
-    @Mock private CosmosEventsRepository cosmosEventsRepository = mock(CosmosEventsRepository.class);
+    @Mock private CosmosDatabase cosmosDatabase;
+    @Mock private CosmosContainer cosmosContainer;
+    @Mock private CosmosPagedIterable cosmosPagedIterable;
     @Mock private EventHubService eventHubService;
     @Mock private MailService awsSesClient;
+
+    @Mock private DatabaseStationsRepository databaseStationsRepository = mock(DatabaseStationsRepository.class);
+
+//    private CosmosNodeDataRepository cosmosNodeDataRepository = spy(new CosmosNodeDataRepository());
+    private CosmosStationDataRepository cosmosStationDataRepository = spy(new CosmosStationDataRepository());
+    private CosmosStationRepository cosmosStationRepository = spy(new CosmosStationRepository());
+    private CosmosEventsRepository cosmosEventsRepository = spy(CosmosEventsRepository.class);
 
     @InjectMocks
     private StationCalcService stationCalcService;
@@ -48,29 +58,61 @@ class StationCalcServiceTest {
         org.springframework.test.util.ReflectionTestUtils.setField(stationCalcService, "sendEvent", true);
         org.springframework.test.util.ReflectionTestUtils.setField(stationCalcService, "saveDB", true);
 
-//        when(kustoClient.execute(any(),any(),any())).thenReturn(new KustoOperationResult("{ \"Tables\":[ \"RE\"] }",""));
-//        when(cosmosNodeDataRepository.saveAll(any())).thenReturn(new ArrayIterator<>(null));
-    when(cosmosStationsRepository.getStations()).thenReturn(List.of(new CosmosStandInStation("","station1", Instant.now().minusSeconds(600)),new CosmosStandInStation("","station2", Instant.now().minusSeconds(600))));
-    when(cosmosStationsRepository.getStation("station1")).thenReturn(List.of(new CosmosStandInStation("","station1", Instant.now().minusSeconds(600))));
-    when(cosmosStationsRepository.getStation("station2")).thenReturn(List.of(new CosmosStandInStation("","station2", Instant.now().minusSeconds(600))));
+        org.springframework.test.util.ReflectionTestUtils.setField(cosmosStationDataRepository, "cosmosClient", cosmosClient);
+        org.springframework.test.util.ReflectionTestUtils.setField(cosmosStationRepository, "cosmosClient", cosmosClient);
+        org.springframework.test.util.ReflectionTestUtils.setField(cosmosEventsRepository, "cosmosClient", cosmosClient);
+        org.springframework.test.util.ReflectionTestUtils.setField(stationCalcService, "cosmosStationDataRepository", cosmosStationDataRepository);
+        org.springframework.test.util.ReflectionTestUtils.setField(stationCalcService, "cosmosStationRepository", cosmosStationRepository);
+        org.springframework.test.util.ReflectionTestUtils.setField(stationCalcService, "cosmosEventsRepository", cosmosEventsRepository);
 
-    when(cosmosStationDataRepository.getStationCounts(any()))
-        .thenReturn(
-            List.of(
-                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
-                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
-                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
-                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
-                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
-                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
-                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
-                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
-                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
-                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
-                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
-                new CosmosForwarderCallCounts("", "station2", Instant.now(),true)
-            )
-        );
+
+
+
+        when(cosmosClient.getDatabase(any())).thenReturn(cosmosDatabase);
+        when(cosmosDatabase.getContainer(any())).thenReturn(cosmosContainer);
+        when(cosmosContainer.queryItems(any(SqlQuerySpec.class),any(),any())).thenReturn(cosmosPagedIterable);
+        when(cosmosPagedIterable.stream()).thenReturn(Arrays.asList(
+                new CosmosStandInStation("","station1",Instant.now().minusSeconds(600)),
+                new CosmosStandInStation("","station2",Instant.now().minusSeconds(600))
+        ).stream(),
+                Arrays.asList(
+                        new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
+                        new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
+                        new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
+                        new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
+                        new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
+                        new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
+                        new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
+                        new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
+                        new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
+                        new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
+                        new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
+                        new CosmosForwarderCallCounts("", "station2", Instant.now(),true)
+                ).stream(),
+                Arrays.asList(
+                        new CosmosStandInStation("","station1",Instant.now().minusSeconds(600))
+                ).stream(),
+                Arrays.asList(
+                        new CosmosStandInStation("","station2",Instant.now().minusSeconds(600))
+                        ).stream());
+
+//    when(cosmosStationDataRepository.getStationCounts(any()))
+//        .thenReturn(
+//            List.of(
+//                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
+//                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
+//                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
+//                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
+//                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
+//                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
+//                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
+//                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
+//                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
+//                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
+//                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
+//                new CosmosForwarderCallCounts("", "station2", Instant.now(),true)
+//            )
+//        );
     }
 
     @Test
@@ -78,7 +120,7 @@ class StationCalcServiceTest {
         stationCalcService.runCalculations();
         verify(eventHubService, times(2)).publishEvent(any(),any(),any());
         verify(databaseStationsRepository, times(2)).deleteById(any());
-        verify(cosmosStationsRepository, times(2)).removeStation(any());
+        verify(cosmosStationRepository, times(2)).removeStation(any());
         verify(cosmosEventsRepository, times(2)).newEvent(any(),any(),any());
         verify(awsSesClient, times(2)).sendEmail(any(),any());
     }

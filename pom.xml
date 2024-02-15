@@ -19,6 +19,8 @@
     <java.version>11</java.version>
     <sonar.exclusions>it.gov.pagopa.standinmanager.controller.TestController</sonar.exclusions>
     <sonar.exclusions>it.gov.pagopa.standinmanager.config</sonar.exclusions>
+    <sonar.exclusions>org.openapitools.client.api</sonar.exclusions>
+    <sonar.exclusions>it.gov.pagopa.standinmanager.scheduler</sonar.exclusions>
   </properties>
 
   <repositories>
