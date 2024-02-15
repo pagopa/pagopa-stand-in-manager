@@ -31,7 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.util.ArrayIterator;
 
 @ExtendWith(MockitoExtension.class)
-public class StationMonitorServiceTest {
+class StationMonitorServiceTest {
 
 
 
