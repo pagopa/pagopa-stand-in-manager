@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 
 @RestController
 @Slf4j
@@ -36,7 +37,7 @@ public class DataController {
         @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
       })
   @GetMapping("/stations")
-  @Valid
+  @NotEmpty
   public ResponseEntity<GetResponse> getEvents() {
     return ResponseEntity.status(HttpStatus.OK).body(GetResponse.builder().stations(dataService.getStations()).build());
   }

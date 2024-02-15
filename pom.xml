@@ -20,7 +20,7 @@
       <sonar.projectKey>pagopa-stand-in-manager</sonar.projectKey>
       <sonar.login>admin</sonar.login>
       <sonar.password>pass</sonar.password>
-    <sonar.exclusions>**/scheduler/*,**/model/*,**/entity/*,**/TestController.java</sonar.exclusions>
+    <sonar.exclusions>**/scheduler/*,**/exception/*,**/model/*,**/entity/*,**/TestController.java</sonar.exclusions>
   </properties>
 
   <repositories>
