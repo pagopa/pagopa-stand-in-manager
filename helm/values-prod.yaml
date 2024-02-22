@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.0.7"
+    tag: "0.0.7-1-NOD-712-elk"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -87,7 +87,7 @@ microservice-chart:
     REMOVER_SLOT_MINUTES: "60"
     REMOVER_SLOT_FAULT_LIMIT: "6"
     EXCLUDED_STATIONS: ""
-    OTEL_SERVICE_NAME: "pagopastandinmanager"
+    OTEL_SERVICE_NAME: "pagopa-stand-in-manager"
     OTEL_RESOURCE_ATTRIBUTES: "service.environment=prod"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_TRACES_EXPORTER: otlp
