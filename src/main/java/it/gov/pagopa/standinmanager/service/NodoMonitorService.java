@@ -88,7 +88,7 @@ public class NodoMonitorService {
             replacedQuery = query.replace("{stationsFilter}", "");
         }
 
-        log.debug("Running KQL query [{}]", query);
+        log.debug("Running KQL query [{}]", replacedQuery);
         KustoOperationResult response =
                 kustoClient.execute(database, replacedQuery, getTimeParameters(timelimit));
         KustoResultSetTable primaryResults = response.getPrimaryResults();
