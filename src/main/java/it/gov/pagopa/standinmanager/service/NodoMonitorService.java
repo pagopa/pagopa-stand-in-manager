@@ -72,18 +72,14 @@ public class NodoMonitorService {
             throws URISyntaxException, DataServiceException, DataClientException {
 
         String replacedQuery = null;
-        if (!includedOrExcludedStations.left().isPresent()) {
-            String stations =
-                    String.join(
-                            ",", includedOrExcludedStations.left().stream().map(s -> "'" + s + "'").collect(Collectors.toList()));
-            replacedQuery =
-                    query.replace("{stationsFilter}", "\n| where stazione in  not((" + stations + "))\n");
-        } else if (!includedOrExcludedStations.right().isPresent()) {
-            String stations =
-                    String.join(
-                            ",", includedOrExcludedStations.right().stream().map(s -> "'" + s + "'").collect(Collectors.toList()));
-            replacedQuery =
-                    query.replace("{stationsFilter}", "\n| where stazione in (" + stations + ")\n");
+        Optional<Set<String>> inclusionList = includedOrExcludedStations.left();
+        Optional<Set<String>> exclusionList = includedOrExcludedStations.right();
+        if (exclusionList.isPresent() && !exclusionList.get().isEmpty()) {
+            String stations = exclusionList.stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
+            replacedQuery = query.replace("{stationsFilter}", "\n| where stazione !in(" + stations + ")\n");
+        } else if (inclusionList.isPresent() && !inclusionList.get().isEmpty()) {
+            String stations = inclusionList.stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
+            replacedQuery = query.replace("{stationsFilter}", "\n| where stazione in (" + stations + ")\n");
         } else {
             replacedQuery = query.replace("{stationsFilter}", "");
         }
