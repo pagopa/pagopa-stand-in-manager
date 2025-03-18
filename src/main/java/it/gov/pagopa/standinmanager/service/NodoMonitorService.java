@@ -39,7 +39,7 @@ public class NodoMonitorService {
                     + "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"
                     + "| summarize count = count() by (stazione)";
     @Value("${dataexplorer.dbName}")
-    private String database;// = "NetDefaultDB";
+    private String database;
     @Value("${adder.slot.minutes}")
     private int slotMinutes;
 
