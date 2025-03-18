@@ -73,11 +73,11 @@ public class NodoMonitorService {
         Optional<Set<String>> inclusionList = includedOrExcludedStations.left();
         Optional<Set<String>> exclusionList = includedOrExcludedStations.right();
         if (exclusionList.isPresent() && !exclusionList.get().isEmpty()) {
-            String stations = exclusionList.stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
-            replacedQuery = query.replace("{stationsFilter}", "\n| where stazione !in(" + stations + ")\n");
+            String stations = exclusionList.get().stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
+            replacedQuery = query.replace("{stationsFilter}", "| where stazione !in(" + stations + ")\n");
         } else if (inclusionList.isPresent() && !inclusionList.get().isEmpty()) {
-            String stations = inclusionList.stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
-            replacedQuery = query.replace("{stationsFilter}", "\n| where stazione in (" + stations + ")\n");
+            String stations = inclusionList.get().stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
+            replacedQuery = query.replace("{stationsFilter}", "| where stazione in (" + stations + ")\n");
         } else {
             replacedQuery = query.replace("{stationsFilter}", "");
         }
