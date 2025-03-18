@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.0.8-4-PIDM-319"
+    tag: "0.0.8-5-PIDM-319"
     pullPolicy: Always
   livenessProbe:
     httpGet:
