@@ -23,9 +23,6 @@ import java.util.stream.Collectors;
 @Service
 public class NodoMonitorService {
 
-    @Value("${dataexplorer.dbName}")
-    private final String database = "NetDefaultDB";
-
     private final String FAULT_QUERY =
             "declare query_parameters(year:int,month:int,day:int,hour:int,minute:int,second:int);\n"
                     + "FAULT_CODE\n"
@@ -41,7 +38,8 @@ public class NodoMonitorService {
                     + "| where sottoTipoEvento == 'REQ'\n"
                     + "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"
                     + "| summarize count = count() by (stazione)";
-
+    @Value("${dataexplorer.dbName}")
+    private String database;// = "NetDefaultDB";
     @Value("${adder.slot.minutes}")
     private int slotMinutes;
 
