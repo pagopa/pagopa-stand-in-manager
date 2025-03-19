@@ -33,9 +33,9 @@ microservice-chart:
     path: /pagopa-stand-in-manager(/|$)(.*)
   serviceAccount:
     create: false
-    annotations: {}
+    annotations: { }
     name: ""
-  podAnnotations: {}
+  podAnnotations: { }
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -68,7 +68,7 @@ microservice-chart:
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     SPRING_DATASOURCE_URL: "jdbc:postgresql://pagopa-d-weu-nodo-flexible-postgresql.postgres.database.azure.com:6432/nodo?prepareThreshold=0"
     SPRING_DATASOURCE_USERNAME: "cfg"
-    API_CONFIG_CACHE_BASE_PATH: "https://api.dev.platform.pagopa.it/api-config-cache/o/v1"
+    API_CONFIG_CACHE_BASE_PATH: "https://api.dev.platform.pagopa.it/api-config-cache/p/v1"
     DATAEXPLORER_URL: "https://pagopaddataexplorer.westeurope.kusto.windows.net"
     DATAEXPLORER_CLIENTID: ""
     DATAEXPLORER_DBNAME: "re"
@@ -115,8 +115,8 @@ microservice-chart:
       tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
   tmpVolumeMount:
     create: true
-  nodeSelector: {}
-  tolerations: []
+  nodeSelector: { }
+  tolerations: [ ]
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -143,5 +143,5 @@ microservice-chart:
         repository: ghcr.io/pagopa/pagopa-stand-in-manager
         tag: "0.0.0"
         pullPolicy: Always
-      envConfig: {}
-      envSecrets: {}
+      envConfig: { }
+      envSecrets: { }
