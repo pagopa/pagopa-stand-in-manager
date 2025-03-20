@@ -58,6 +58,7 @@ public class ForwarderClient {
         RequestEntity.method(
             HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(url).build().toUri());
 
+    requestBuilder.header("Content-Type", "text/xml");
     requestBuilder.header("Ocp-Apim-Subscription-Key", key);
     requestBuilder.header("X-Host-Url", station.getServicePof().getTargetHost());
     requestBuilder.header("X-Host-Port", station.getServicePof().getTargetPort() + "");
