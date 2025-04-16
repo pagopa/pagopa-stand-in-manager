@@ -12,7 +12,7 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>stand-in-manager</artifactId>
-  <version>0.0.10-1-PIDM-377-text-xml-content-type</version>
+  <version>0.0.10-2-PIDM-377-text-xml-content-type</version>
   <description>Stand in Manager</description>
 
   <properties>
