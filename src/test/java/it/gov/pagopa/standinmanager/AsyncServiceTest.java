@@ -3,7 +3,6 @@ package it.gov.pagopa.standinmanager;
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosDatabase;
-import com.azure.cosmos.models.SqlQuerySpec;
 import com.azure.cosmos.util.CosmosPagedIterable;
 import com.microsoft.azure.kusto.data.Client;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
@@ -21,7 +20,6 @@ import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import it.gov.pagopa.standinmanager.service.AsyncService;
 import it.gov.pagopa.standinmanager.service.ConfigService;
-import it.gov.pagopa.standinmanager.service.StationMonitorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,9 +28,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,15 +91,8 @@ class AsyncServiceTest {
         stationCreditorInstitutions.put(station2.getStationCode() + "_creditorInstitution",stationCreditorInstitution1);
         configDataV1.setCreditorInstitutionStations(stationCreditorInstitutions);
 
-//        when(configService.getCache()).thenReturn(configDataV1);
-//        when(restTemplate.exchange(any(), any(Class.class))).thenReturn(new ResponseEntity<String>("", HttpStatus.OK));
         when(cosmosClient.getDatabase(any())).thenReturn(cosmosDatabase);
         when(cosmosDatabase.getContainer(any())).thenReturn(cosmosContainer);
-//        when(cosmosContainer.queryItems(any(SqlQuerySpec.class),any(),any())).thenReturn(cosmosPagedIterable);
-//        when(cosmosPagedIterable.stream()).thenReturn(Arrays.asList(
-//                new CosmosStandInStation("","station1",Instant.now()),
-//                new CosmosStandInStation("","station2",Instant.now())
-//        ).stream());
 
         org.springframework.test.util.ReflectionTestUtils.setField(cosmosNodeDataRepository, "cosmosClient", cosmosClient);
         org.springframework.test.util.ReflectionTestUtils.setField(cosmosStationDataRepository, "cosmosClient", cosmosClient);
@@ -113,9 +102,6 @@ class AsyncServiceTest {
         org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "url", "http://forwarder.it");
         org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "key", "key");
         org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "restTemplate", restTemplate);
-//        org.springframework.test.util.ReflectionTestUtils.setField(stationMonitorService, "forwarderClient", forwarderClient);
-//        org.springframework.test.util.ReflectionTestUtils.setField(stationMonitorService, "cosmosStationDataRepository", cosmosStationDataRepository);
-//        org.springframework.test.util.ReflectionTestUtils.setField(stationMonitorService, "cosmosStationRepository", cosmosStationRepository);
     }
 
     @Test
