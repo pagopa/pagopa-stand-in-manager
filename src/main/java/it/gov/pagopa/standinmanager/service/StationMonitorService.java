@@ -55,27 +55,26 @@ public class StationMonitorService {
   }
 
   @Async
-  public CompletableFuture<Boolean> checkStation(
-          ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution, CosmosStandInStation standInStation) {
-    return CompletableFuture.supplyAsync(
-        () -> {
-          log.info("checkStation [{}] [{}]", now, standInStation.getStation());
-          boolean b = false;
-          try {
-            b = forwarderClient.paVerifyPaymentNotice(station, creditorInstitution);
-          } catch (Exception e) {
-            log.error("error in verify", e);
-          }
-          log.info("checkStation done success:[{}]", b);
-          CosmosForwarderCallCounts forwarderCallCounts =
-              CosmosForwarderCallCounts.builder()
-                  .id(UUID.randomUUID().toString())
-                  .station(standInStation.getStation())
-                  .timestamp(now.toInstant())
-                  .outcome(b)
-                  .build();
-          cosmosStationDataRepository.save(forwarderCallCounts);
-          return b;
-        });
+  public void checkStation(ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution, CosmosStandInStation standInStation) {
+
+      CompletableFuture.runAsync(
+              () -> {
+                  log.info("checkStation [{}] [{}]", now, standInStation.getStation());
+                  boolean b = false;
+                  try {
+                      b = forwarderClient.paVerifyPaymentNotice(station, creditorInstitution);
+                  } catch (Exception e) {
+                      log.error("error in verify", e);
+                  }
+                  log.info("checkStation done success:[{}]", b);
+                  CosmosForwarderCallCounts forwarderCallCounts =
+                          CosmosForwarderCallCounts.builder()
+                                  .id(UUID.randomUUID().toString())
+                                  .station(standInStation.getStation())
+                                  .timestamp(now.toInstant())
+                                  .outcome(b)
+                                  .build();
+                  cosmosStationDataRepository.save(forwarderCallCounts);
+              });
   }
 }
