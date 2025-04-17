@@ -1,6 +1,7 @@
 package it.gov.pagopa.standinmanager.client;
 
 import it.gov.pagopa.standinmanager.config.model.Station;
+import it.gov.pagopa.standinmanager.config.model.StationCreditorInstitution;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.util.Constants;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -32,19 +35,19 @@ public class ForwarderClient {
           + "   <soapenv:Header/>\n"
           + "   <soapenv:Body>\n"
           + "      <paf:paVerifyPaymentNoticeReq>\n"
-          + "         <idPA>00000000000</idPA>\n"
+          + "         <idPA>{idPA}</idPA>\n"
           + "         <idBrokerPA>{idBrokerPA}</idBrokerPA>\n"
           + "         <idStation>{idStation}</idStation>\n"
           + "         <qrCode>\n"
-          + "            <fiscalCode>00000000000</fiscalCode>\n"
+          + "            <fiscalCode>{idPA}</fiscalCode>\n"
           + "            <noticeNumber>000000000000000000</noticeNumber>\n"
           + "         </qrCode>\n"
           + "      </paf:paVerifyPaymentNoticeReq>\n"
           + "   </soapenv:Body>\n"
           + "</soapenv:Envelope>";
 
-  public boolean verifyPaymentNotice(Station station) {
-    log.info("verifyPaymentNotice to station [{}]", station.getStationCode());
+  public boolean paVerifyPaymentNotice(Station station, StationCreditorInstitution creditorInstitution) {
+    log.info("paVerifyPaymentNotice to station [{}]", station.getStationCode());
     cosmosEventsRepository.newEvent(
         station.getStationCode(),
         Constants.EVENT_FORWARDER_CALL,
@@ -61,16 +64,17 @@ public class ForwarderClient {
     requestBuilder.header("Content-Type", "text/xml");
     requestBuilder.header("Ocp-Apim-Subscription-Key", key);
     requestBuilder.header("X-Host-Url", station.getServicePof().getTargetHost());
-    requestBuilder.header("X-Host-Port", station.getServicePof().getTargetPort() + "");
+    requestBuilder.header("X-Host-Port", Optional.ofNullable(station.getServicePof().getTargetPort()).map(Object::toString).orElse("443"));
     requestBuilder.header("X-Host-Path", station.getServicePof().getTargetPath());
     requestBuilder.header("SOAPAction", "\"paVerifyPaymentNotice\"");
 
     String replacedBody =
         paVerifyRequestBody
+            .replace("{idPA}", creditorInstitution.getCreditorInstitutionCode())
             .replace("{idBrokerPA}", station.getBrokerCode())
             .replace("{idStation}", station.getStationCode());
 
-    RequestEntity<String> body = requestBuilder.body(paVerifyRequestBody);
+    RequestEntity<String> body = requestBuilder.body(replacedBody, String.class);
     ResponseEntity<String> responseEntity = null;
     try {
       responseEntity = restTemplate.exchange(body, String.class);
