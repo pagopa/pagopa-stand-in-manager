@@ -1,23 +1,17 @@
 package it.gov.pagopa.standinmanager.service;
 
-import it.gov.pagopa.standinmanager.client.ForwarderClient;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.config.model.Station;
 import it.gov.pagopa.standinmanager.config.model.StationCreditorInstitution;
-import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
-import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -26,8 +20,7 @@ public class StationMonitorService {
 
   @Autowired private ConfigService configService;
   @Autowired private CosmosStationRepository cosmosStationRepository;
-  @Autowired private CosmosStationDataRepository cosmosStationDataRepository;
-  @Autowired private ForwarderClient forwarderClient;
+  @Autowired private AsyncService asyncService;
 
   public void checkStations() {
     ZonedDateTime now = ZonedDateTime.now();
@@ -46,7 +39,7 @@ public class StationMonitorService {
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException("CreditorInstitution not found for station: " + station.getStationCode()));
 
-              checkStation(now, station, creditorInstitution, s.getLeft());
+              asyncService.checkStation(now, station, creditorInstitution, s.getLeft());
             }
           );
     } else {
@@ -54,27 +47,24 @@ public class StationMonitorService {
     }
   }
 
-  @Async
-  public void checkStation(ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution, CosmosStandInStation standInStation) {
-
-      CompletableFuture.runAsync(
-              () -> {
-                  log.info("checkStation [{}] [{}]", now, standInStation.getStation());
-                  boolean b = false;
-                  try {
-                      b = forwarderClient.paVerifyPaymentNotice(station, creditorInstitution);
-                  } catch (Exception e) {
-                      log.error("error in verify", e);
-                  }
-                  log.info("checkStation done success:[{}]", b);
-                  CosmosForwarderCallCounts forwarderCallCounts =
-                          CosmosForwarderCallCounts.builder()
-                                  .id(UUID.randomUUID().toString())
-                                  .station(standInStation.getStation())
-                                  .timestamp(now.toInstant())
-                                  .outcome(b)
-                                  .build();
-                  cosmosStationDataRepository.save(forwarderCallCounts);
-              });
-  }
+//  @Async
+//  public void checkStation(ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution, CosmosStandInStation standInStation) {
+//
+//      log.info("checkStation [{}] [{}]", now, standInStation.getStation());
+//      boolean b = false;
+//      try {
+//          b = forwarderClient.paVerifyPaymentNotice(station, creditorInstitution);
+//      } catch (Exception e) {
+//          log.error("error in verify", e);
+//      }
+//      log.info("checkStation done success:[{}]", b);
+//      CosmosForwarderCallCounts forwarderCallCounts =
+//              CosmosForwarderCallCounts.builder()
+//                      .id(UUID.randomUUID().toString())
+//                      .station(standInStation.getStation())
+//                      .timestamp(now.toInstant())
+//                      .outcome(b)
+//                      .build();
+//      cosmosStationDataRepository.save(forwarderCallCounts);
+//  }
 }
