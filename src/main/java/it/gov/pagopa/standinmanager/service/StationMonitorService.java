@@ -2,7 +2,6 @@ package it.gov.pagopa.standinmanager.service;
 
 import it.gov.pagopa.standinmanager.client.ForwarderClient;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
-//import it.gov.pagopa.standinmanager.config.model.CreditorInstitutionStations;
 import it.gov.pagopa.standinmanager.config.model.Station;
 import it.gov.pagopa.standinmanager.config.model.StationCreditorInstitution;
 import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
 public class StationMonitorService {
 
   @Autowired private ConfigService configService;
-  //  @Autowired private StandInStationsRepository standInStationsRepository;
   @Autowired private CosmosStationRepository cosmosStationRepository;
   @Autowired private CosmosStationDataRepository cosmosStationDataRepository;
   @Autowired private ForwarderClient forwarderClient;
