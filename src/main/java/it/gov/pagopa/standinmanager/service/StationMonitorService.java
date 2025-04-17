@@ -56,18 +56,6 @@ public class StationMonitorService {
     }
   }
 
-  public void test() {
-      ConfigDataV1 cache = configService.getCache();
-      if (cache != null) {
-          Station station = (Station) cache.getStations().get("77777777777_01");
-          StationCreditorInstitution creditorInstitution = cache.getCreditorInstitutionStations().entrySet().stream()
-                  .filter(e -> e.getKey().startsWith(station.getStationCode()))
-                  .map(Map.Entry::getValue)
-                  .findFirst()
-                  .orElseThrow();
-      }
-  }
-
   @Async
   protected CompletableFuture<Boolean> checkStation(
           ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution, CosmosStandInStation standInStation) {

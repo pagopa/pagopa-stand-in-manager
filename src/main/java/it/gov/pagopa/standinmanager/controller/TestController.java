@@ -71,10 +71,4 @@ public class TestController {
     return ResponseEntity.status(HttpStatus.OK).body("OK");
   }
 
-  @SneakyThrows
-  @GetMapping("/test-6")
-  public ResponseEntity test6() {
-    stationMonitorService.test();
-    return ResponseEntity.status(HttpStatus.OK).body("OK");
-  }
 }
