@@ -57,7 +57,7 @@ class AsyncServiceTest {
     private AsyncService asyncService;
 
     @BeforeEach
-    void setUp() throws KustoServiceQueryError, DataServiceException, DataClientException {
+    void setUp() {
         ConfigDataV1 configDataV1 = new ConfigDataV1();
 
         Map<String, Station> stations = new HashMap<>();
