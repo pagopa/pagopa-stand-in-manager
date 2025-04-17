@@ -3,7 +3,7 @@
   "info" : {
     "description" : "Stand in Manager",
     "termsOfService" : "https://www.pagopa.gov.it/",
-    "title" : "stand-in-manager",
+    "title" : "@project.name@",
     "version" : "0.0.11"
   },
   "servers" : [ {
@@ -278,6 +278,40 @@
     "/test-4" : {
       "get" : {
         "operationId" : "test4",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        },
+        "tags" : [ "test-controller" ]
+      },
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
+        }
+      } ]
+    },
+    "/test-6" : {
+      "get" : {
+        "operationId" : "test6",
         "responses" : {
           "200" : {
             "content" : {

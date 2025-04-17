@@ -17,6 +17,7 @@ import it.gov.pagopa.standinmanager.client.ForwarderClient;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.config.model.Service;
 import it.gov.pagopa.standinmanager.config.model.Station;
+import it.gov.pagopa.standinmanager.config.model.StationCreditorInstitution;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
@@ -42,8 +43,6 @@ import org.springframework.web.client.RestTemplate;
 @ExtendWith(MockitoExtension.class)
 class StationMonitorServiceTest {
 
-
-
     @Mock private Client kustoClient;
     @Mock private CosmosClient cosmosClient;
     @Mock private CosmosDatabase cosmosDatabase;
@@ -66,6 +65,7 @@ class StationMonitorServiceTest {
     @BeforeEach
     void setUp() throws KustoServiceQueryError, DataServiceException, DataClientException {
         ConfigDataV1 configDataV1 = new ConfigDataV1();
+
         Map<String, Station> stations = new HashMap<>();
         Station station1 = new Station();
         station1.setBrokerCode("broker1");
@@ -75,6 +75,7 @@ class StationMonitorServiceTest {
         service.setTargetPath("/test");
         service.setTargetPort(8080l);
         station1.setServicePof(service);
+
         Station station2 = new Station();
         station2.setBrokerCode("broker2");
         station2.setStationCode("station2");
@@ -83,7 +84,18 @@ class StationMonitorServiceTest {
         stations.put("station2",station2);
         configDataV1.setStations(stations);
 
+        Map<String, StationCreditorInstitution> stationCreditorInstitutions = new HashMap<>();
+        StationCreditorInstitution stationCreditorInstitution1 = new StationCreditorInstitution();
+        stationCreditorInstitution1.setStationCode(station1.getStationCode());
+        stationCreditorInstitution1.setCreditorInstitutionCode("creditorInstitution");
+        stationCreditorInstitutions.put(station1.getStationCode() + "_creditorInstitution",stationCreditorInstitution1);
+        configDataV1.setCreditorInstitutionStations(stationCreditorInstitutions);
 
+        StationCreditorInstitution stationCreditorInstitution2 = new StationCreditorInstitution();
+        stationCreditorInstitution2.setStationCode(station1.getStationCode());
+        stationCreditorInstitution2.setCreditorInstitutionCode("creditorInstitution");
+        stationCreditorInstitutions.put(station2.getStationCode() + "_creditorInstitution",stationCreditorInstitution1);
+        configDataV1.setCreditorInstitutionStations(stationCreditorInstitutions);
 
         when(configService.getCache()).thenReturn(configDataV1);
 //        when(cosmosStationRepository.getStations()).thenReturn(List.of(new CosmosStandInStation("","station1", Instant.now().minusSeconds(600)),new CosmosStandInStation("","station2", Instant.now().minusSeconds(600))));

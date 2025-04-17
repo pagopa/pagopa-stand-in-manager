@@ -37,7 +37,7 @@ class ConfigServiceTest {
         stations.put("station1",station1);
         stations.put("station2",station2);
         configDataV1.setStations(stations);
-        when(cacheApi.cache()).thenReturn(configDataV1);
+        when(cacheApi.cache(false)).thenReturn(configDataV1);
 
     }
 
@@ -45,7 +45,7 @@ class ConfigServiceTest {
     void test1() throws Exception {
         configService.loadCache();
         ConfigDataV1 cache = configService.getCache();
-        verify(cacheApi, times(1)).cache();
+        verify(cacheApi, times(1)).cache(false);
         assertEquals(cache.getStations().size(),2);
     }
 }
