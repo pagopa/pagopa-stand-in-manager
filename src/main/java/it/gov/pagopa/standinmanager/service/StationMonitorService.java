@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -39,25 +38,24 @@ public class StationMonitorService {
       stations.stream()
           .map(s -> Pair.of(s, cache.getStations().get(s.getStation())))
           .filter(s -> s.getRight() != null)
-          .map(s -> {
+          .forEach(s -> {
                 Station station = s.getRight();
                 StationCreditorInstitution creditorInstitution = cache.getCreditorInstitutionStations().entrySet().stream()
                     .filter(e -> e.getKey().startsWith(station.getStationCode()))
                     .map(Map.Entry::getValue)
                     .findFirst()
-                    .orElseThrow();
+                    .orElseThrow(() -> new IllegalStateException("CreditorInstitution not found for station: " + station.getStationCode()));
 
-                return checkStation(now, station, creditorInstitution, s.getLeft());
+              checkStation(now, station, creditorInstitution, s.getLeft());
             }
-          )
-          .collect(Collectors.toList());
+          );
     } else {
       log.warn("Can not run, cache is null");
     }
   }
 
   @Async
-  protected CompletableFuture<Boolean> checkStation(
+  public CompletableFuture<Boolean> checkStation(
           ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution, CosmosStandInStation standInStation) {
     return CompletableFuture.supplyAsync(
         () -> {
