@@ -5,6 +5,7 @@ locals {
     name       = "${local.product}-apim"
     rg         = "${local.product}-api-rg"
     product_id = "stand-in-manager"
+    cfg_for_node_product_id = "cfg-for-node"
   }
 }
 

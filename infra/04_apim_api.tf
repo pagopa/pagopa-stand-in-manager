@@ -31,7 +31,7 @@ module "api_v1" {
   name                  = format("%s-${local.repo_name}", var.env_short)
   api_management_name   = local.apim.name
   resource_group_name   = local.apim.rg
-  product_ids           = [local.apim.product_id]
+  product_ids           = [local.apim.product_id, local.apim.cfg_for_node_product_id]
   subscription_required = true
 
   version_set_id = azurerm_api_management_api_version_set.api_version_set.id
