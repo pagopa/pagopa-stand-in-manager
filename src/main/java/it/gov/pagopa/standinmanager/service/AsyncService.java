@@ -8,6 +8,7 @@ import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +20,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AsyncService {
 
-    private CosmosStationDataRepository cosmosStationDataRepository;
-    private ForwarderClient forwarderClient;
+    @Autowired private CosmosStationDataRepository cosmosStationDataRepository;
+    @Autowired private ForwarderClient forwarderClient;
 
     @Async
     public void checkStation(ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution, CosmosStandInStation standInStation) {
@@ -41,5 +42,12 @@ public class AsyncService {
                         .outcome(b)
                         .build();
         cosmosStationDataRepository.save(forwarderCallCounts);
+    }
+
+    public String testStation(ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution) {
+        log.info("testStation [{}] [{}]", now, station.getStationCode());
+        String response = forwarderClient.testPaVerifyPaymentNotice(station, creditorInstitution);
+        log.info("testStation done success:[{}]", station.getStationCode());
+        return response;
     }
 }

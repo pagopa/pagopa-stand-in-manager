@@ -88,8 +88,7 @@ public class ForwarderClient {
       return false;
     }
 
-    if (responseEntity.getStatusCode().is2xxSuccessful()
-        && responseEntity.getBody().contains("SCONOSCIUTO")) {
+    if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody().contains("SCONOSCIUTO")) {
       cosmosEventsRepository.newEvent(
           station.getStationCode(),
           Constants.EVENT_FORWARDER_CALL_RESP_SUCCCESS,
@@ -104,6 +103,35 @@ public class ForwarderClient {
               "call forwarder for station [%s] did not return SCONOSCIUTO",
               station.getStationCode()));
       return false;
+    }
+  }
+
+  public String testPaVerifyPaymentNotice(Station station, StationCreditorInstitution creditorInstitution) {
+    log.info("paVerifyPaymentNotice to station [{}]", station.getStationCode());
+    final RequestEntity.BodyBuilder requestBuilder =
+            RequestEntity.method(
+                    HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(url).build().toUri());
+
+    requestBuilder.header("Content-Type", "text/xml");
+    requestBuilder.header("Ocp-Apim-Subscription-Key", key);
+    requestBuilder.header("X-Host-Url", station.getServicePof().getTargetHost());
+    requestBuilder.header("X-Host-Port", Optional.ofNullable(station.getServicePof().getTargetPort()).map(Object::toString).orElse("443"));
+    requestBuilder.header("X-Host-Path", station.getServicePof().getTargetPath());
+    requestBuilder.header("SOAPAction", "\"paVerifyPaymentNotice\"");
+
+    String replacedBody =
+            paVerifyRequestBody
+                    .replace("{idPA}", creditorInstitution.getCreditorInstitutionCode())
+                    .replace("{idBrokerPA}", station.getBrokerCode())
+                    .replace("{idStation}", station.getStationCode());
+
+    RequestEntity<String> body = requestBuilder.body(replacedBody, String.class);
+    ResponseEntity<String> responseEntity = null;
+    try {
+      responseEntity = restTemplate.exchange(body, String.class);
+      return responseEntity.getBody();
+    } catch (Exception e) {
+      return e.getMessage();
     }
   }
 }

@@ -33,9 +33,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.web.client.RestTemplate;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class StationMonitorServiceTest {
 
     @Mock private Client kustoClient;
@@ -111,5 +114,12 @@ class StationMonitorServiceTest {
         stationMonitorService.checkStations();
         Thread.sleep(2000);
         verify(asyncService, times(2)).checkStation(any(), any(), any(), any());
+    }
+
+    @Test
+    void test2() throws Exception {
+        stationMonitorService.testStation("station1");
+        Thread.sleep(2000);
+        verify(asyncService, times(1)).testStation(any(), any(), any());
     }
 }

@@ -22,7 +22,7 @@ public class StationMonitorService {
 
   @Autowired private ConfigService configService;
   @Autowired private CosmosStationRepository cosmosStationRepository;
-  private AsyncService asyncService;
+  @Autowired private AsyncService asyncService;
 
   public void checkStations() {
     ZonedDateTime now = ZonedDateTime.now();
@@ -47,5 +47,17 @@ public class StationMonitorService {
     } else {
       log.warn("Can not run, cache is null");
     }
+  }
+
+  public String testStation(String stationCode) {
+      ZonedDateTime now = ZonedDateTime.now();
+      ConfigDataV1 cache = configService.getCache();
+      Station station = cache.getStations().get(stationCode);
+      StationCreditorInstitution creditorInstitution = cache.getCreditorInstitutionStations().entrySet().stream()
+              .filter(e -> e.getKey().startsWith(stationCode))
+              .map(Map.Entry::getValue)
+              .findFirst()
+              .orElseThrow(() -> new IllegalStateException("CreditorInstitution not found for station: " + stationCode));
+      return asyncService.testStation(now, station, creditorInstitution);
   }
 }
