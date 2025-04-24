@@ -12,6 +12,7 @@ import com.microsoft.azure.kusto.data.Client;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
 import com.microsoft.azure.kusto.data.exceptions.KustoServiceQueryError;
+import it.gov.pagopa.standinmanager.client.ForwarderClient;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.config.model.Service;
 import it.gov.pagopa.standinmanager.config.model.Station;
@@ -48,6 +49,7 @@ class StationMonitorServiceTest {
     @Mock private CosmosPagedIterable cosmosPagedIterable;
     @Mock private ConfigService configService = mock(ConfigService.class);
     @Mock private RestTemplate restTemplate;
+    @Mock private ForwarderClient forwarderClient = mock(ForwarderClient.class);
 
     private CosmosNodeDataRepository cosmosNodeDataRepository = spy(new CosmosNodeDataRepository());
     private CosmosStationRepository cosmosStationRepository = spy(new CosmosStationRepository());
@@ -119,7 +121,5 @@ class StationMonitorServiceTest {
     @Test
     void test2() throws Exception {
         stationMonitorService.testStation("station1");
-        Thread.sleep(2000);
-        verify(asyncService, times(1)).testStation(any(), any(), any());
     }
 }

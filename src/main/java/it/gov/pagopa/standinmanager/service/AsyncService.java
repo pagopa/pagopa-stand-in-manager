@@ -42,11 +42,4 @@ public class AsyncService {
                         .build();
         cosmosStationDataRepository.save(forwarderCallCounts);
     }
-
-    public String testStation(ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution) {
-        log.info("testStation [{}] [{}]", now, station.getStationCode());
-        String response = forwarderClient.testPaVerifyPaymentNotice(station, creditorInstitution);
-        log.info("testStation done success:[{}]", station.getStationCode());
-        return response;
-    }
 }

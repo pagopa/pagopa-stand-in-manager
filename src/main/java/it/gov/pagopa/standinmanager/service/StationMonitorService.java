@@ -1,5 +1,6 @@
 package it.gov.pagopa.standinmanager.service;
 
+import it.gov.pagopa.standinmanager.client.ForwarderClient;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.config.model.Station;
 import it.gov.pagopa.standinmanager.config.model.StationCreditorInstitution;
@@ -9,7 +10,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +17,12 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class StationMonitorService {
 
   @Autowired private ConfigService configService;
   @Autowired private CosmosStationRepository cosmosStationRepository;
   @Autowired private AsyncService asyncService;
+  @Autowired private ForwarderClient forwarderClient;
 
   public void checkStations() {
     ZonedDateTime now = ZonedDateTime.now();
@@ -58,6 +58,13 @@ public class StationMonitorService {
               .map(Map.Entry::getValue)
               .findFirst()
               .orElseThrow(() -> new IllegalStateException("CreditorInstitution not found for station: " + stationCode));
-      return asyncService.testStation(now, station, creditorInstitution);
+      return callForwarder(now, station, creditorInstitution);
+  }
+
+  public String callForwarder(ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution) {
+      log.info("testStation [{}] [{}]", now, station.getStationCode());
+      String response = forwarderClient.testPaVerifyPaymentNotice(station, creditorInstitution);
+      log.info("testStation done success:[{}]", station.getStationCode());
+      return response;
   }
 }
