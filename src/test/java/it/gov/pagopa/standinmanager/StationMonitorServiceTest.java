@@ -119,7 +119,7 @@ class StationMonitorServiceTest {
     }
 
     @Test
-    void test2() throws Exception {
+    void test2() {
         stationMonitorService.testStation("station1");
         verify(forwarderClient, times(1)).testPaVerifyPaymentNotice(any(), any());
     }

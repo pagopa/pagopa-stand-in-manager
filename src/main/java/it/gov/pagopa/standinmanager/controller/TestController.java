@@ -9,7 +9,6 @@ import it.gov.pagopa.standinmanager.client.MailService;
 import it.gov.pagopa.standinmanager.service.*;
 import it.gov.pagopa.standinmanager.util.Constants;
 import java.time.ZonedDateTime;
-import java.util.List;
 
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +32,8 @@ public class TestController {
   StationMonitorService stationMonitorService;
   @Autowired
   EventHubService eventHubService;
-  @Autowired
-  private MailService mailService;
 
+  private MailService mailService;
 
   @Operation(summary = "Sends test email to the configured addresses")
   @ApiResponses(
@@ -44,7 +42,7 @@ public class TestController {
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
   @GetMapping(value = {"/test-email", "/email"})
-  public ResponseEntity testEmail() {
+  public ResponseEntity<String> testEmail() {
     String s = mailService.sendEmail("test subject", "test message");
     return ResponseEntity.status(HttpStatus.OK).body(s);
   }
@@ -57,7 +55,7 @@ public class TestController {
           })
   @SneakyThrows
   @GetMapping(value = {"/test-1", "/node-data"})
-  public ResponseEntity test1() {
+  public ResponseEntity<String> test1() {
     nodoMonitorService.getAndSaveData();
     return ResponseEntity.status(HttpStatus.OK).body("OK");
   }
@@ -70,7 +68,7 @@ public class TestController {
           })
   @SneakyThrows
   @GetMapping(value = {"/test-2", "/run-calculations"})
-  public ResponseEntity test2() {
+  public ResponseEntity<String> test2() {
     nodoCalcService.runCalculations();
     return ResponseEntity.status(HttpStatus.OK).body("OK");
   }
@@ -83,7 +81,7 @@ public class TestController {
           })
   @SneakyThrows
   @GetMapping(value = {"/test-3", "/check-stations"})
-  public ResponseEntity test3() {
+  public ResponseEntity<String> test3() {
     stationMonitorService.checkStations();
     return ResponseEntity.status(HttpStatus.OK).body("OK");
   }
@@ -96,7 +94,7 @@ public class TestController {
           })
   @SneakyThrows
   @GetMapping(value = {"/test-4", "/station-data"})
-  public ResponseEntity test4() {
+  public ResponseEntity<String> test4() {
     stationCalcService.runCalculations();
     return ResponseEntity.status(HttpStatus.OK).body("OK");
   }
@@ -108,7 +106,7 @@ public class TestController {
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
   @GetMapping(value = {"/test-event", "/publish-event"})
-  public ResponseEntity test5() {
+  public ResponseEntity<String> test5() {
     try {
       eventHubService.publishEvent(ZonedDateTime.now(), "test", Constants.type_added);
     } catch (JsonProcessingException e) {
@@ -125,7 +123,7 @@ public class TestController {
           })
   @SneakyThrows
   @GetMapping(value = {"/test-station", "/station/{station}"})
-  public ResponseEntity test6(@PathVariable(name = "station") String stationCode) {
+  public ResponseEntity<String> test6(@PathVariable(name = "station") String stationCode) {
     return ResponseEntity.status(HttpStatus.OK).body(stationMonitorService.testStation(stationCode));
   }
 

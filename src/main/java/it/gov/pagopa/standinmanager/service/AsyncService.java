@@ -19,8 +19,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AsyncService {
 
-    private CosmosStationDataRepository cosmosStationDataRepository;
-    private ForwarderClient forwarderClient;
+    private final CosmosStationDataRepository cosmosStationDataRepository;
+    private final ForwarderClient forwarderClient;
 
     @Async
     public void checkStation(ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution, CosmosStandInStation standInStation) {

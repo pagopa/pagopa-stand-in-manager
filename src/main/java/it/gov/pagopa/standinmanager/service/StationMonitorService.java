@@ -10,19 +10,20 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class StationMonitorService {
 
-  @Autowired private ConfigService configService;
-  @Autowired private CosmosStationRepository cosmosStationRepository;
-  @Autowired private AsyncService asyncService;
-  @Autowired private ForwarderClient forwarderClient;
+  private final ConfigService configService;
+  private final CosmosStationRepository cosmosStationRepository;
+  private final ForwarderClient forwarderClient;
+  private final AsyncService asyncService;
 
   public void checkStations() {
     ZonedDateTime now = ZonedDateTime.now();
