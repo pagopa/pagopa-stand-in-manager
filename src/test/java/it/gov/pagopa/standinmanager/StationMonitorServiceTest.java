@@ -49,7 +49,7 @@ class StationMonitorServiceTest {
     @Mock private CosmosPagedIterable cosmosPagedIterable;
     @Mock private ConfigService configService = mock(ConfigService.class);
     @Mock private RestTemplate restTemplate;
-    @Mock private ForwarderClient forwarderClient = mock(ForwarderClient.class);
+    @Mock private ForwarderClient forwarderClient;
 
     private CosmosNodeDataRepository cosmosNodeDataRepository = spy(new CosmosNodeDataRepository());
     private CosmosStationRepository cosmosStationRepository = spy(new CosmosStationRepository());
@@ -121,5 +121,6 @@ class StationMonitorServiceTest {
     @Test
     void test2() throws Exception {
         stationMonitorService.testStation("station1");
+        verify(forwarderClient, times(1)).testPaVerifyPaymentNotice(any(), any());
     }
 }
