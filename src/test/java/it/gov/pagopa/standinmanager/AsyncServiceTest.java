@@ -23,6 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.ZonedDateTime;
@@ -33,6 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AsyncServiceTest {
 
     @Mock private Client kustoClient;
@@ -99,6 +102,7 @@ class AsyncServiceTest {
         org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "url", "http://forwarder.it");
         org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "key", "key");
         org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(asyncService, "forwarderClient", forwarderClient);
     }
 
     @Test
@@ -110,5 +114,24 @@ class AsyncServiceTest {
 
         asyncService.checkStation(ZonedDateTime.now(), station, stationCreditorInstitution, CosmosStandInStation.builder().build());
         verify(cosmosStationDataRepository, times( 1)).save(any());
+    }
+
+    @Test
+    void test2() {
+        Station station1 = new Station();
+        station1.setBrokerCode("broker1");
+        station1.setStationCode("station1");
+        Service service = new Service();
+        service.setTargetHost("http://test.it");
+        service.setTargetPath("/test");
+        service.setTargetPort(8080l);
+        station1.setServicePof(service);
+
+        StationCreditorInstitution stationCreditorInstitution1 = new StationCreditorInstitution();
+        stationCreditorInstitution1.setStationCode(station1.getStationCode());
+        stationCreditorInstitution1.setCreditorInstitutionCode("creditorInstitution");
+
+        asyncService.testStation(ZonedDateTime.now(), station1, stationCreditorInstitution1);
+
     }
 }

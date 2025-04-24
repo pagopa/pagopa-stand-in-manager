@@ -8,7 +8,6 @@ import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +19,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AsyncService {
 
-    @Autowired private CosmosStationDataRepository cosmosStationDataRepository;
-    @Autowired private ForwarderClient forwarderClient;
+    private CosmosStationDataRepository cosmosStationDataRepository;
+    private ForwarderClient forwarderClient;
 
     @Async
     public void checkStation(ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution, CosmosStandInStation standInStation) {
