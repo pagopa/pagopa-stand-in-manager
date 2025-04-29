@@ -1,11 +1,8 @@
 microservice-chart:
   namespace: "nodo"
-  nameOverride: ""
-  fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
     tag: "0.0.11-6-PAGOPA-2994-probe"
-    pullPolicy: Always
   livenessProbe:
     httpGet:
       path: /actuator/health/liveness
@@ -31,7 +28,11 @@ microservice-chart:
   ingress:
     create: true
     host: "weudev.nodo.internal.dev.platform.pagopa.it"
-    path: /pagopa-stand-in-manager(/|$)(.*)
+    path: /pagopa-stand-in-manager/(.*)
+  serviceAccount:
+    name: "nodo-workload-identity"
+  azure:
+    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   podAnnotations: {}
   podSecurityContext:
     seccompProfile:
