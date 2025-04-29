@@ -1,11 +1,8 @@
 microservice-chart:
   namespace: "nodo"
-  nameOverride: ""
-  fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
     tag: "0.0.12"
-    pullPolicy: Always
   livenessProbe:
     httpGet:
       path: /actuator/health/liveness
@@ -22,6 +19,7 @@ microservice-chart:
     periodSeconds: 10
   deployment:
     create: true
+    replicas: 1
   service:
     create: true
     type: ClusterIP
@@ -30,11 +28,11 @@ microservice-chart:
   ingress:
     create: true
     host: "weuprod.nodo.internal.platform.pagopa.it"
-    path: /pagopa-stand-in-manager(/|$)(.*)
+    path: /pagopa-stand-in-manager/(.*)
   serviceAccount:
-    create: false
-    annotations: {}
-    name: ""
+    name: "nodo-workload-identity"
+  azure:
+    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   podAnnotations: {}
   podSecurityContext:
     seccompProfile:
@@ -49,17 +47,7 @@ microservice-chart:
       memory: "768Mi"
       cpu: "0.5"
   autoscaling:
-    enable: true
-    minReplica: 1
-    maxReplica: 1
-    pollingInterval: 10 # seconds
-    cooldownPeriod: 50 # seconds
-    triggers:
-      - type: cpu
-        metadata:
-          # Required
-          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
-          value: "75"
+    enable: false
   envConfig:
     WEBSITE_SITE_NAME: 'pagopa-stand-in-manager' # required to show cloud role name in application insights
     ENV: 'prod'
@@ -95,28 +83,29 @@ microservice-chart:
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
     STAND_IN_TX_NAME: "nodo-dei-pagamenti-stand-in"
-  secretProvider:
-    create: true
-    envSecrets:
-      # required
-      APPLICATIONINSIGHTS_CONNECTION_STRING: "azure-insight-connection-string"
-      OTEL_EXPORTER_OTLP_HEADERS: "elastic-apm-secret-token"
-      SPRING_DATASOURCE_PASSWORD: "db-cfg-password"
-      API_CONFIG_CACHE_API_KEY: "api-config-cache-subscription-key-string"
-      AWS_ACCESS_KEY_ID: "pagopa-aws-access-id"
-      AWS_SECRET_ACCESS_KEY: "pagopa-aws-secret-access-key"
-      AWS_SES_USER: "standin-aws-ses-user"
-      AWS_MAILTO: "standin-mail-to"
-      COSMOS_KEY: "cosmos-standin-account-key"
-      FORWARDER_KEY: "node-forwarder-subscription-key-string"
-      STAND_IN_TX_CONNECTION_STRING: "nodo-dei-pagamenti-stand-in-tx-connection-string-key"
-    keyvault:
+  envSecret:
+    # required
+    APPLICATIONINSIGHTS_CONNECTION_STRING: "azure-insight-connection-string"
+    OTEL_EXPORTER_OTLP_HEADERS: "elastic-apm-secret-token"
+    SPRING_DATASOURCE_PASSWORD: "db-cfg-password"
+    API_CONFIG_CACHE_API_KEY: "api-config-cache-subscription-key-string"
+    AWS_ACCESS_KEY_ID: "pagopa-aws-access-id"
+    AWS_SECRET_ACCESS_KEY: "pagopa-aws-secret-access-key"
+    AWS_SES_USER: "standin-aws-ses-user"
+    AWS_MAILTO: "standin-mail-to"
+    COSMOS_KEY: "cosmos-standin-account-key"
+    FORWARDER_KEY: "node-forwarder-subscription-key-string"
+    STAND_IN_TX_CONNECTION_STRING: "nodo-dei-pagamenti-stand-in-tx-connection-string-key"
+  keyvault:
       name: "pagopa-p-nodo-kv"
       tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
   tmpVolumeMount:
     create: true
-  nodeSelector: {}
-  tolerations: []
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: "nodo"
+      effect: NoSchedule
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -137,20 +126,3 @@ microservice-chart:
             topologyKey: topology.kubernetes.io/zone
   canaryDelivery:
     create: false
-    ingress:
-      create: false
-      canary:
-        type: header
-        headerName: X-Canary
-        headerValue: canary
-        weightPercent: 0
-    service:
-      create: true
-    deployment:
-      create: true
-      image:
-        repository: ghcr.io/pagopa/pagopa-stand-in-manager
-        tag: "0.0.0"
-        pullPolicy: Always
-      envConfig: {}
-      envSecrets: {}
