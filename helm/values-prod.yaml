@@ -2,7 +2,7 @@ microservice-chart:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.0.12"
+    tag: "0.0.12-1-fix-chart"
   livenessProbe:
     httpGet:
       path: /actuator/health/liveness
@@ -97,8 +97,8 @@ microservice-chart:
     FORWARDER_KEY: "node-forwarder-subscription-key-string"
     STAND_IN_TX_CONNECTION_STRING: "nodo-dei-pagamenti-stand-in-tx-connection-string-key"
   keyvault:
-      name: "pagopa-p-nodo-kv"
-      tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
+    name: "pagopa-p-nodo-kv"
+    tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
   tmpVolumeMount:
     create: true
   tolerations:
