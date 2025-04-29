@@ -49,8 +49,14 @@ public class OpenApiConfig {
                                 new ServerVariable()
                                     ._enum(
                                         List.of(
-                                            "stand-in-manager/v1"))
-                                    ._default("api-config-cache/o/v1")))))
+                                            "stand-in-manager/v1"
+                                        )
+                                    )
+                                    ._default("")
+                            )
+                    )
+            )
+        )
         .components(
             new Components()
                 .addSecuritySchemes(

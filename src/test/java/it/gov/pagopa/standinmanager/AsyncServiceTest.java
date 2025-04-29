@@ -1,17 +1,10 @@
 package it.gov.pagopa.standinmanager;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosDatabase;
-import com.azure.cosmos.models.SqlQuerySpec;
 import com.azure.cosmos.util.CosmosPagedIterable;
 import com.microsoft.azure.kusto.data.Client;
-import com.microsoft.azure.kusto.data.exceptions.DataClientException;
-import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
-import com.microsoft.azure.kusto.data.exceptions.KustoServiceQueryError;
 import it.gov.pagopa.standinmanager.client.ForwarderClient;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.config.model.Service;
@@ -19,28 +12,28 @@ import it.gov.pagopa.standinmanager.config.model.Station;
 import it.gov.pagopa.standinmanager.config.model.StationCreditorInstitution;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
+import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import it.gov.pagopa.standinmanager.service.AsyncService;
 import it.gov.pagopa.standinmanager.service.ConfigService;
-import it.gov.pagopa.standinmanager.service.StationMonitorService;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-class StationMonitorServiceTest {
+class AsyncServiceTest {
 
     @Mock private Client kustoClient;
     @Mock private CosmosClient cosmosClient;
@@ -49,20 +42,19 @@ class StationMonitorServiceTest {
     @Mock private CosmosPagedIterable cosmosPagedIterable;
     @Mock private ConfigService configService = mock(ConfigService.class);
     @Mock private RestTemplate restTemplate;
-    @Mock private ForwarderClient forwarderClient;
 
     private CosmosNodeDataRepository cosmosNodeDataRepository = spy(new CosmosNodeDataRepository());
+    private CosmosStationDataRepository cosmosStationDataRepository = spy(new CosmosStationDataRepository());
     private CosmosStationRepository cosmosStationRepository = spy(new CosmosStationRepository());
     private CosmosEventsRepository cosmosEventsRepository = spy(CosmosEventsRepository.class);
 
-    @Mock
-    AsyncService asyncService;
+    private ForwarderClient forwarderClient = new ForwarderClient();
 
     @InjectMocks
-    private StationMonitorService stationMonitorService;
+    private AsyncService asyncService;
 
     @BeforeEach
-    void setUp() throws KustoServiceQueryError, DataServiceException, DataClientException {
+    void setUp() {
         ConfigDataV1 configDataV1 = new ConfigDataV1();
 
         Map<String, Station> stations = new HashMap<>();
@@ -96,31 +88,28 @@ class StationMonitorServiceTest {
         stationCreditorInstitutions.put(station2.getStationCode() + "_creditorInstitution",stationCreditorInstitution1);
         configDataV1.setCreditorInstitutionStations(stationCreditorInstitutions);
 
-        when(configService.getCache()).thenReturn(configDataV1);
         when(cosmosClient.getDatabase(any())).thenReturn(cosmosDatabase);
         when(cosmosDatabase.getContainer(any())).thenReturn(cosmosContainer);
-        when(cosmosContainer.queryItems(any(SqlQuerySpec.class),any(),any())).thenReturn(cosmosPagedIterable);
-        when(cosmosPagedIterable.stream()).thenReturn(Arrays.asList(
-                new CosmosStandInStation("","station1",Instant.now()),
-                new CosmosStandInStation("","station2",Instant.now())
-        ).stream());
 
         org.springframework.test.util.ReflectionTestUtils.setField(cosmosNodeDataRepository, "cosmosClient", cosmosClient);
+        org.springframework.test.util.ReflectionTestUtils.setField(cosmosStationDataRepository, "cosmosClient", cosmosClient);
         org.springframework.test.util.ReflectionTestUtils.setField(cosmosStationRepository, "cosmosClient", cosmosClient);
         org.springframework.test.util.ReflectionTestUtils.setField(cosmosEventsRepository, "cosmosClient", cosmosClient);
-        org.springframework.test.util.ReflectionTestUtils.setField(stationMonitorService, "cosmosStationRepository", cosmosStationRepository);
+        org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "cosmosEventsRepository", cosmosEventsRepository);
+        org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "url", "http://forwarder.it");
+        org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "key", "key");
+        org.springframework.test.util.ReflectionTestUtils.setField(forwarderClient, "restTemplate", restTemplate);
+        org.springframework.test.util.ReflectionTestUtils.setField(asyncService, "forwarderClient", forwarderClient);
     }
 
     @Test
-    void test1() throws Exception {
-        stationMonitorService.checkStations();
-        Thread.sleep(2000);
-        verify(asyncService, times(2)).checkStation(any(), any(), any(), any());
-    }
+    void test1() {
+        Station station  = new Station();
+        station.setStationCode("station1");
 
-    @Test
-    void test2() {
-        stationMonitorService.testStation("station1");
-        verify(forwarderClient, times(1)).testPaVerifyPaymentNotice(any(), any());
+        StationCreditorInstitution stationCreditorInstitution = new StationCreditorInstitution();
+
+        asyncService.checkStation(ZonedDateTime.now(), station, stationCreditorInstitution, CosmosStandInStation.builder().build());
+        verify(cosmosStationDataRepository, times( 1)).save(any());
     }
 }

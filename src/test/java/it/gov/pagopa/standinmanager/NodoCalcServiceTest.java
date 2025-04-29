@@ -41,14 +41,12 @@ import software.amazon.awssdk.services.ses.model.SendEmailResponse;
 @ExtendWith(MockitoExtension.class)
 class NodoCalcServiceTest {
 
-
-
     @Mock private Client kustoClient;
     @Mock private CosmosClient cosmosClient;
     @Mock private CosmosDatabase cosmosDatabase;
     @Mock private CosmosContainer cosmosContainer;
     @Mock private CosmosPagedIterable cosmosPagedIterable;
-   @Mock private DatabaseStationsRepository databaseStationsRepository = mock(DatabaseStationsRepository.class);
+    @Mock private DatabaseStationsRepository databaseStationsRepository = mock(DatabaseStationsRepository.class);
 
     private CosmosNodeDataRepository cosmosNodeDataRepository = spy(new CosmosNodeDataRepository());
     private CosmosStationRepository cosmosStationRepository = spy(new CosmosStationRepository());
