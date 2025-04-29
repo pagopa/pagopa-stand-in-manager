@@ -115,7 +115,7 @@ public class TestController {
     return ResponseEntity.status(HttpStatus.OK).body("OK");
   }
 
-  @Operation(summary = "Sends probe to station specified in query string")
+  @Operation(summary = "Sends probe to station specified in input")
   @ApiResponses(
           value = {
                   @ApiResponse(responseCode = "200", description = "OK response"),
