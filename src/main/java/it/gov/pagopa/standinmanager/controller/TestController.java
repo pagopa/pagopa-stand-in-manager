@@ -41,7 +41,7 @@ public class TestController {
                   @ApiResponse(responseCode = "200", description = "OK response"),
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
-  @GetMapping(value = {"/test-email", "/email"})
+  @GetMapping(value = { "/email"})
   public ResponseEntity<String> testEmail() {
     String s = mailService.sendEmail("test subject", "test message");
     return ResponseEntity.status(HttpStatus.OK).body(s);
@@ -54,7 +54,7 @@ public class TestController {
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
   @SneakyThrows
-  @GetMapping(value = {"/test-1", "/node-data"})
+  @GetMapping(value = { "/node-data"})
   public ResponseEntity<String> test1() {
     nodoMonitorService.getAndSaveData();
     return ResponseEntity.status(HttpStatus.OK).body("OK");
@@ -67,7 +67,7 @@ public class TestController {
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
   @SneakyThrows
-  @GetMapping(value = {"/test-2", "/run-calculations"})
+  @GetMapping(value = { "/run-calculations"})
   public ResponseEntity<String> test2() {
     nodoCalcService.runCalculations();
     return ResponseEntity.status(HttpStatus.OK).body("OK");
@@ -80,7 +80,7 @@ public class TestController {
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
   @SneakyThrows
-  @GetMapping(value = {"/test-3", "/check-stations"})
+  @GetMapping(value = { "/check-stations"})
   public ResponseEntity<String> test3() {
     stationMonitorService.checkStations();
     return ResponseEntity.status(HttpStatus.OK).body("OK");
@@ -93,7 +93,7 @@ public class TestController {
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
   @SneakyThrows
-  @GetMapping(value = {"/test-4", "/station-data"})
+  @GetMapping(value = { "/station-data"})
   public ResponseEntity<String> test4() {
     stationCalcService.runCalculations();
     return ResponseEntity.status(HttpStatus.OK).body("OK");
@@ -105,7 +105,7 @@ public class TestController {
                   @ApiResponse(responseCode = "200", description = "OK response"),
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
-  @GetMapping(value = {"/test-event", "/publish-event"})
+  @GetMapping(value = { "/publish-event"})
   public ResponseEntity<String> test5() {
     try {
       eventHubService.publishEvent(ZonedDateTime.now(), "test", Constants.type_added);
@@ -122,7 +122,7 @@ public class TestController {
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
   @SneakyThrows
-  @GetMapping(value = {"/test-station", "/station/{station}"})
+  @GetMapping(value = { "/station/{station}"})
   public ResponseEntity<String> test6(@PathVariable(name = "station") String stationCode) {
     return ResponseEntity.status(HttpStatus.OK).body(stationMonitorService.testStation(stationCode));
   }
