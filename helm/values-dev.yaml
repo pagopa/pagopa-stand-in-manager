@@ -2,7 +2,7 @@ microservice-chart:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.0.12-1-fix-chart"
+    tag: "0.1.0"
   livenessProbe:
     httpGet:
       path: /actuator/health/liveness
