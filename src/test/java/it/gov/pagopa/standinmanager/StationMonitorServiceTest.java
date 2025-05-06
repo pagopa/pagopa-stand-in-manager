@@ -123,4 +123,14 @@ class StationMonitorServiceTest {
         stationMonitorService.testStation("station1");
         verify(forwarderClient, times(1)).testPaVerifyPaymentNotice(any(), any());
     }
+
+    @Test
+    void test3() throws Exception {
+        when(cosmosPagedIterable.stream()).thenReturn(Arrays.asList(
+                new CosmosStandInStation("","station1",Instant.now())
+        ).stream());
+        stationMonitorService.checkStations();
+        Thread.sleep(2000);
+        verify(asyncService, times(1)).checkStation(any(), any(), any(), any());
+    }
 }
