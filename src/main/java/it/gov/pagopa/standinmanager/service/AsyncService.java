@@ -25,14 +25,14 @@ public class AsyncService {
     @Async
     public void checkStation(ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution, CosmosStandInStation standInStation) {
 
-        log.info("checkStation [{}] [{}]", now, standInStation.getStation());
+        log.info("[async checkStation] [{}] [{}]", standInStation.getStation(), now);
         boolean b = false;
         try {
             b = forwarderClient.paVerifyPaymentNotice(station, creditorInstitution);
         } catch (Exception e) {
-            log.error("error in verify", e);
+            log.error(String.format("error in paVerifyPaymentNotice [%s]", station), e);
         }
-        log.info("checkStation done success:[{}]", b);
+        log.info("checkStation [{}] done success:[{}]", station, b);
         CosmosForwarderCallCounts forwarderCallCounts =
                 CosmosForwarderCallCounts.builder()
                         .id(UUID.randomUUID().toString())

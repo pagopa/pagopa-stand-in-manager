@@ -1,5 +1,6 @@
 package it.gov.pagopa.standinmanager.service;
 
+import com.azure.cosmos.implementation.guava25.base.Joiner;
 import it.gov.pagopa.standinmanager.client.ForwarderClient;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.config.model.Station;
@@ -9,10 +10,12 @@ import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -27,10 +30,14 @@ public class StationMonitorService {
 
   public void checkStations() {
     ZonedDateTime now = ZonedDateTime.now();
-    log.info("checkStations [{}]", now);
+    log.info("[checkStations] [{}]", now);
     ConfigDataV1 cache = configService.getCache();
     if (cache != null) {
       List<CosmosStandInStation> stations = cosmosStationRepository.getStations();
+      if (log.isDebugEnabled()) {
+          List<String> stationCodes = stations.stream().map(CosmosStandInStation::getStation).collect(Collectors.toList());
+          log.debug("[checkStations] stations to check: " + String.join(", ", stationCodes));
+      }
       stations.stream()
           .map(s -> Pair.of(s, cache.getStations().get(s.getStation())))
           .filter(s -> s.getRight() != null)
@@ -46,7 +53,7 @@ public class StationMonitorService {
             }
           );
     } else {
-      log.warn("Can not run, cache is null");
+      log.warn("[checkStations] Can not run, cache is null");
     }
   }
 
