@@ -4,7 +4,7 @@
     "description": "Stand in Manager",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "@project.name@",
-    "version": "0.1.1-1-debug-station-probe"
+    "version": "0.1.1-2-debug-station-probe"
   },
   "servers": [
     {
