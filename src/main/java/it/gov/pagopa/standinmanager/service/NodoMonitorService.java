@@ -28,13 +28,13 @@ public class NodoMonitorService {
                     + "FAULT_CODE\n"
                     + "{stationsFilter}| where faultCode in"
                     + " ('PPT_STAZIONE_INT_PA_IRRAGGIUNGIBILE','PPT_STAZIONE_INT_PA_TIMEOUT','PPT_STAZIONE_INT_PA_SERVIZIO_NON_ATTIVO')\n"
-                    + "| where tipoEvento in ('verifyPaymentNotice','activatePaymentNotice')\n"
+                    + "| where tipoEvento in ('verifyPaymentNotice','activatePaymentNotice', 'activatePaymentNoticeV2')\n"
                     + "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"
                     + "| summarize count = count() by (stazione)";
     private final String TOTALS_QUERY =
             "declare query_parameters(year:int,month:int,day:int,hour:int,minute:int,second:int);\n"
                     + "ReEvent\n{stationsFilter}"
-                    + "| where tipoEvento in ('paVerifyPaymentNotice','paGetPayment')\n"
+                    + "| where tipoEvento in ('paVerifyPaymentNotice','paGetPayment', 'paGetPaymentV2')\n"
                     + "| where sottoTipoEvento == 'REQ'\n"
                     + "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"
                     + "| summarize count = count() by (stazione)";
@@ -46,7 +46,6 @@ public class NodoMonitorService {
     @Value("${excludedStations}")
     private String excludedStations;
 
-    //  @Autowired private BlacklistStationsRepository blacklistStationsRepository;
     @Autowired
     private Client kustoClient;
     @Autowired
