@@ -43,13 +43,16 @@ public class StationMonitorService {
           .filter(s -> s.getRight() != null)
           .forEach(s -> {
                 Station station = s.getRight();
-                StationCreditorInstitution creditorInstitution = cache.getCreditorInstitutionStations().entrySet().stream()
-                    .filter(e -> e.getKey().startsWith(station.getStationCode()))
-                    .map(Map.Entry::getValue)
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalStateException("CreditorInstitution not found for station: " + station.getStationCode()));
-
-              asyncService.checkStation(now, station, creditorInstitution, s.getLeft());
+                try {
+                    StationCreditorInstitution creditorInstitution = cache.getCreditorInstitutionStations().entrySet().stream()
+                            .filter(e -> e.getKey().startsWith(station.getStationCode()))
+                            .map(Map.Entry::getValue)
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalStateException("CreditorInstitution not found for station: " + station.getStationCode()));
+                    asyncService.checkStation(now, station, creditorInstitution, s.getLeft());
+                } catch (IllegalStateException e) {
+                    log.warn("[checkStations] station [{}] has problem configuration with creditor institution: ", station);
+                }
             }
           );
     } else {
