@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
 import it.gov.pagopa.standinmanager.client.MailService;
+import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
+import it.gov.pagopa.standinmanager.config.model.Station;
+import it.gov.pagopa.standinmanager.config.model.StationCreditorInstitution;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
@@ -92,53 +95,82 @@ public class StationCalcService {
                                 stationCounts.size());
                     }
 
-                    if (insertTime.plus(rangeMinutes, ChronoUnit.MINUTES).isBefore(Instant.now())
-                            && successfulCalls > rangeLimit) {
-                        log.info(
-                                "removing station [{}] from standIn stations because {} calls were successful in"
-                                        + " the last {} minutes",
-                                station,
-                                successfulCalls,
-                                rangeMinutes);
-                        //            standInStationsRepository.deleteById(station);
-                        List<CosmosStandInStation> stations = cosmosStationRepository.getStation(station);
-                        stations.forEach(
-                                s -> {
-                                    cosmosStationRepository.removeStation(s);
-                                });
-
-                        if (sendEvent) {
-                            log.info("sending {} event for station {}", Constants.type_removed, station);
-                            try {
-                                eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.type_removed);
-                            } catch (JsonProcessingException e) {
-                                log.error("could not publish {} for stations {}", Constants.type_removed, station);
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        if (saveDB) {
-                            log.info("removing {} from standin database", station);
-                            dbStationsRepository.deleteById(station);
-                        }
-
-                        cosmosEventsRepository.newEvent(
-                                station,
-                                Constants.EVENT_REMOVE_FROM_STANDIN,
-                                String.format(
-                                        "removing station [%s] from standIn stations because %s calls were successful"
-                                                + " in the last %s minutes",
-                                        station, successfulCalls, rangeMinutes));
-
-                        String sendResult =
-                                awsSesClient.sendEmail(
-                                        String.format(
-                                                "[StandInManager][%s] Station [%s] removed from standin", env, station),
-                                        String.format(
-                                                "[StandInManager]Station [%s] has been removed from standin"
-                                                        + "\nbecause [%s] calls were successful in the last %s minutes",
-                                                station, successfulCalls, rangeMinutes));
-                        log.info("email sender: {}", sendResult);
+                    if (insertTime.plus(rangeMinutes, ChronoUnit.MINUTES).isBefore(Instant.now()) && successfulCalls > rangeLimit) {
+                        removeStationAutomatically(station, successfulCalls);
                     }
                 });
     }
+
+    public void removeStationFromStandIn(String station) {
+        List<CosmosStandInStation> stations = cosmosStationRepository.getStation(station);
+
+        if (stations.isEmpty()) {
+            throw new IllegalStateException("Station not found: " + station);
+        }
+
+        removeStationManually(station);
+    }
+
+    private void removeStationManually(String station) {
+        String eventInfo = String.format(
+                "removing station [%s] from standIn stations manually", station);
+
+        String emailBody = String.format(
+                "[StandInManager] Station [%s] has been removed from stand-in manually", station);
+
+        removeStation(station, eventInfo, emailBody);
+    }
+
+    private void removeStationAutomatically(String station, long successfulCalls) {
+        String eventInfo = String.format(
+                "removing station [%s] from standIn stations because %s calls were successful"
+                        + " in the last %s minutes", station, successfulCalls, rangeMinutes);
+
+        String emailBody = String.format(
+                "[StandInManager] Station [%s] has been removed from stand-in"
+                        + "\nbecause [%s] calls were successful in the last %s minutes",
+                station, successfulCalls, rangeMinutes);
+
+        removeStation(station, eventInfo, emailBody);
+    }
+
+    private void removeStation(String station, String eventInfo, String emailBody) {
+        log.info(eventInfo);
+
+        List<CosmosStandInStation> stations = cosmosStationRepository.getStation(station);
+        stations.forEach(
+                s -> {
+                    cosmosStationRepository.removeStation(s);
+                });
+
+        if (sendEvent) {
+            log.info("sending {} event for station {}", Constants.type_removed, station);
+            try {
+                eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.type_removed);
+            } catch (JsonProcessingException e) {
+                log.error("could not publish {} for stations {}", Constants.type_removed, station);
+                throw new RuntimeException(e);
+            }
+        }
+        if (saveDB) {
+            log.info("removing {} from standin database", station);
+            dbStationsRepository.deleteById(station);
+        }
+
+        cosmosEventsRepository.newEvent(
+                station,
+                Constants.EVENT_REMOVE_FROM_STANDIN,
+                eventInfo
+        );
+
+        String sendResult =
+                awsSesClient.sendEmail(
+                        String.format(
+                                "[StandInManager][%s] Station [%s] removed from stand-in", env, station),
+                        emailBody
+                );
+        log.info("email sender: {}", sendResult);
+    }
+
+
 }

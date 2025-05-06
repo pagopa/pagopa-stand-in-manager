@@ -18,9 +18,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/force")
+@RequestMapping("/internal")
 @Validated
-public class TestController {
+public class InternalController {
 
   @Autowired
   NodoCalcService nodoCalcService;
@@ -115,16 +115,29 @@ public class TestController {
     return ResponseEntity.status(HttpStatus.OK).body("OK");
   }
 
-  @Operation(summary = "Sends probe to station specified in input")
+  @Operation(summary = "Sends probe to station specified in input. No impact on the workflow.")
   @ApiResponses(
           value = {
                   @ApiResponse(responseCode = "200", description = "OK response"),
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
   @SneakyThrows
-  @GetMapping(value = { "/station/{station}"})
+  @GetMapping(value = { "/stations/{station}"})
   public ResponseEntity<String> test6(@PathVariable(name = "station") String stationCode) {
     return ResponseEntity.status(HttpStatus.OK).body(stationMonitorService.testStation(stationCode));
+  }
+
+  @Operation(summary = "Removes the station from stand-in manually. The operation is saved in the event registry.")
+  @ApiResponses(
+          value = {
+                  @ApiResponse(responseCode = "200", description = "OK response"),
+                  @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
+          })
+  @SneakyThrows
+  @DeleteMapping(value = { "/stations/{station}"})
+  public ResponseEntity<String> removeStationFromStandIn(@PathVariable(name = "station") String stationCode) {
+    stationCalcService.removeStationFromStandIn(stationCode);
+    return ResponseEntity.ok().build();
   }
 
 }
