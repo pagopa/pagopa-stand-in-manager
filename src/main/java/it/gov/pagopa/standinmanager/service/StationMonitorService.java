@@ -51,7 +51,7 @@ public class StationMonitorService {
                             .orElseThrow(() -> new IllegalStateException("CreditorInstitution not found for station: " + station.getStationCode()));
                     asyncService.checkStation(now, station, creditorInstitution, s.getLeft());
                 } catch (IllegalStateException e) {
-                    log.warn("[checkStations] station [{}] has problem configuration with creditor institution: ", station);
+                    log.warn("[checkStations] station [{}] has problem configuration with creditor institution: ", station.getStationCode());
                 }
             }
           );

@@ -30,9 +30,9 @@ public class AsyncService {
         try {
             b = forwarderClient.paVerifyPaymentNotice(station, creditorInstitution);
         } catch (Exception e) {
-            log.error(String.format("error in paVerifyPaymentNotice [%s]", station), e);
+            log.error(String.format("[async checkStation] error in paVerifyPaymentNotice [%s]", station), e);
         }
-        log.info("checkStation [{}] done success:[{}]", station, b);
+        log.info("[async checkStation] [{}] done success:[{}]", station.getStationCode(), b);
         CosmosForwarderCallCounts forwarderCallCounts =
                 CosmosForwarderCallCounts.builder()
                         .id(UUID.randomUUID().toString())
