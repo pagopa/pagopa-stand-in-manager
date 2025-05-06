@@ -2,7 +2,7 @@ microservice-chart:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.1.0"
+    tag: "0.1.0-1-fix-prod"
   livenessProbe:
     httpGet:
       path: /actuator/health/liveness
@@ -51,12 +51,12 @@ microservice-chart:
   envConfig:
     WEBSITE_SITE_NAME: 'pagopa-stand-in-manager' # required to show cloud role name in application insights
     ENV: 'prod'
-    APP_LOGGING_LEVEL: 'DEBUG'
+    APP_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     SPRING_DATASOURCE_URL: "jdbc:postgresql://nodo-db.p.internal.postgresql.pagopa.it:6432/nodo?prepareThreshold=0"
     SPRING_DATASOURCE_USERNAME: "cfg"
-    API_CONFIG_CACHE_BASE_PATH: "https://api.platform.pagopa.it/api-config-cache/o/v1"
+    API_CONFIG_CACHE_BASE_PATH: "https://api.platform.pagopa.it/api-config-cache/p/v1"
     DATAEXPLORER_URL: "https://pagopapdataexplorer.westeurope.kusto.windows.net"
     DATAEXPLORER_CLIENTID: ""
     DATAEXPLORER_DBNAME: "re"
