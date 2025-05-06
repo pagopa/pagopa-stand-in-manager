@@ -9,100 +9,72 @@ import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosNodeCallCounts;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.utils.Either;
 
-import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class NodoMonitorService {
 
-    private final String FAULT_QUERY =
+    private static final String STATIONS_FILTER_PLACEHOLDER = "{stationsFilter}";
+    private static final String FAULT_QUERY =
             "declare query_parameters(year:int,month:int,day:int,hour:int,minute:int,second:int);\n"
                     + "FAULT_CODE\n"
-                    + "{stationsFilter}| where faultCode in"
-                    + " ('PPT_STAZIONE_INT_PA_IRRAGGIUNGIBILE','PPT_STAZIONE_INT_PA_TIMEOUT','PPT_STAZIONE_INT_PA_SERVIZIO_NON_ATTIVO')\n"
+                    + STATIONS_FILTER_PLACEHOLDER
+                    + "| where faultCode in ('PPT_STAZIONE_INT_PA_IRRAGGIUNGIBILE','PPT_STAZIONE_INT_PA_TIMEOUT','PPT_STAZIONE_INT_PA_SERVIZIO_NON_ATTIVO')\n"
                     + "| where tipoEvento in ('verifyPaymentNotice','activatePaymentNotice', 'activatePaymentNoticeV2')\n"
                     + "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"
                     + "| summarize count = count() by (stazione)";
-    private final String TOTALS_QUERY =
+    private static final String TOTALS_QUERY =
             "declare query_parameters(year:int,month:int,day:int,hour:int,minute:int,second:int);\n"
-                    + "ReEvent\n{stationsFilter}"
+                    + "ReEvent\n"
+                    + STATIONS_FILTER_PLACEHOLDER
                     + "| where tipoEvento in ('paVerifyPaymentNotice','paGetPayment', 'paGetPaymentV2')\n"
                     + "| where sottoTipoEvento == 'REQ'\n"
                     + "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"
                     + "| summarize count = count() by (stazione)";
-    @Value("${dataexplorer.dbName}")
-    private String database;
-    @Value("${adder.slot.minutes}")
-    private int slotMinutes;
 
-    @Value("${excludedStations}")
-    private String excludedStations;
+    private final String database;
+    private final int slotMinutes;
+    private final String excludedStations;
+    private final Client kustoClient;
+    private final CosmosNodeDataRepository cosmosRepository;
 
-    @Autowired
-    private Client kustoClient;
-    @Autowired
-    private CosmosNodeDataRepository cosmosRepository;
-
-    private ClientRequestProperties getTimeParameters(ZonedDateTime time) {
-        ClientRequestProperties clientRequestProperties = new ClientRequestProperties();
-        clientRequestProperties.setParameter("year", time.getYear());
-        clientRequestProperties.setParameter("month", time.getMonthValue());
-        clientRequestProperties.setParameter("day", time.getDayOfMonth());
-        clientRequestProperties.setParameter("hour", time.getHour());
-        clientRequestProperties.setParameter("minute", time.getMinute());
-        clientRequestProperties.setParameter("second", time.getSecond());
-        return clientRequestProperties;
+    public NodoMonitorService(
+            @Value("${dataexplorer.dbName}") String database,
+            @Value("${adder.slot.minutes}") int slotMinutes,
+            @Value("${excludedStations}") String excludedStations,
+            Client kustoClient,
+            CosmosNodeDataRepository cosmosRepository
+    ) {
+        this.database = database;
+        this.slotMinutes = slotMinutes;
+        this.excludedStations = excludedStations;
+        this.kustoClient = kustoClient;
+        this.cosmosRepository = cosmosRepository;
     }
 
-    private Map<String, Integer> getCount(
-            String query,
-            Either<Set<String>, Set<String>> includedOrExcludedStations,
-            ZonedDateTime timelimit)
-            throws URISyntaxException, DataServiceException, DataClientException {
-
-        String replacedQuery = null;
-        Optional<Set<String>> inclusionList = includedOrExcludedStations.left();
-        Optional<Set<String>> exclusionList = includedOrExcludedStations.right();
-        if (exclusionList.isPresent() && !exclusionList.get().isEmpty()) {
-            String stations = exclusionList.get().stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
-            replacedQuery = query.replace("{stationsFilter}", "| where stazione !in(" + stations + ")\n");
-        } else if (inclusionList.isPresent() && !inclusionList.get().isEmpty()) {
-            String stations = inclusionList.get().stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
-            replacedQuery = query.replace("{stationsFilter}", "| where stazione in (" + stations + ")\n");
-        } else {
-            replacedQuery = query.replace("{stationsFilter}", "");
-        }
-
-        log.debug("Running KQL query [{}]", replacedQuery);
-        KustoOperationResult response =
-                kustoClient.execute(database, replacedQuery, getTimeParameters(timelimit));
-        KustoResultSetTable primaryResults = response.getPrimaryResults();
-        Map<String, Integer> results = new HashMap<>();
-        while (primaryResults.hasNext()) {
-            primaryResults.next();
-            results.put(primaryResults.getString("stazione"), primaryResults.getInt("count"));
-        }
-        return results;
-    }
-
-    public void getAndSaveData()
-            throws URISyntaxException, DataServiceException, DataClientException {
+    public void getAndSaveData() throws DataServiceException, DataClientException {
         ZonedDateTime now = ZonedDateTime.now();
         log.info("getAndSaveData [{}]", now);
         Set<String> excludedStationsList = new HashSet<>();
-        if (excludedStations != null && !excludedStations.isEmpty()) {
-            excludedStationsList = Arrays.asList(excludedStations.split(",")).stream().collect(Collectors.toSet());
+        if (this.excludedStations != null && !this.excludedStations.isEmpty()) {
+            excludedStationsList = Arrays.asList(this.excludedStations.split(",")).stream().collect(Collectors.toSet());
         }
 
-        Map<String, Integer> totals = getCount(TOTALS_QUERY, Either.right(excludedStationsList), now.minusMinutes(slotMinutes));
+        Map<String, Integer> totals = getCount(TOTALS_QUERY, Either.right(excludedStationsList), now.minusMinutes(this.slotMinutes));
         Set<String> allStations = totals.keySet();
         Map<String, Integer> faults = getCount(FAULT_QUERY, Either.left(allStations), now.minusMinutes(slotMinutes));
         List<CosmosNodeCallCounts> stationCounts =
@@ -121,14 +93,52 @@ public class NodoMonitorService {
                         .collect(Collectors.toList());
         if (log.isDebugEnabled()) {
             final StringBuilder totalsString = new StringBuilder();
-            totals.entrySet().stream()
-                    .forEach(
-                            s -> {
-                                totalsString.append(
-                                        "\n" + s.getKey() + " calls:" + s.getValue() + " faults:" + faults.get(s));
-                            });
+            totals.forEach((key, value) -> totalsString.append(
+                    String.format("%n%s calls: %s faults: %s", key, value, faults.get(key))));
             log.debug("totals:{}", totalsString);
         }
-        cosmosRepository.saveAll(stationCounts);
+        this.cosmosRepository.saveAll(stationCounts);
+    }
+
+    private ClientRequestProperties getTimeParameters(ZonedDateTime time) {
+        ClientRequestProperties clientRequestProperties = new ClientRequestProperties();
+        clientRequestProperties.setParameter("year", time.getYear());
+        clientRequestProperties.setParameter("month", time.getMonthValue());
+        clientRequestProperties.setParameter("day", time.getDayOfMonth());
+        clientRequestProperties.setParameter("hour", time.getHour());
+        clientRequestProperties.setParameter("minute", time.getMinute());
+        clientRequestProperties.setParameter("second", time.getSecond());
+        return clientRequestProperties;
+    }
+
+    private Map<String, Integer> getCount(
+            String query,
+            Either<Set<String>, Set<String>> includedOrExcludedStations,
+            ZonedDateTime timelimit
+    ) throws DataServiceException, DataClientException {
+
+        String replacedQuery = null;
+        Optional<Set<String>> inclusionList = includedOrExcludedStations.left();
+        Optional<Set<String>> exclusionList = includedOrExcludedStations.right();
+        if (exclusionList.isPresent() && !exclusionList.get().isEmpty()) {
+            String stations = exclusionList.get().stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
+            replacedQuery = query.replace(STATIONS_FILTER_PLACEHOLDER, "| where stazione !in(" + stations + ")\n");
+        } else if (inclusionList.isPresent() && !inclusionList.get().isEmpty()) {
+            String stations = inclusionList.get().stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
+            replacedQuery = query.replace(STATIONS_FILTER_PLACEHOLDER, "| where stazione in (" + stations + ")\n");
+        } else {
+            replacedQuery = query.replace(STATIONS_FILTER_PLACEHOLDER, "");
+        }
+
+        log.debug("Running KQL query [{}]", replacedQuery);
+        KustoOperationResult response =
+                this.kustoClient.execute(this.database, replacedQuery, getTimeParameters(timelimit));
+        KustoResultSetTable primaryResults = response.getPrimaryResults();
+        Map<String, Integer> results = new HashMap<>();
+        while (primaryResults.hasNext()) {
+            primaryResults.next();
+            results.put(primaryResults.getString("stazione"), primaryResults.getInt("count"));
+        }
+        return results;
     }
 }
