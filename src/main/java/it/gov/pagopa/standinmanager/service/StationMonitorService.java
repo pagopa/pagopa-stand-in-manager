@@ -34,10 +34,10 @@ public class StationMonitorService {
     ConfigDataV1 cache = configService.getCache();
     if (cache != null) {
       List<CosmosStandInStation> stations = cosmosStationRepository.getStations();
-      if (log.isDebugEnabled()) {
-          List<String> stationCodes = stations.stream().map(CosmosStandInStation::getStation).collect(Collectors.toList());
-          log.debug("[checkStations] stations to check: " + String.join(", ", stationCodes));
-      }
+
+      List<String> stationCodes = stations.stream().map(CosmosStandInStation::getStation).collect(Collectors.toList());
+      log.debug("[checkStations] stations to check: " + String.join(", ", stationCodes));
+
       stations.stream()
           .map(s -> Pair.of(s, cache.getStations().get(s.getStation())))
           .filter(s -> s.getRight() != null)
