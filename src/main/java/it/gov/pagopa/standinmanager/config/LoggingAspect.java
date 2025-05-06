@@ -148,7 +148,7 @@ public class LoggingAspect {
   @Around(value = "repository() || service()")
   public Object logTrace(ProceedingJoinPoint joinPoint) throws Throwable {
     Set<String> methodNameToExclude = Set.of(
-            "ConfigService.getCache"
+            "ConfigService.getCache()"
     );
 
     String methodName = joinPoint.getSignature().toShortString();
