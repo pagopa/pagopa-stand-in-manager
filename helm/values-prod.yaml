@@ -33,7 +33,7 @@ microservice-chart:
     name: "nodo-workload-identity"
   azure:
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
-  podAnnotations: {}
+  podAnnotations: { }
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -83,6 +83,7 @@ microservice-chart:
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
     STAND_IN_TX_NAME: "nodo-dei-pagamenti-stand-in"
+    JAVA_OPTS: "-Duser.timezone=Europe/Rome"
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: "azure-insight-connection-string"
@@ -122,7 +123,7 @@ microservice-chart:
             labelSelector:
               matchLabels:
                 app.kubernetes.io/instance: "pagopa-stand-in-manager"
-            namespaces: ["nodo"]
+            namespaces: [ "nodo" ]
             topologyKey: topology.kubernetes.io/zone
   canaryDelivery:
     create: false

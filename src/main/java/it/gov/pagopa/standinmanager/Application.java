@@ -6,7 +6,6 @@ import com.microsoft.azure.kusto.data.Client;
 import com.microsoft.azure.kusto.data.ClientFactory;
 import com.microsoft.azure.kusto.data.auth.ConnectionStringBuilder;
 import it.gov.pagopa.standinmanager.config.ApiClient;
-import jakarta.annotation.PostConstruct;
 import org.openapitools.client.api.CacheApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -40,20 +39,24 @@ public class Application {
     private String cosmosKey;
     @Value("${aws.region}")
     private String region;
-    @Value("${timezone}")
-    private String timezone;
     @Value("${forwarder.connectionTimeout}")
     private Integer forwarderConnectTimeout;
     @Value("${forwarder.readTimeout}")
     private Integer forwarderReadTimeout;
 
     public static void main(String[] args) {
+        setTimezone(args);
         SpringApplication.run(Application.class, args);
     }
 
-    @PostConstruct
-    public void init() {
-        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
+    private static void setTimezone(String[] args) {
+        for (String arg : args) {
+            String[] argSections = arg.split("=");
+            if (argSections[0].contains("user.timezone")) {
+                TimeZone.setDefault(TimeZone.getTimeZone(argSections[1]));
+                return;
+            }
+        }
     }
 
     @Bean
