@@ -4,7 +4,7 @@
     "description": "Stand in Manager",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "@project.name@",
-    "version": "0.1.2"
+    "version": "0.1.3"
   },
   "servers": [
     {
