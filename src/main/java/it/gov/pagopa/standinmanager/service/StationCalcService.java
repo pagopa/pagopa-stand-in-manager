@@ -7,6 +7,7 @@ import it.gov.pagopa.standinmanager.client.MailService;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.config.model.Station;
 import it.gov.pagopa.standinmanager.config.model.StationCreditorInstitution;
+import it.gov.pagopa.standinmanager.exception.AppException;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
@@ -17,6 +18,7 @@ import it.gov.pagopa.standinmanager.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.net.URISyntaxException;
@@ -108,19 +110,28 @@ public class StationCalcService {
             throw new IllegalStateException("Station not found: " + station);
         }
 
-        removeStationManually(station);
+        removeStationManually(stations);
     }
 
-    private void removeStationManually(String station) {
+    /**
+     * This method is called manually to remove a station from stand-in through internal API
+     * @param stations list of station
+     */
+    private void removeStationManually(List<CosmosStandInStation> stations) {
         String eventInfo = String.format(
-                "removing station [%s] from standIn stations manually", station);
+                "removing station [%s] from standIn stations manually", stations.get(0).getStation());
 
         String emailBody = String.format(
-                "[StandInManager] Station [%s] has been removed from stand-in manually", station);
+                "[StandInManager] Station [%s] has been removed from stand-in manually", stations.get(0).getStation());
 
-        removeStation(station, eventInfo, emailBody);
+        removeStation(stations, eventInfo, emailBody);
     }
 
+    /**
+     * This method is called during stationMonitorService.checkStations job execution
+     * @param station station code
+     * @param successfulCalls number of success
+     */
     private void removeStationAutomatically(String station, long successfulCalls) {
         String eventInfo = String.format(
                 "removing station [%s] from standIn stations because %s calls were successful"
@@ -130,18 +141,19 @@ public class StationCalcService {
                 "[StandInManager] Station [%s] has been removed from stand-in"
                         + "\nbecause [%s] calls were successful in the last %s minutes",
                 station, successfulCalls, rangeMinutes);
+        List<CosmosStandInStation> stations = cosmosStationRepository.getStation(station);
 
-        removeStation(station, eventInfo, emailBody);
+        removeStation(stations, eventInfo, emailBody);
     }
 
-    private void removeStation(String station, String eventInfo, String emailBody) {
+    private void removeStation(List<CosmosStandInStation> stations, String eventInfo, String emailBody) {
         log.info(eventInfo);
 
-        List<CosmosStandInStation> stations = cosmosStationRepository.getStation(station);
         stations.forEach(
                 s -> {
                     cosmosStationRepository.removeStation(s);
                 });
+        String station = stations.get(0).getStation();
 
         if (sendEvent) {
             log.info("sending {} event for station {}", Constants.type_removed, station);
@@ -149,7 +161,7 @@ public class StationCalcService {
                 eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.type_removed);
             } catch (JsonProcessingException e) {
                 log.error("could not publish {} for stations {}", Constants.type_removed, station);
-                throw new RuntimeException(e);
+                throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Json processing error", e.getMessage());
             }
         }
         if (saveDB) {
@@ -171,6 +183,5 @@ public class StationCalcService {
                 );
         log.info("email sender: {}", sendResult);
     }
-
 
 }
