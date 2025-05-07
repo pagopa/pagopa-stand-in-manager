@@ -9,7 +9,7 @@ Monitors the events of nodo-dei-pagamenti for station problems and activates/dea
 
 ## Technology Stack
 
-- Java 11
+- Java 17
 - Spring Boot
 - Spring Web
 - Hibernate
@@ -43,7 +43,7 @@ from `./docker` directory
 
 - git
 - maven
-- jdk-11
+- jdk-17
 
 ### Run the project
 
