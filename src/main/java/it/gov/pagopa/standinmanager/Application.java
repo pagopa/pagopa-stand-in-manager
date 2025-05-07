@@ -18,7 +18,6 @@ import software.amazon.awssdk.services.ses.SesClient;
 
 import java.net.URISyntaxException;
 import java.time.Duration;
-import java.util.TimeZone;
 
 @SpringBootApplication
 public class Application {
@@ -45,18 +44,7 @@ public class Application {
     private Integer forwarderReadTimeout;
 
     public static void main(String[] args) {
-        setTimezone(args);
         SpringApplication.run(Application.class, args);
-    }
-
-    private static void setTimezone(String[] args) {
-        for (String arg : args) {
-            String[] argSections = arg.split("=");
-            if (argSections[0].contains("user.timezone")) {
-                TimeZone.setDefault(TimeZone.getTimeZone(argSections[1]));
-                return;
-            }
-        }
     }
 
     @Bean

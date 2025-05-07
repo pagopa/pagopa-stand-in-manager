@@ -50,6 +50,7 @@ microservice-chart:
     enable: false
   envConfig:
     WEBSITE_SITE_NAME: 'pagopa-stand-in-manager' # required to show cloud role name in application insights
+    TZ: "Europe/Rome"
     ENV: 'prod'
     APP_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
@@ -83,7 +84,6 @@ microservice-chart:
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
     STAND_IN_TX_NAME: "nodo-dei-pagamenti-stand-in"
-    JAVA_OPTS: "-Duser.timezone=Europe/Rome"
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: "azure-insight-connection-string"
