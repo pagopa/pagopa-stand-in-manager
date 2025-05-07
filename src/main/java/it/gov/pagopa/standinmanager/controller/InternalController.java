@@ -67,7 +67,7 @@ public class InternalController {
                   @ApiResponse(responseCode = "200", description = "OK response"),
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
-  @SneakyThrows
+
   @GetMapping(value = { "/run-calculations"})
   public ResponseEntity<String> test2() {
     nodoCalcService.runCalculations();
@@ -80,7 +80,6 @@ public class InternalController {
                   @ApiResponse(responseCode = "200", description = "OK response"),
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
-  @SneakyThrows
   @GetMapping(value = { "/check-stations"})
   public ResponseEntity<String> test3() {
     stationMonitorService.checkStations();
@@ -93,7 +92,6 @@ public class InternalController {
                   @ApiResponse(responseCode = "200", description = "OK response"),
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
-  @SneakyThrows
   @GetMapping(value = { "/station-data"})
   public ResponseEntity<String> test4() {
     stationCalcService.runCalculations();
@@ -122,7 +120,6 @@ public class InternalController {
                   @ApiResponse(responseCode = "200", description = "OK response"),
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
-  @SneakyThrows
   @GetMapping(value = { "/stations/{station}"})
   public ResponseEntity<String> test6(@PathVariable(name = "station") String stationCode) {
     return ResponseEntity.status(HttpStatus.OK).body(stationMonitorService.testStation(stationCode));
@@ -134,7 +131,6 @@ public class InternalController {
                   @ApiResponse(responseCode = "200", description = "OK response"),
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
-  @SneakyThrows
   @DeleteMapping(value = { "/stations/{station}"})
   public ResponseEntity<String> removeStationFromStandIn(@PathVariable(name = "station") String stationCode) {
     stationCalcService.removeStationFromStandIn(stationCode);

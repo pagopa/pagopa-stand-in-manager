@@ -64,8 +64,7 @@ public class StationCalcService {
 
     private final DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
-    public void runCalculations()
-            throws URISyntaxException, DataServiceException, DataClientException {
+    public void runCalculations() {
         ZonedDateTime now = ZonedDateTime.now();
         log.info(
                 "runCalculations [{}] on {} minutes range with a fault limit of {}",
