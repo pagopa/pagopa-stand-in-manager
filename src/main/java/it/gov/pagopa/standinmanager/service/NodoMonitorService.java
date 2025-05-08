@@ -78,6 +78,7 @@ public class NodoMonitorService {
         Map<String, Integer> totalCallForStation = getCount(TOTALS_QUERY, Either.right(excludedStationsList), now.minusMinutes(this.slotMinutes));
         Set<String> allStations = totalCallForStation.keySet();
         Map<String, Integer> faultForStation = getCount(FAULT_QUERY, Either.left(allStations), now.minusMinutes(slotMinutes));
+        Integer totalCall = totalCallForStation.values().stream().reduce(0, Integer::sum);
 
         List<CosmosNodeCallCounts> stationCounts =
                 totalCallForStation.entrySet().stream()
@@ -89,6 +90,7 @@ public class NodoMonitorService {
                                             .station(entry.getKey())
                                             .total(entry.getValue())
                                             .faults(faultCount)
+                                            .allStationCallInSlot(totalCall)
                                             .timestamp(now.toInstant())
                                             .build();
                                 })
