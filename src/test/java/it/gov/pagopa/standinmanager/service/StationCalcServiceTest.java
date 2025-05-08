@@ -1,4 +1,4 @@
-package it.gov.pagopa.standinmanager;
+package it.gov.pagopa.standinmanager.service;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -16,11 +16,10 @@ import it.gov.pagopa.standinmanager.client.MailService;
 import it.gov.pagopa.standinmanager.repository.*;
 import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
-import it.gov.pagopa.standinmanager.service.EventHubService;
-import it.gov.pagopa.standinmanager.service.StationCalcService;
+
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
