@@ -6,9 +6,11 @@ import com.microsoft.azure.kusto.data.KustoOperationResult;
 import com.microsoft.azure.kusto.data.KustoResultSetTable;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
+import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosNodeCallCounts;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.utils.Either;
@@ -51,37 +53,37 @@ public class NodoMonitorService {
     private final String excludedStations;
     private final Client kustoClient;
     private final CosmosNodeDataRepository cosmosRepository;
+    private final ConfigService configService;
 
     public NodoMonitorService(
             @Value("${dataexplorer.dbName}") String database,
             @Value("${adder.slot.minutes}") int slotMinutes,
             @Value("${excludedStations}") String excludedStations,
             Client kustoClient,
-            CosmosNodeDataRepository cosmosRepository
+            CosmosNodeDataRepository cosmosRepository, ConfigService configService
     ) {
         this.database = database;
         this.slotMinutes = slotMinutes;
         this.excludedStations = excludedStations;
         this.kustoClient = kustoClient;
         this.cosmosRepository = cosmosRepository;
+        this.configService = configService;
     }
 
     public void getAndSaveData() throws DataServiceException, DataClientException {
         ZonedDateTime now = ZonedDateTime.now();
         log.info("getAndSaveData [{}]", now);
-        Set<String> excludedStationsList = new HashSet<>();
-        if (this.excludedStations != null && !this.excludedStations.isEmpty()) {
-            excludedStationsList = Arrays.asList(this.excludedStations.split(",")).stream().collect(Collectors.toSet());
-        }
+        Set<String> excludedStationsList = getExcludedStationsList();
 
-        Map<String, Integer> totals = getCount(TOTALS_QUERY, Either.right(excludedStationsList), now.minusMinutes(this.slotMinutes));
-        Set<String> allStations = totals.keySet();
-        Map<String, Integer> faults = getCount(FAULT_QUERY, Either.left(allStations), now.minusMinutes(slotMinutes));
+        Map<String, Integer> totalCallForStation = getCount(TOTALS_QUERY, Either.right(excludedStationsList), now.minusMinutes(this.slotMinutes));
+        Set<String> allStations = totalCallForStation.keySet();
+        Map<String, Integer> faultForStation = getCount(FAULT_QUERY, Either.left(allStations), now.minusMinutes(slotMinutes));
+
         List<CosmosNodeCallCounts> stationCounts =
-                totals.entrySet().stream()
+                totalCallForStation.entrySet().stream()
                         .map(
                                 entry -> {
-                                    Integer faultCount = faults.getOrDefault(entry.getKey(), 0);
+                                    Integer faultCount = faultForStation.getOrDefault(entry.getKey(), 0);
                                     return CosmosNodeCallCounts.builder()
                                             .id(UUID.randomUUID().toString())
                                             .station(entry.getKey())
@@ -90,31 +92,21 @@ public class NodoMonitorService {
                                             .timestamp(now.toInstant())
                                             .build();
                                 })
-                        .collect(Collectors.toList());
+                        .toList();
+
         if (log.isDebugEnabled()) {
             final StringBuilder totalsString = new StringBuilder();
-            totals.forEach((key, value) -> totalsString.append(
-                    String.format("%n%s calls: %s faults: %s", key, value, faults.get(key))));
+            totalCallForStation.forEach((key, value) -> totalsString.append(
+                    String.format("%n%s calls: %s faults: %s", key, value, faultForStation.get(key))));
             log.debug("totals:{}", totalsString);
         }
         this.cosmosRepository.saveAll(stationCounts);
     }
 
-    private ClientRequestProperties getTimeParameters(ZonedDateTime time) {
-        ClientRequestProperties clientRequestProperties = new ClientRequestProperties();
-        clientRequestProperties.setParameter("year", time.getYear());
-        clientRequestProperties.setParameter("month", time.getMonthValue());
-        clientRequestProperties.setParameter("day", time.getDayOfMonth());
-        clientRequestProperties.setParameter("hour", time.getHour());
-        clientRequestProperties.setParameter("minute", time.getMinute());
-        clientRequestProperties.setParameter("second", time.getSecond());
-        return clientRequestProperties;
-    }
-
     private Map<String, Integer> getCount(
             String query,
             Either<Set<String>, Set<String>> includedOrExcludedStations,
-            ZonedDateTime timelimit
+            ZonedDateTime timeLimit
     ) throws DataServiceException, DataClientException {
 
         String replacedQuery = null;
@@ -132,7 +124,7 @@ public class NodoMonitorService {
 
         log.debug("Running KQL query [{}]", replacedQuery);
         KustoOperationResult response =
-                this.kustoClient.execute(this.database, replacedQuery, getTimeParameters(timelimit));
+                this.kustoClient.execute(this.database, replacedQuery, getTimeParameters(timeLimit));
         KustoResultSetTable primaryResults = response.getPrimaryResults();
         Map<String, Integer> results = new HashMap<>();
         while (primaryResults.hasNext()) {
@@ -140,5 +132,26 @@ public class NodoMonitorService {
             results.put(primaryResults.getString("stazione"), primaryResults.getInt("count"));
         }
         return results;
+    }
+
+    private @NotNull Set<String> getExcludedStationsList() {
+        ConfigDataV1 cache = this.configService.getCache();
+        Set<String> excludedStationsList = new HashSet<>(cache.getStations().keySet());
+
+        if (this.excludedStations != null && !this.excludedStations.isEmpty()) {
+            excludedStationsList.addAll(Arrays.asList(this.excludedStations.split(",")));
+        }
+        return excludedStationsList;
+    }
+
+    private ClientRequestProperties getTimeParameters(ZonedDateTime time) {
+        ClientRequestProperties clientRequestProperties = new ClientRequestProperties();
+        clientRequestProperties.setParameter("year", time.getYear());
+        clientRequestProperties.setParameter("month", time.getMonthValue());
+        clientRequestProperties.setParameter("day", time.getDayOfMonth());
+        clientRequestProperties.setParameter("hour", time.getHour());
+        clientRequestProperties.setParameter("minute", time.getMinute());
+        clientRequestProperties.setParameter("second", time.getSecond());
+        return clientRequestProperties;
     }
 }
