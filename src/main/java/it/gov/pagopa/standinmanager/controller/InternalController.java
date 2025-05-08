@@ -6,32 +6,33 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.gov.pagopa.standinmanager.client.MailService;
+import it.gov.pagopa.standinmanager.exception.AppException;
 import it.gov.pagopa.standinmanager.service.*;
 import it.gov.pagopa.standinmanager.util.Constants;
 import java.time.ZonedDateTime;
 
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/force")
+@RequestMapping("/internal")
 @Validated
-public class TestController {
+@RequiredArgsConstructor
+public class InternalController {
 
-  @Autowired
-  NodoCalcService nodoCalcService;
-  @Autowired
-  NodoMonitorService nodoMonitorService;
-  @Autowired
-  StationCalcService stationCalcService;
-  @Autowired
-  StationMonitorService stationMonitorService;
-  @Autowired
-  EventHubService eventHubService;
+  private final NodoCalcService nodoCalcService;
+
+  private final NodoMonitorService nodoMonitorService;
+
+  private final StationCalcService stationCalcService;
+
+  private final StationMonitorService stationMonitorService;
+
+  private final EventHubService eventHubService;
 
   private MailService mailService;
 
@@ -66,7 +67,7 @@ public class TestController {
                   @ApiResponse(responseCode = "200", description = "OK response"),
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
-  @SneakyThrows
+
   @GetMapping(value = { "/run-calculations"})
   public ResponseEntity<String> test2() {
     nodoCalcService.runCalculations();
@@ -79,7 +80,6 @@ public class TestController {
                   @ApiResponse(responseCode = "200", description = "OK response"),
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
-  @SneakyThrows
   @GetMapping(value = { "/check-stations"})
   public ResponseEntity<String> test3() {
     stationMonitorService.checkStations();
@@ -92,7 +92,6 @@ public class TestController {
                   @ApiResponse(responseCode = "200", description = "OK response"),
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
-  @SneakyThrows
   @GetMapping(value = { "/station-data"})
   public ResponseEntity<String> test4() {
     stationCalcService.runCalculations();
@@ -110,21 +109,32 @@ public class TestController {
     try {
       eventHubService.publishEvent(ZonedDateTime.now(), "test", Constants.type_added);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+      throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Json processing error", e.getMessage());
     }
     return ResponseEntity.status(HttpStatus.OK).body("OK");
   }
 
-  @Operation(summary = "Sends probe to station specified in input")
+  @Operation(summary = "Sends probe to station specified in input. No impact on the workflow.")
   @ApiResponses(
           value = {
                   @ApiResponse(responseCode = "200", description = "OK response"),
                   @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
           })
-  @SneakyThrows
-  @GetMapping(value = { "/station/{station}"})
+  @GetMapping(value = { "/stations/{station}"})
   public ResponseEntity<String> test6(@PathVariable(name = "station") String stationCode) {
     return ResponseEntity.status(HttpStatus.OK).body(stationMonitorService.testStation(stationCode));
+  }
+
+  @Operation(summary = "Removes the station from stand-in manually. The operation is saved in the event registry.")
+  @ApiResponses(
+          value = {
+                  @ApiResponse(responseCode = "200", description = "OK response"),
+                  @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content)
+          })
+  @DeleteMapping(value = { "/stations/{station}"})
+  public ResponseEntity<String> removeStationFromStandIn(@PathVariable(name = "station") String stationCode) {
+    stationCalcService.removeStationFromStandIn(stationCode);
+    return ResponseEntity.ok().build();
   }
 
 }

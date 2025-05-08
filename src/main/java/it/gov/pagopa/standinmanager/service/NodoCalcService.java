@@ -63,8 +63,7 @@ public class NodoCalcService {
     return Instant.ofEpochSecond(roundedSeconds);
   }
 
-  public void runCalculations()
-      throws URISyntaxException, DataServiceException, DataClientException {
+  public void runCalculations() {
     ZonedDateTime now = ZonedDateTime.now();
     int totalSlots = rangeMinutes / slotMinutes;
     log.info(
