@@ -49,7 +49,7 @@ from `./docker` directory
 
 Start the springboot application with this command:
 
-`mvn spring-boot:run -Dspring-boot.run.profiles=local`
+`mvn spring-boot:run -Dspring.profiles.active=local `
 
 ### Spring Profiles
 
