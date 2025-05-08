@@ -2,7 +2,7 @@ microservice-chart:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.1.2"
+    tag: "0.1.4"
   livenessProbe:
     httpGet:
       path: /actuator/health/liveness
@@ -50,6 +50,7 @@ microservice-chart:
     enable: false
   envConfig:
     WEBSITE_SITE_NAME: 'pagopa-stand-in-manager' # required to show cloud role name in application insights
+    TZ: "Europe/Rome"
     ENV: 'prod'
     APP_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
