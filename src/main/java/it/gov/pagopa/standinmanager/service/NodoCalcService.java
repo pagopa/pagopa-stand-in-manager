@@ -11,11 +11,13 @@ import it.gov.pagopa.standinmanager.repository.model.CosmosNodeCallCounts;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
 import it.gov.pagopa.standinmanager.util.Constants;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -32,6 +34,8 @@ public class NodoCalcService {
     private final int slotMinutes;
     private final int rangeMinutes;
     private final double rangeThreshold;
+    private final double totalTrafficDayThreshold;
+    private final double totalTrafficNightThreshold;
     private final String env;
     private final Boolean saveDB;
     private final Boolean sendEvent;
@@ -48,6 +52,8 @@ public class NodoCalcService {
             @Value("${adder.slot.minutes}") int slotMinutes,
             @Value("${adder.range.minutes}") int rangeMinutes,
             @Value("${adder.range.fault.threshold}") double rangeThreshold,
+            @Value("${adder.total.daytime.traffic.threshold}") double totalDaytimeTrafficThreshold,
+            @Value("${adder.total.nighttime.traffic.threshold}") double totalNighttimeTrafficThreshold,
             @Value("${info.properties.environment}") String env,
             @Value("${saveDB}") Boolean saveDB,
             @Value("${sendEvent}") Boolean sendEvent,
@@ -62,6 +68,8 @@ public class NodoCalcService {
         this.slotMinutes = slotMinutes;
         this.rangeMinutes = rangeMinutes;
         this.rangeThreshold = rangeThreshold;
+        this.totalTrafficDayThreshold = totalDaytimeTrafficThreshold;
+        this.totalTrafficNightThreshold = totalNighttimeTrafficThreshold;
         this.env = env;
         this.saveDB = saveDB;
         this.sendEvent = sendEvent;
@@ -75,106 +83,113 @@ public class NodoCalcService {
     }
 
     public void runCalculations() {
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now().minusMonths(1).plusDays(21).plusMinutes(20);
+        double totalTrafficThreshold = getTotalTrafficThreshold(now);
         int totalSlots = this.rangeMinutes / this.slotMinutes;
-        log.info(
-                "runCalculations [{}] on {} minutes range with {} minutes slots",
-                now,
-                this.rangeMinutes,
-                this.slotMinutes);
+        log.info("runCalculations [{}] on {} minutes range with {} minutes slots", now, this.rangeMinutes, this.slotMinutes);
 
-        Set<String> standInStations =
-                this.cosmosStationRepository.getStations().stream()
-                        .map(CosmosStandInStation::getStation)
-                        .collect(Collectors.toSet());
+        Set<String> standInStations = this.cosmosStationRepository.getStations().stream()
+                .map(CosmosStandInStation::getStation).collect(Collectors.toSet());
 
-        List<CosmosNodeCallCounts> allCounts =
-                this.cosmosNodeDataRepository.getStationCounts(now.minusMinutes(rangeMinutes));
+        List<CosmosNodeCallCounts> allCounts = this.cosmosNodeDataRepository.getStationCounts(now.minusMinutes(rangeMinutes));
 
-        Map<String, List<CosmosNodeCallCounts>> allStationCounts =
-                allCounts.stream().collect(Collectors.groupingBy(CosmosNodeCallCounts::getStation));
+        Map<String, List<CosmosNodeCallCounts>> allStationCounts = allCounts.stream()
+                .collect(Collectors.groupingBy(CosmosNodeCallCounts::getStation));
 
-        allStationCounts.forEach(
-                (station, stationCounts) -> {
-                    if (standInStations.contains(station)) {
-                        return;
-                    }
-                    Map<Instant, List<CosmosNodeCallCounts>> fiveMinutesIntervals =
-                            stationCounts.stream()
-                                    .collect(
-                                            Collectors.groupingBy(item -> roundToNearest5Minutes(item.getTimestamp())));
-                    List<CosmosNodeCallCounts> collect =
-                            fiveMinutesIntervals.entrySet().stream()
-                                    .map(
-                                            entry -> entry.getValue().stream()
-                                                    .reduce(
-                                                            new CosmosNodeCallCounts(null, null, entry.getKey(), 0, 0),
-                                                            (f, d) -> {
-                                                                f.setTotal(f.getTotal() + d.getTotal());
-                                                                f.setFaults(f.getFaults() + d.getFaults());
-                                                                return f;
-                                                            }))
-                                    .collect(Collectors.toList());
+        allStationCounts.forEach((station, stationCounts) -> {
+            if (standInStations.contains(station)) {
+                return;
+            }
 
-                    long failedSlots = collect.stream().filter(c -> c.getPerc() > this.slotThreshold).count();
-                    double failedSlotPerc = ((failedSlots / (double) totalSlots) * 100);
-                    if (log.isDebugEnabled()) {
-                        log.debug(
-                                "station [{}] data:\n{} of {} slots failed\n{}",
-                                station,
-                                failedSlots,
-                                totalSlots,
-                                collect.stream()
-                                        .sorted(Comparator.comparingLong(s -> s.getTimestamp().getEpochSecond()))
-                                        .map(s -> String.format(
-                                                "%s : %s/%s: %s%%",
-                                                s.getTimestamp(),
-                                                s.getFaults(),
-                                                s.getTotal(),
-                                                this.decimalFormat.format(s.getPerc())))
-                                        .collect(Collectors.joining("\n")));
-                    }
+            // TODO could be useless
+            List<CosmosNodeCallCounts> groupedCallCounts = groupCosmosNodeCallCountsToSlotInterval(stationCounts);
 
-                    if (failedSlotPerc > this.rangeThreshold) {
-                        log.info(
-                                "adding station [{}] to standIn stations because {} of {} slots failed in the last"
-                                        + " {} minutes",
-                                station,
-                                failedSlots,
-                                totalSlots,
-                                this.rangeMinutes);
-                        if (Boolean.TRUE.equals(this.sendEvent)) {
-                            log.info("sending {} event for station {}", Constants.type_added, station);
-                            try {
-                                this.eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.type_added);
-                            } catch (JsonProcessingException e) {
-                                log.error("could not publish {} for stations {}", Constants.type_added, station);
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        if (Boolean.TRUE.equals(this.saveDB)) {
-                            log.info("adding {} to standin database", station);
-                            this.dbStationsRepository.save(new StandInStation(station));
-                        }
-                        this.cosmosStationRepository.save(
-                                new CosmosStandInStation(UUID.randomUUID().toString(), station, Instant.now()));
-                        this.cosmosEventsRepository.newEvent(
-                                station,
-                                Constants.EVENT_ADD_TO_STANDIN,
-                                String.format(
-                                        "adding station [%s] to standIn stations because [%s] of [%s] slots failed",
-                                        station, failedSlots, totalSlots));
-                        String sendResult =
-                                this.mailService.sendEmail(
-                                        String.format(
-                                                "[StandInManager][%s] Station [%s] added to standin", this.env, station),
-                                        String.format(
-                                                "[StandInManager]Station [%s] has been added to standin"
-                                                        + "\nbecause [%s] of [%s] slots failed",
-                                                station, failedSlots, totalSlots));
-                        log.info("email sender: {}", sendResult);
-                    }
-                });
+            long numOfHighTrafficSlots = groupedCallCounts.stream().filter(c -> c.getTotalTrafficPercentage() > totalTrafficThreshold).count();
+            long numOfFailedSlots = groupedCallCounts.stream().filter(c -> c.getFaultPercentage() > this.slotThreshold).count();
+            double failedSlotPerc = ((numOfFailedSlots / (double) totalSlots) * 100);
+            double highTrafficSlotPerc = ((numOfHighTrafficSlots / (double) totalSlots) * 100);
+
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "station [{}] data:\n{} of {} slots failed\n{}",
+                        station,
+                        numOfFailedSlots,
+                        totalSlots,
+                        groupedCallCounts.stream()
+                                .sorted(Comparator.comparingLong(s -> s.getTimestamp().getEpochSecond()))
+                                .map(s -> String.format(
+                                        "%s : %s/%s: %s%%",
+                                        s.getTimestamp(),
+                                        s.getFaults(),
+                                        s.getTotal(),
+                                        this.decimalFormat.format(s.getFaultPercentage())))
+                                .collect(Collectors.joining("\n")));
+            }
+
+            if (failedSlotPerc > this.rangeThreshold && highTrafficSlotPerc > totalTrafficThreshold) {
+                log.info("adding station [{}] to standIn stations because {} of {} slots failed in the last" + " {} minutes",
+                        station, numOfFailedSlots, totalSlots, this.rangeMinutes);
+                if (Boolean.TRUE.equals(this.sendEvent)) {
+                    log.info("sending {} event for station {}", Constants.type_added, station);
+                    publishStandInAddedEvent(station);
+                }
+                if (Boolean.TRUE.equals(this.saveDB)) {
+                    log.info("adding {} to standin database", station);
+                    this.dbStationsRepository.save(new StandInStation(station));
+                }
+                this.cosmosStationRepository.save(new CosmosStandInStation(UUID.randomUUID().toString(), station, Instant.now()));
+                this.cosmosEventsRepository.newEvent(
+                        station,
+                        Constants.EVENT_ADD_TO_STANDIN,
+                        String.format(
+                                "adding station [%s] to standIn stations because [%s] of [%s] slots failed",
+                                station, numOfFailedSlots, totalSlots)
+                );
+
+                String sendResult = this.mailService.sendEmail(
+                        String.format("[StandInManager][%s] Station [%s] added to standin", this.env, station),
+                        String.format(
+                                "[StandInManager]Station [%s] has been added to standin %nbecause [%s] of [%s] slots failed",
+                                station, numOfFailedSlots, totalSlots));
+                log.info("email sender: {}", sendResult);
+            }
+        });
+    }
+
+    private void publishStandInAddedEvent(String station) {
+        try {
+            this.eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.type_added);
+        } catch (JsonProcessingException e) {
+            log.error("could not publish {} for stations {}", Constants.type_added, station);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private @NotNull List<CosmosNodeCallCounts> groupCosmosNodeCallCountsToSlotInterval(List<CosmosNodeCallCounts> stationCounts) {
+        Map<Instant, List<CosmosNodeCallCounts>> fiveMinutesIntervals = stationCounts.stream()
+                .collect(Collectors.groupingBy(item -> roundToNearest5Minutes(item.getTimestamp())));
+
+        return fiveMinutesIntervals.entrySet().stream()
+                .map(entry -> entry.getValue().stream()
+                        .reduce(
+                                new CosmosNodeCallCounts(null, null, entry.getKey(), 0, 0, 0),
+                                (f, d) -> {
+                                    f.setTotal(f.getTotal() + d.getTotal());
+                                    f.setFaults(f.getFaults() + d.getFaults());
+                                    return f;
+                                }))
+                .toList();
+    }
+
+    private double getTotalTrafficThreshold(ZonedDateTime now) {
+        LocalTime time = now.toLocalTime();
+        LocalTime nightStart = LocalTime.of(22, 0);
+        LocalTime nightEnd = LocalTime.of(6, 0);
+
+        if (time.isAfter(nightStart) || time.isBefore(nightEnd)) {
+            return this.totalTrafficNightThreshold;
+        }
+        return this.totalTrafficDayThreshold;
     }
 
     private Instant roundToNearest5Minutes(Instant instant) {
