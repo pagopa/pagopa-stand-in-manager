@@ -6,8 +6,6 @@ import com.microsoft.azure.kusto.data.Client;
 import com.microsoft.azure.kusto.data.ClientFactory;
 import com.microsoft.azure.kusto.data.auth.ConnectionStringBuilder;
 import it.gov.pagopa.standinmanager.config.ApiClient;
-import java.net.URISyntaxException;
-import java.time.Duration;
 import org.openapitools.client.api.CacheApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -18,72 +16,66 @@ import org.springframework.web.client.RestTemplate;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ses.SesClient;
 
+import java.net.URISyntaxException;
+import java.time.Duration;
+
 @SpringBootApplication
 public class Application {
 
-  public static void main(String[] args) {
-    SpringApplication.run(Application.class, args);
-  }
+    @Value("${api-config-cache.base-path}")
+    private String basePath;
+    @Value("${api-config-cache.api-key}")
+    private String apiKey;
+    @Value("${dataexplorer.url}")
+    private String dataExplorerUrl;
+    @Value("${dataexplorer.clientId}")
+    private String dataExplorerClientId;
+    @Value("${dataexplorer.appKey}")
+    private String dataExplorerKey;
+    @Value("${cosmos.endpoint}")
+    private String cosmosEndpoint;
+    @Value("${cosmos.key}")
+    private String cosmosKey;
+    @Value("${aws.region}")
+    private String region;
+    @Value("${forwarder.connectionTimeout}")
+    private Integer forwarderConnectTimeout;
+    @Value("${forwarder.readTimeout}")
+    private Integer forwarderReadTimeout;
 
-  @Value("${api-config-cache.base-path}")
-  private String basePath;
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
 
-  @Value("${api-config-cache.api-key}")
-  private String apiKey;
+    @Bean
+    public SesClient sesClient() {
+        return SesClient.builder().region(Region.of(region)).build();
+    }
 
-  @Value("${dataexplorer.url}")
-  private String dataExplorerUrl;
+    @Bean
+    public CacheApi cacheApi() {
+        ApiClient apiClient = new ApiClient();
+        apiClient.setBasePath(basePath);
+        apiClient.setApiKey(apiKey);
+        return new CacheApi(apiClient);
+    }
 
-  @Value("${dataexplorer.clientId}")
-  private String dataExplorerClientId;
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder
+                .setReadTimeout(Duration.ofSeconds(forwarderReadTimeout))
+                .setConnectTimeout(Duration.ofSeconds(forwarderConnectTimeout))
+                .build();
+    }
 
-  @Value("${dataexplorer.appKey}")
-  private String dataExplorerKey;
+    @Bean
+    public Client getClient() throws URISyntaxException {
+        return ClientFactory.createClient(
+                ConnectionStringBuilder.createWithAadManagedIdentity(dataExplorerUrl));
+    }
 
-  @Value("${cosmos.endpoint}")
-  private String cosmosEndpoint;
-
-  @Value("${cosmos.key}")
-  private String cosmosKey;
-
-  @Value("${aws.region}")
-  private String region;
-
-  @Value("${forwarder.connectionTimeout}")
-  private Integer forwarderConnectTimeout;
-
-  @Value("${forwarder.readTimeout}")
-  private Integer forwarderReadTimeout;
-
-  @Bean
-  public SesClient sesClient() {
-    return SesClient.builder().region(Region.of(region)).build();
-  }
-
-  @Bean
-  public CacheApi cacheApi() {
-    ApiClient apiClient = new ApiClient();
-    apiClient.setBasePath(basePath);
-    apiClient.setApiKey(apiKey);
-    return new CacheApi(apiClient);
-  }
-
-  @Bean
-  public RestTemplate restTemplate(RestTemplateBuilder builder) {
-    return builder
-        .setReadTimeout(Duration.ofSeconds(forwarderReadTimeout))
-        .setConnectTimeout(Duration.ofSeconds(forwarderConnectTimeout))
-        .build();
-  }
-
-  @Bean
-  public Client getClient() throws URISyntaxException {
-    return ClientFactory.createClient(
-        ConnectionStringBuilder.createWithAadManagedIdentity(dataExplorerUrl));
-  }
-
-  @Bean
-  public CosmosClient getCosmosClient() {
-    return new CosmosClientBuilder().endpoint(cosmosEndpoint).key(cosmosKey).buildClient();
-  }
+    @Bean
+    public CosmosClient getCosmosClient() {
+        return new CosmosClientBuilder().endpoint(cosmosEndpoint).key(cosmosKey).buildClient();
+    }
 }
