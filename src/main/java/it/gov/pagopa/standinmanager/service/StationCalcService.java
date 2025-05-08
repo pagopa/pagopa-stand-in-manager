@@ -108,11 +108,11 @@ public class StationCalcService {
                                 });
 
                         if (sendEvent) {
-                            log.info("sending {} event for station {}", Constants.type_removed, station);
+                            log.info("sending {} event for station {}", Constants.TYPE_REMOVED, station);
                             try {
-                                eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.type_removed);
+                                eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.TYPE_REMOVED);
                             } catch (JsonProcessingException e) {
-                                log.error("could not publish {} for stations {}", Constants.type_removed, station);
+                                log.error("could not publish {} for stations {}", Constants.TYPE_REMOVED, station);
                                 throw new RuntimeException(e);
                             }
                         }

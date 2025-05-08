@@ -130,7 +130,7 @@ public class NodoCalcService {
                 log.info("adding station [{}] to standIn stations because {} of {} slots failed in the last" + " {} minutes",
                         station, numOfFailedSlots, totalSlots, this.rangeMinutes);
                 if (Boolean.TRUE.equals(this.sendEvent)) {
-                    log.info("sending {} event for station {}", Constants.type_added, station);
+                    log.info("sending {} event for station {}", Constants.TYPE_ADDED, station);
                     publishStandInAddedEvent(station);
                 }
                 if (Boolean.TRUE.equals(this.saveDB)) {
@@ -158,9 +158,9 @@ public class NodoCalcService {
 
     private void publishStandInAddedEvent(String station) {
         try {
-            this.eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.type_added);
+            this.eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.TYPE_ADDED);
         } catch (JsonProcessingException e) {
-            log.error("could not publish {} for stations {}", Constants.type_added, station);
+            log.error("could not publish {} for stations {}", Constants.TYPE_ADDED, station, e);
             throw new RuntimeException(e);
         }
     }

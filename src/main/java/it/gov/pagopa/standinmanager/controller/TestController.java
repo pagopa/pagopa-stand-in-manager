@@ -108,7 +108,7 @@ public class TestController {
   @GetMapping(value = { "/publish-event"})
   public ResponseEntity<String> test5() {
     try {
-      eventHubService.publishEvent(ZonedDateTime.now(), "test", Constants.type_added);
+      eventHubService.publishEvent(ZonedDateTime.now(), "test", Constants.TYPE_ADDED);
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
