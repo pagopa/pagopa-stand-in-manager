@@ -2,6 +2,7 @@ package it.gov.pagopa.standinmanager.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.gov.pagopa.standinmanager.client.MailService;
+import it.gov.pagopa.standinmanager.exception.AppError;
 import it.gov.pagopa.standinmanager.exception.AppException;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
@@ -195,7 +196,7 @@ public class NodoCalcService {
             this.eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.TYPE_ADDED);
         } catch (JsonProcessingException e) {
             log.error("could not publish {} for stations {}", Constants.TYPE_ADDED, station, e);
-            throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Json processing error", e.getMessage(), e);
+            throw new AppException(AppError.EVENT_HUB_PUBLISH_ERROR, e);
         }
     }
 
