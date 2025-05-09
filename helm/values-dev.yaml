@@ -107,7 +107,7 @@ microservice-chart:
     COSMOS_KEY: "cosmos-standin-account-key"
     FORWARDER_KEY: "node-forwarder-subscription-key-string"
     STAND_IN_TX_CONNECTION_STRING: "nodo-dei-pagamenti-stand-in-tx-connection-string-key"
-    DATA_EXPLORER_CLIENT_SECRET: "data-explorer-client-secret"
+    DATA_EXPLORER_CLIENT_SECRET: "dataexplorer-client-secret"
   keyvault:
     name: "pagopa-d-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
