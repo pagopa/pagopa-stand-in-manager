@@ -39,7 +39,7 @@ class OpenApiGenerationTest {
   @Autowired private ObjectMapper objectMapper;
   @Autowired private MockMvc mvc;
   @MockBean private Client client;
-    @MockBean private CosmosStationRepository cosmosStationRepository;
+  @MockBean private CosmosStationRepository cosmosStationRepository;
   @MockBean private CosmosEventsRepository cosmosEventsRepository;
   @MockBean private DatabaseStationsRepository databaseStationsRepository;
   @MockBean private EntityManagerFactory entityManagerFactory;

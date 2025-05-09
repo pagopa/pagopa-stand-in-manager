@@ -30,8 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class StationCalcServiceTest {
 
-
-
     @Mock private Client kustoClient;
     @Mock private CosmosClient cosmosClient;
     @Mock private CosmosDatabase cosmosDatabase;
@@ -42,7 +40,6 @@ class StationCalcServiceTest {
 
     @Mock private DatabaseStationsRepository databaseStationsRepository = mock(DatabaseStationsRepository.class);
 
-//    private CosmosNodeDataRepository cosmosNodeDataRepository = spy(new CosmosNodeDataRepository());
     private CosmosStationDataRepository cosmosStationDataRepository = spy(new CosmosStationDataRepository());
     private CosmosStationRepository cosmosStationRepository = spy(new CosmosStationRepository());
     private CosmosEventsRepository cosmosEventsRepository = spy(CosmosEventsRepository.class);
@@ -63,8 +60,6 @@ class StationCalcServiceTest {
         org.springframework.test.util.ReflectionTestUtils.setField(stationCalcService, "cosmosStationDataRepository", cosmosStationDataRepository);
         org.springframework.test.util.ReflectionTestUtils.setField(stationCalcService, "cosmosStationRepository", cosmosStationRepository);
         org.springframework.test.util.ReflectionTestUtils.setField(stationCalcService, "cosmosEventsRepository", cosmosEventsRepository);
-
-
 
 
         when(cosmosClient.getDatabase(any())).thenReturn(cosmosDatabase);
@@ -122,5 +117,29 @@ class StationCalcServiceTest {
         verify(cosmosStationRepository, times(2)).removeStation(any());
         verify(cosmosEventsRepository, times(2)).newEvent(any(),any(),any());
         verify(awsSesClient, times(2)).sendEmail(any(),any());
+    }
+
+    @Test
+    void test2() throws Exception {
+        when(cosmosPagedIterable.stream()).thenReturn(Arrays.asList(
+                        new CosmosStandInStation("","station1",Instant.now().minusSeconds(600)),
+                        new CosmosStandInStation("","station2",Instant.now().minusSeconds(600))
+                ).stream(),
+                Arrays.asList(
+                        new CosmosStandInStation("", "station1", Instant.now()),
+                        new CosmosStandInStation("", "station2", Instant.now())
+                ).stream(),
+                Arrays.asList(
+                        new CosmosStandInStation("","station1",Instant.now().minusSeconds(600))
+                ).stream(),
+                Arrays.asList(
+                        new CosmosStandInStation("","station2",Instant.now().minusSeconds(600))
+                ).stream());
+        stationCalcService.removeStationFromStandIn("station1");
+        verify(eventHubService, times(1)).publishEvent(any(),any(),any());
+        verify(databaseStationsRepository, times(1)).deleteById(any());
+        verify(cosmosStationRepository, times(2)).removeStation(any());
+        verify(cosmosEventsRepository, times(1)).newEvent(any(),any(),any());
+        verify(awsSesClient, times(1)).sendEmail(any(),any());
     }
 }
