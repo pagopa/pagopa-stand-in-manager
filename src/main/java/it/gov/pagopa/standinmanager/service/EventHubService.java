@@ -43,9 +43,9 @@ public class EventHubService {
   public void publishEvent(ZonedDateTime now, String station, String type)
       throws JsonProcessingException {
     Map e = new HashMap();
-    e.put(Constants.timestamp, now);
-    e.put(Constants.station, station);
-    e.put(Constants.type, type);
+    e.put(Constants.TIMESTAMP, now);
+    e.put(Constants.STATION, station);
+    e.put(Constants.TYPE, type);
     List<EventData> allEvents = Arrays.asList(new EventData(om.writeValueAsString(e)));
     EventDataBatch eventDataBatch = getProducer().createBatch();
     for (EventData eventData : allEvents) {

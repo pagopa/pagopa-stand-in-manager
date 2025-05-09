@@ -2,9 +2,6 @@ package it.gov.pagopa.standinmanager;
 
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosClientBuilder;
-import com.microsoft.azure.kusto.data.Client;
-import com.microsoft.azure.kusto.data.ClientFactory;
-import com.microsoft.azure.kusto.data.auth.ConnectionStringBuilder;
 import it.gov.pagopa.standinmanager.config.ApiClient;
 import org.openapitools.client.api.CacheApi;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ses.SesClient;
 
-import java.net.URISyntaxException;
 import java.time.Duration;
 
 @SpringBootApplication
@@ -26,12 +22,7 @@ public class Application {
     private String basePath;
     @Value("${api-config-cache.api-key}")
     private String apiKey;
-    @Value("${dataexplorer.url}")
-    private String dataExplorerUrl;
-    @Value("${dataexplorer.clientId}")
-    private String dataExplorerClientId;
-    @Value("${dataexplorer.appKey}")
-    private String dataExplorerKey;
+
     @Value("${cosmos.endpoint}")
     private String cosmosEndpoint;
     @Value("${cosmos.key}")
@@ -66,12 +57,6 @@ public class Application {
                 .setReadTimeout(Duration.ofSeconds(forwarderReadTimeout))
                 .setConnectTimeout(Duration.ofSeconds(forwarderConnectTimeout))
                 .build();
-    }
-
-    @Bean
-    public Client getClient() throws URISyntaxException {
-        return ClientFactory.createClient(
-                ConnectionStringBuilder.createWithAadManagedIdentity(dataExplorerUrl));
     }
 
     @Bean

@@ -1,0 +1,8 @@
+[{
+  "FrameType" : "DataTable",
+  "TableName": "RE",
+  "Columns": [{"ColumnName":"count"}],
+  "Rows": [
+    [15]
+  ]
+}]
