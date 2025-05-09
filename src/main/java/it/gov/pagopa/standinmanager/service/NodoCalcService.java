@@ -2,6 +2,7 @@ package it.gov.pagopa.standinmanager.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.gov.pagopa.standinmanager.client.MailService;
+import it.gov.pagopa.standinmanager.exception.AppException;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
@@ -13,6 +14,7 @@ import it.gov.pagopa.standinmanager.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
@@ -83,6 +85,7 @@ public class NodoCalcService {
     }
 
     public void runCalculations() {
+        // TODO rollback to ZonedDateTime.now()
         ZonedDateTime now = ZonedDateTime.now().minusMonths(1).plusDays(21).plusMinutes(20);
         double totalTrafficThreshold = getTotalTrafficThreshold(now);
         int totalSlots = this.rangeMinutes / this.slotMinutes;
@@ -161,7 +164,7 @@ public class NodoCalcService {
             this.eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.TYPE_ADDED);
         } catch (JsonProcessingException e) {
             log.error("could not publish {} for stations {}", Constants.TYPE_ADDED, station, e);
-            throw new RuntimeException(e);
+            throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Json processing error", e.getMessage(), e);
         }
     }
 
