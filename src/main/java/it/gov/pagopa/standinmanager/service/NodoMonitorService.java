@@ -56,7 +56,7 @@ public class NodoMonitorService {
     private final ConfigService configService;
 
     public NodoMonitorService(
-            @Value("${dataexplorer.dbName}") String database,
+            @Value("${data.explorer.dbName}") String database,
             @Value("${adder.slot.minutes}") int slotMinutes,
             @Value("${excludedStations}") String excludedStations,
             Client kustoClient,
