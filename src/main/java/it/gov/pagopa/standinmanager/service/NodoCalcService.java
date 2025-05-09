@@ -117,8 +117,7 @@ public class NodoCalcService {
      *     </ul>
      */
     public void runCalculations() {
-        // TODO rollback to ZonedDateTime.now()
-        ZonedDateTime now = ZonedDateTime.now().minusMonths(1).plusDays(21).plusMinutes(20);
+        ZonedDateTime now = ZonedDateTime.now();
         double totalTrafficThreshold = getTotalTrafficThreshold(now);
         int totalSlots = this.rangeMinutes / this.slotMinutes;
         log.info("runCalculations [{}] on {} minutes range with {} minutes slots", now, this.rangeMinutes, this.slotMinutes);
