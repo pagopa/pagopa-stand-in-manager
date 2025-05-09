@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum AppError {
   INTERNAL_SERVER_ERROR(
-      HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "Something was wrong");
+      HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "Something was wrong"),
+  NO_RESULT_FROM_DATA_EXPLORER_QUERY(
+      HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected result from Data Explorer query", "Data Explorer query result was empty");
 
   public final HttpStatus httpStatus;
   public final String title;

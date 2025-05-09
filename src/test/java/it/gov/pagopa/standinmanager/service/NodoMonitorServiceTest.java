@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest(classes = NodoMonitorService.class)
@@ -46,8 +47,10 @@ class NodoMonitorServiceTest {
     @Test
     void getAndSaveDataSuccess() throws Exception {
         doReturn(buildConfigDataV1()).when(configServiceMock).getCache();
-        doReturn(getKustoResult("response/kustoTotalResponse.json")).when(kustoClientMock).execute(any(), any(), any());
-        doReturn(getKustoResult("response/kustoFaultResponse.json")).when(kustoClientMock).execute(any(), any(), any());
+        doReturn(getKustoResult("response/kustoTotalCallResponse.json"))
+                .doReturn(getKustoResult("response/kustoTotalCallForStationResponse.json"))
+                .doReturn(getKustoResult("response/kustoFaultCallForStationResponse.json"))
+                .when(kustoClientMock).execute(any(), any(), any());
 
         assertDoesNotThrow(() -> sut.getAndSaveData());
 
@@ -63,11 +66,14 @@ class NodoMonitorServiceTest {
         ReflectionTestUtils.setField(sut, "excludedStations", "00000000000_01");
 
         doReturn(buildConfigDataV1()).when(configServiceMock).getCache();
-        doReturn(getKustoResult("response/kustoTotalResponse.json")).when(kustoClientMock).execute(any(), any(), any());
-        doReturn(getKustoResult("response/kustoFaultResponse.json")).when(kustoClientMock).execute(any(), any(), any());
+        doReturn(getKustoResult("response/kustoTotalCallResponse.json"))
+                .doReturn(getKustoResult("response/kustoTotalCallForStationResponse.json"))
+                .doReturn(getKustoResult("response/kustoFaultCallForStationResponse.json"))
+                .when(kustoClientMock).execute(any(), any(), any());
 
         assertDoesNotThrow(() -> sut.getAndSaveData());
 
+        verify(kustoClientMock, times(3)).execute(any(), any(), any());
         verify(cosmosNodeDataRepositoryMock).saveAll(cosmosNodeCallCountsCaptor.capture());
         List<CosmosNodeCallCounts> savedCounts = cosmosNodeCallCountsCaptor.getValue();
         assertNotNull(savedCounts);
@@ -77,7 +83,10 @@ class NodoMonitorServiceTest {
 
     private ConfigDataV1 buildConfigDataV1() {
         ConfigDataV1 configDataV1 = new ConfigDataV1();
-        configDataV1.setStations(Map.of("Stazione3", new Station()));
+        configDataV1.setStations(Map.of(
+                "Stazione1", new Station(),
+                "Stazione2", new Station()
+        ));
         return configDataV1;
     }
 

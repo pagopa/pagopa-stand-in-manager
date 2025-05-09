@@ -7,13 +7,13 @@ import com.microsoft.azure.kusto.data.KustoResultSetTable;
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
+import it.gov.pagopa.standinmanager.exception.AppError;
+import it.gov.pagopa.standinmanager.exception.AppException;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosNodeCallCounts;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.utils.Either;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
 public class NodoMonitorService {
 
     private static final String STATIONS_FILTER_PLACEHOLDER = "{stationsFilter}";
-    private static final String FAULT_QUERY =
+    private static final String FAULT_CALL_GROUP_BY_STATION_QUERY =
             "declare query_parameters(year:int,month:int,day:int,hour:int,minute:int,second:int);\n"
                     + "FAULT_CODE\n"
                     + STATIONS_FILTER_PLACEHOLDER
@@ -39,7 +38,7 @@ public class NodoMonitorService {
                     + "| where tipoEvento in ('verifyPaymentNotice','activatePaymentNotice', 'activatePaymentNoticeV2')\n"
                     + "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"
                     + "| summarize count = count() by (stazione)";
-    private static final String TOTALS_QUERY =
+    private static final String TOTAL_CALL_GROUP_BY_STATION_QUERY =
             "declare query_parameters(year:int,month:int,day:int,hour:int,minute:int,second:int);\n"
                     + "ReEvent\n"
                     + STATIONS_FILTER_PLACEHOLDER
@@ -47,6 +46,13 @@ public class NodoMonitorService {
                     + "| where sottoTipoEvento == 'REQ'\n"
                     + "| where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)\n"
                     + "| summarize count = count() by (stazione)";
+    private static final String TOTAL_CALL_QUERY = """
+            declare query_parameters(year:int,month:int,day:int,hour:int,minute:int,second:int);
+            ReEvent
+            | where tipoEvento in ('paVerifyPaymentNotice','paGetPayment', 'paGetPaymentV2')
+            | where sottoTipoEvento == 'REQ'
+            | where insertedTimestamp > make_datetime(year,month,day,hour,minute,second)
+            | summarize count = count()""";
 
     private final String database;
     private final int slotMinutes;
@@ -77,17 +83,22 @@ public class NodoMonitorService {
      * Saves the counts on CosmosDB.
      *
      * @throws DataServiceException Error on query data from Azure Data Explorer
-     * @throws DataClientException Error on query data from Azure Data Explorer
+     * @throws DataClientException  Error on query data from Azure Data Explorer
      */
     public void getAndSaveData() throws DataServiceException, DataClientException {
         ZonedDateTime now = ZonedDateTime.now();
         log.info("getAndSaveData [{}]", now);
-        Set<String> excludedStationsList = getExcludedStationsList();
+        ZonedDateTime timeLimit = now.minusMinutes(this.slotMinutes);
 
-        Map<String, Integer> totalCallForStation = getCount(TOTALS_QUERY, Either.right(excludedStationsList), now.minusMinutes(this.slotMinutes));
-        Set<String> allStations = totalCallForStation.keySet();
-        Map<String, Integer> faultForStation = getCount(FAULT_QUERY, Either.left(allStations), now.minusMinutes(slotMinutes));
-        Integer totalCall = totalCallForStation.values().stream().reduce(0, Integer::sum);
+        Integer totalCall = getTotalCallCount(timeLimit);
+
+        IncludedOrExcludedStations includedOrExcludedStations = getStationsFilter();
+        Map<String, Integer> totalCallForStation =
+                getCountGroupedByStations(TOTAL_CALL_GROUP_BY_STATION_QUERY, includedOrExcludedStations, timeLimit);
+
+        Set<String> stationsToInclude = totalCallForStation.keySet();
+        Map<String, Integer> faultForStation =
+                getCountGroupedByStations(FAULT_CALL_GROUP_BY_STATION_QUERY, new IncludedOrExcludedStations(stationsToInclude), timeLimit);
 
         List<CosmosNodeCallCounts> stationCounts =
                 totalCallForStation.entrySet().stream()
@@ -114,28 +125,26 @@ public class NodoMonitorService {
         this.cosmosRepository.saveAll(stationCounts);
     }
 
-    private Map<String, Integer> getCount(
+    private Map<String, Integer> getCountGroupedByStations(
             String query,
-            Either<Set<String>, Set<String>> includedOrExcludedStations,
+            IncludedOrExcludedStations includedOrExcludedStations,
             ZonedDateTime timeLimit
     ) throws DataServiceException, DataClientException {
-
+        Set<String> inclusionList = includedOrExcludedStations.inclusionList;
+        Set<String> exclusionList = includedOrExcludedStations.exclusionList;
         String replacedQuery;
-        Optional<Set<String>> inclusionList = includedOrExcludedStations.left();
-        Optional<Set<String>> exclusionList = includedOrExcludedStations.right();
-        if (exclusionList.isPresent() && !exclusionList.get().isEmpty()) {
-            String stations = exclusionList.get().stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
+        if (exclusionList != null && !exclusionList.isEmpty()) {
+            String stations = exclusionList.stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
             replacedQuery = query.replace(STATIONS_FILTER_PLACEHOLDER, "| where stazione !in(" + stations + ")\n");
-        } else if (inclusionList.isPresent() && !inclusionList.get().isEmpty()) {
-            String stations = inclusionList.get().stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
+        } else if (inclusionList != null && !inclusionList.isEmpty()) {
+            String stations = inclusionList.stream().map(s -> "'" + s + "'").collect(Collectors.joining(","));
             replacedQuery = query.replace(STATIONS_FILTER_PLACEHOLDER, "| where stazione in (" + stations + ")\n");
         } else {
             replacedQuery = query.replace(STATIONS_FILTER_PLACEHOLDER, "");
         }
 
         log.debug("Running KQL query [{}]", replacedQuery);
-        KustoOperationResult response =
-                this.kustoClient.execute(this.database, replacedQuery, getTimeParameters(timeLimit));
+        KustoOperationResult response = this.kustoClient.execute(this.database, replacedQuery, getTimeParameters(timeLimit));
         KustoResultSetTable primaryResults = response.getPrimaryResults();
         Map<String, Integer> results = new HashMap<>();
         while (primaryResults.hasNext()) {
@@ -145,14 +154,15 @@ public class NodoMonitorService {
         return results;
     }
 
-    private @NotNull Set<String> getExcludedStationsList() {
-        ConfigDataV1 cache = this.configService.getCache();
-        Set<String> excludedStationsList = new HashSet<>(cache.getStations().keySet());
-
-        if (this.excludedStations != null && !this.excludedStations.isEmpty()) {
-            excludedStationsList.addAll(Arrays.asList(this.excludedStations.split(",")));
+    private Integer getTotalCallCount(ZonedDateTime timeLimit) throws DataServiceException, DataClientException {
+        log.debug("Running KQL query [{}]", TOTAL_CALL_QUERY);
+        KustoOperationResult response = this.kustoClient.execute(this.database, TOTAL_CALL_QUERY, getTimeParameters(timeLimit));
+        KustoResultSetTable primaryResults = response.getPrimaryResults();
+        if (primaryResults.hasNext()) {
+            primaryResults.next();
+            return primaryResults.getInt("count");
         }
-        return excludedStationsList;
+        throw new AppException(AppError.NO_RESULT_FROM_DATA_EXPLORER_QUERY);
     }
 
     private ClientRequestProperties getTimeParameters(ZonedDateTime time) {
@@ -164,5 +174,23 @@ public class NodoMonitorService {
         clientRequestProperties.setParameter("minute", time.getMinute());
         clientRequestProperties.setParameter("second", time.getSecond());
         return clientRequestProperties;
+    }
+
+    private IncludedOrExcludedStations getStationsFilter() {
+        ConfigDataV1 cache = this.configService.getCache();
+        Set<String> includedStations = cache.getStations().keySet();
+
+        Set<String> excludedStationsList = new HashSet<>();
+        if (this.excludedStations != null && !this.excludedStations.isEmpty()) {
+            excludedStationsList = new HashSet<>(Arrays.asList(this.excludedStations.split(",")));
+        }
+        return new IncludedOrExcludedStations(includedStations, excludedStationsList);
+    }
+
+    private record IncludedOrExcludedStations(Set<String> inclusionList,
+                                              Set<String> exclusionList) {
+        public IncludedOrExcludedStations(Set<String> inclusionList) {
+            this(inclusionList, null);
+        }
     }
 }
