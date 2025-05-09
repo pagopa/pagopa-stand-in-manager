@@ -60,6 +60,7 @@ microservice-chart:
     API_CONFIG_CACHE_BASE_PATH: "https://api.dev.platform.pagopa.it/api-config-cache/p/v1"
     DATA_EXPLORER_URL: "https://pagopaddataexplorer.westeurope.kusto.windows.net"
     DATA_EXPLORER_CLIENT_ID: "8677a3ca-8d05-453f-947c-0bdb1d15e512"
+    DATA_EXPLORER_TENANT_ID: "7788edaf-0346-4068-9d79-c868aed15b3d"
     DATA_EXPLORER_DB_NAME: "re"
     COSMOS_ENDPOINT: "https://pagopa-d-weu-nodo-standin-cosmos-account.documents.azure.com:443/"
     FORWARDER_URL: "https://api.dev.platform.pagopa.it/pagopa-node-forwarder/api/v1/forward"
