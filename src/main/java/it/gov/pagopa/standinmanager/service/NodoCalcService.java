@@ -41,6 +41,10 @@ public class NodoCalcService {
     private final String env;
     private final Boolean saveDB;
     private final Boolean sendEvent;
+    private final int nighttimeStartHours;
+    private final int nighttimeStartMinutes;
+    private final int nighttimeEndHours;
+    private final int nighttimeEndMinutes;
     private final CosmosStationRepository cosmosStationRepository;
     private final CosmosNodeDataRepository cosmosNodeDataRepository;
     private final CosmosEventsRepository cosmosEventsRepository;
@@ -59,6 +63,10 @@ public class NodoCalcService {
             @Value("${info.properties.environment}") String env,
             @Value("${saveDB}") Boolean saveDB,
             @Value("${sendEvent}") Boolean sendEvent,
+            @Value("${nighttime.start.hours}") int nighttimeStartHours,
+            @Value("${nighttime.start.minutes}") int nighttimeStartMinutes,
+            @Value("${nighttime.end.hours}") int nighttimeEndHours,
+            @Value("${nighttime.end.minutes}") int nighttimeEndMinutes,
             CosmosStationRepository cosmosStationRepository,
             CosmosNodeDataRepository cosmosNodeDataRepository,
             CosmosEventsRepository cosmosEventsRepository,
@@ -75,6 +83,10 @@ public class NodoCalcService {
         this.env = env;
         this.saveDB = saveDB;
         this.sendEvent = sendEvent;
+        this.nighttimeStartHours = nighttimeStartHours;
+        this.nighttimeStartMinutes = nighttimeStartMinutes;
+        this.nighttimeEndHours = nighttimeEndHours;
+        this.nighttimeEndMinutes = nighttimeEndMinutes;
         this.cosmosStationRepository = cosmosStationRepository;
         this.cosmosNodeDataRepository = cosmosNodeDataRepository;
         this.cosmosEventsRepository = cosmosEventsRepository;
@@ -84,6 +96,26 @@ public class NodoCalcService {
         this.decimalFormat = new DecimalFormat("#.##");
     }
 
+    /**
+     * Elaborate the monitored stations traffic in the configured range time {@link NodoCalcService#rangeMinutes}
+     * aggregated by the configured slot time {@link NodoCalcService#slotMinutes} and activates the Stand-In mode if all
+     * the following condition occur:
+     * <ul>
+     *     <li> During nighttime hours, from {@link NodoCalcService#nighttimeStartHours}:{@link NodoCalcService#nighttimeStartMinutes}
+     *     to {@link NodoCalcService#nighttimeEndHours}:{@link NodoCalcService#nighttimeEndMinutes}
+     *     <ul>
+     *         <li> Stations have an availability below the configured threshold {@link NodoCalcService#rangeThreshold}
+     *         <li> The total payment traffic managed by the station exceeds the configured threshold {@link NodoCalcService#totalTrafficNightThreshold}
+     *         of the total traffic of NodoSPC
+     *     </ul>
+     *     <li> During daytime hours, from {@link NodoCalcService#nighttimeEndHours}:{@link NodoCalcService#nighttimeEndMinutes}
+     *     to {@link NodoCalcService#nighttimeStartHours}:{@link NodoCalcService#nighttimeStartMinutes}
+     *     <ul>
+     *         <li> Stations have an availability below the configured threshold {@link NodoCalcService#rangeThreshold}
+     *         <li> The total payment traffic managed by the station exceeds the configured threshold {@link NodoCalcService#totalTrafficDayThreshold}
+     *         of the total traffic of NodoSPC
+     *     </ul>
+     */
     public void runCalculations() {
         // TODO rollback to ZonedDateTime.now()
         ZonedDateTime now = ZonedDateTime.now().minusMonths(1).plusDays(21).plusMinutes(20);
@@ -186,8 +218,8 @@ public class NodoCalcService {
 
     private double getTotalTrafficThreshold(ZonedDateTime now) {
         LocalTime time = now.toLocalTime();
-        LocalTime nightStart = LocalTime.of(22, 0);
-        LocalTime nightEnd = LocalTime.of(6, 0);
+        LocalTime nightStart = LocalTime.of(this.nighttimeStartHours, this.nighttimeStartMinutes);
+        LocalTime nightEnd = LocalTime.of(this.nighttimeEndHours, this.nighttimeEndMinutes);
 
         if (time.isAfter(nightStart) || time.isBefore(nightEnd)) {
             return this.totalTrafficNightThreshold;

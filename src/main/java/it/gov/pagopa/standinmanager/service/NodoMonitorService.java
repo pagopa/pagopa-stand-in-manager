@@ -70,6 +70,15 @@ public class NodoMonitorService {
         this.configService = configService;
     }
 
+    /**
+     * Monitor traffic for each station that is eligible for Stand-In.
+     * Retrieves station total call and fault in the configured slot time {@link NodoMonitorService#slotMinutes} and retrieve
+     * the total call in the configured slot.
+     * Saves the counts on CosmosDB.
+     *
+     * @throws DataServiceException Error on query data from Azure Data Explorer
+     * @throws DataClientException Error on query data from Azure Data Explorer
+     */
     public void getAndSaveData() throws DataServiceException, DataClientException {
         ZonedDateTime now = ZonedDateTime.now();
         log.info("getAndSaveData [{}]", now);
@@ -111,7 +120,7 @@ public class NodoMonitorService {
             ZonedDateTime timeLimit
     ) throws DataServiceException, DataClientException {
 
-        String replacedQuery = null;
+        String replacedQuery;
         Optional<Set<String>> inclusionList = includedOrExcludedStations.left();
         Optional<Set<String>> exclusionList = includedOrExcludedStations.right();
         if (exclusionList.isPresent() && !exclusionList.get().isEmpty()) {
