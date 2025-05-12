@@ -1,17 +1,11 @@
 package it.gov.pagopa.standinmanager.service;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosDatabase;
 import com.azure.cosmos.models.SqlQuerySpec;
 import com.azure.cosmos.util.CosmosPagedIterable;
 import com.microsoft.azure.kusto.data.Client;
-import com.microsoft.azure.kusto.data.exceptions.DataClientException;
-import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
-import com.microsoft.azure.kusto.data.exceptions.KustoServiceQueryError;
 import it.gov.pagopa.standinmanager.client.ForwarderClient;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.config.model.Service;
@@ -21,11 +15,6 @@ import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
-
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +24,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.web.client.RestTemplate;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -60,7 +61,7 @@ class StationMonitorServiceTest {
     private StationMonitorService stationMonitorService;
 
     @BeforeEach
-    void setUp() throws KustoServiceQueryError, DataServiceException, DataClientException {
+    void setUp() {
         ConfigDataV1 configDataV1 = new ConfigDataV1();
 
         Map<String, Station> stations = new HashMap<>();
@@ -98,10 +99,10 @@ class StationMonitorServiceTest {
         when(cosmosClient.getDatabase(any())).thenReturn(cosmosDatabase);
         when(cosmosDatabase.getContainer(any())).thenReturn(cosmosContainer);
         when(cosmosContainer.queryItems(any(SqlQuerySpec.class),any(),any())).thenReturn(cosmosPagedIterable);
-        when(cosmosPagedIterable.stream()).thenReturn(Arrays.asList(
+        when(cosmosPagedIterable.stream()).thenReturn(Stream.of(
                 new CosmosStandInStation("","station1",Instant.now()),
                 new CosmosStandInStation("","station2",Instant.now())
-        ).stream());
+        ));
 
         org.springframework.test.util.ReflectionTestUtils.setField(cosmosNodeDataRepository, "cosmosClient", cosmosClient);
         org.springframework.test.util.ReflectionTestUtils.setField(cosmosStationRepository, "cosmosClient", cosmosClient);
@@ -124,9 +125,9 @@ class StationMonitorServiceTest {
 
     @Test
     void test3() throws Exception {
-        when(cosmosPagedIterable.stream()).thenReturn(Arrays.asList(
+        when(cosmosPagedIterable.stream()).thenReturn(Stream.of(
                 new CosmosStandInStation("","station1",Instant.now())
-        ).stream());
+        ));
         stationMonitorService.checkStations();
         Thread.sleep(2000);
         verify(asyncService, times(1)).checkStation(any(), any(), any(), any());
