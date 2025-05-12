@@ -37,11 +37,10 @@ jobs:
           ./generate_openapi.sh
 
       - name: Formatting
-        id: format
-        uses: findologic/intellij-format-action@main
+        uses: axel-op/googlejavaformat-action@v3
         with:
-          path: .
-          fail-on-changes: false
+          args: "--replace"
+          commit-message: "Google Java format [skip ci]"
 
       - name: Commit files
         run: |
