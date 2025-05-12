@@ -1,31 +1,34 @@
 package it.gov.pagopa.standinmanager.service;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosDatabase;
 import com.azure.cosmos.models.SqlQuerySpec;
 import com.azure.cosmos.util.CosmosPagedIterable;
 import com.microsoft.azure.kusto.data.Client;
-import com.microsoft.azure.kusto.data.exceptions.DataClientException;
-import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
-import com.microsoft.azure.kusto.data.exceptions.KustoServiceQueryError;
 import it.gov.pagopa.standinmanager.client.MailService;
-import it.gov.pagopa.standinmanager.repository.*;
+import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
+import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
+import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
+import it.gov.pagopa.standinmanager.repository.DatabaseStationsRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosForwarderCallCounts;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
-
-import java.time.Instant;
-import java.util.Arrays;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.Instant;
+import java.util.stream.Stream;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class StationCalcServiceTest {
@@ -48,7 +51,7 @@ class StationCalcServiceTest {
     private StationCalcService stationCalcService;
 
     @BeforeEach
-    void setUp() throws KustoServiceQueryError, DataServiceException, DataClientException {
+    void setUp() {
         org.springframework.test.util.ReflectionTestUtils.setField(stationCalcService, "rangeMinutes", 1);
         org.springframework.test.util.ReflectionTestUtils.setField(stationCalcService, "rangeLimit", 5);
         org.springframework.test.util.ReflectionTestUtils.setField(stationCalcService, "sendEvent", true);
@@ -65,11 +68,11 @@ class StationCalcServiceTest {
         when(cosmosClient.getDatabase(any())).thenReturn(cosmosDatabase);
         when(cosmosDatabase.getContainer(any())).thenReturn(cosmosContainer);
         when(cosmosContainer.queryItems(any(SqlQuerySpec.class),any(),any())).thenReturn(cosmosPagedIterable);
-        when(cosmosPagedIterable.stream()).thenReturn(Arrays.asList(
+        when(cosmosPagedIterable.stream()).thenReturn(Stream.of(
                 new CosmosStandInStation("","station1",Instant.now().minusSeconds(600)),
                 new CosmosStandInStation("","station2",Instant.now().minusSeconds(600))
-        ).stream(),
-                Arrays.asList(
+        ),
+                Stream.of(
                         new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
                         new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
                         new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
@@ -82,31 +85,13 @@ class StationCalcServiceTest {
                         new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
                         new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
                         new CosmosForwarderCallCounts("", "station2", Instant.now(),true)
-                ).stream(),
-                Arrays.asList(
-                        new CosmosStandInStation("","station1",Instant.now().minusSeconds(600))
-                ).stream(),
-                Arrays.asList(
+                ),
+                Stream.of(
+                        new CosmosStandInStation("", "station1", Instant.now().minusSeconds(600))
+                ),
+                Stream.of(
                         new CosmosStandInStation("","station2",Instant.now().minusSeconds(600))
-                        ).stream());
-
-//    when(cosmosStationDataRepository.getStationCounts(any()))
-//        .thenReturn(
-//            List.of(
-//                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
-//                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
-//                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
-//                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
-//                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
-//                new CosmosForwarderCallCounts("", "station1", Instant.now(),true),
-//                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
-//                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
-//                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
-//                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
-//                new CosmosForwarderCallCounts("", "station2", Instant.now(),true),
-//                new CosmosForwarderCallCounts("", "station2", Instant.now(),true)
-//            )
-//        );
+                        ));
     }
 
     @Test
@@ -121,20 +106,20 @@ class StationCalcServiceTest {
 
     @Test
     void test2() throws Exception {
-        when(cosmosPagedIterable.stream()).thenReturn(Arrays.asList(
+        when(cosmosPagedIterable.stream()).thenReturn(Stream.of(
                         new CosmosStandInStation("","station1",Instant.now().minusSeconds(600)),
                         new CosmosStandInStation("","station2",Instant.now().minusSeconds(600))
-                ).stream(),
-                Arrays.asList(
+                ),
+                Stream.of(
                         new CosmosStandInStation("", "station1", Instant.now()),
                         new CosmosStandInStation("", "station2", Instant.now())
-                ).stream(),
-                Arrays.asList(
-                        new CosmosStandInStation("","station1",Instant.now().minusSeconds(600))
-                ).stream(),
-                Arrays.asList(
-                        new CosmosStandInStation("","station2",Instant.now().minusSeconds(600))
-                ).stream());
+                ),
+                Stream.of(
+                        new CosmosStandInStation("", "station1", Instant.now().minusSeconds(600))
+                ),
+                Stream.of(
+                        new CosmosStandInStation("", "station2", Instant.now().minusSeconds(600))
+                ));
         stationCalcService.removeStationFromStandIn("station1");
         verify(eventHubService, times(1)).publishEvent(any(),any(),any());
         verify(databaseStationsRepository, times(1)).deleteById(any());
