@@ -97,7 +97,8 @@ class NodoCalcServiceTest {
                 buildCosmosNodeCallCounts(STATION_1, now, 10, 0),
                 buildCosmosNodeCallCounts(STATION_1, now, 15, 1),
                 buildCosmosNodeCallCounts(STATION_1, now, 20, 0),
-                buildCosmosNodeCallCounts(STATION_1, now, 25, 7),
+                buildCosmosNodeCallCounts(STATION_1, now, 25, 10), // duplicated slot, should be removed because older
+                buildCosmosNodeCallCounts(STATION_1, now, 27, 7),  // duplicated slot, should be keep because most recent
                 buildCosmosNodeCallCounts(STATION_1, now, 30, 4),
                 buildCosmosNodeCallCounts(STATION_2, now, 5, 0),
                 buildCosmosNodeCallCounts(STATION_2, now, 10, 5),

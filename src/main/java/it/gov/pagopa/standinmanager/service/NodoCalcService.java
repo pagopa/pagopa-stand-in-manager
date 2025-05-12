@@ -15,7 +15,6 @@ import it.gov.pagopa.standinmanager.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
@@ -136,11 +135,10 @@ public class NodoCalcService {
                 return;
             }
 
-            // TODO could be useless
-            List<CosmosNodeCallCounts> groupedCallCounts = groupCosmosNodeCallCountsToSlotInterval(stationCounts);
+            List<CosmosNodeCallCounts> filteredCallCounts = filterDuplicatedSlotData(stationCounts);
 
-            long numOfHighTrafficSlots = groupedCallCounts.stream().filter(c -> c.getTotalTrafficPercentage() > totalTrafficThreshold).count();
-            long numOfFailedSlots = groupedCallCounts.stream().filter(c -> c.getFaultPercentage() > this.slotThreshold).count();
+            long numOfHighTrafficSlots = filteredCallCounts.stream().filter(c -> c.getTotalTrafficPercentage() > totalTrafficThreshold).count();
+            long numOfFailedSlots = filteredCallCounts.stream().filter(c -> c.getFaultPercentage() > this.slotThreshold).count();
             double failedSlotPerc = ((numOfFailedSlots / (double) totalSlots) * 100);
             double highTrafficSlotPerc = ((numOfHighTrafficSlots / (double) totalSlots) * 100);
 
@@ -150,7 +148,7 @@ public class NodoCalcService {
                         station,
                         numOfFailedSlots,
                         totalSlots,
-                        groupedCallCounts.stream()
+                        filteredCallCounts.stream()
                                 .sorted(Comparator.comparingLong(s -> s.getTimestamp().getEpochSecond()))
                                 .map(s -> String.format(
                                         "%s : %s/%s: %s%%",
@@ -200,19 +198,15 @@ public class NodoCalcService {
         }
     }
 
-    private @NotNull List<CosmosNodeCallCounts> groupCosmosNodeCallCountsToSlotInterval(List<CosmosNodeCallCounts> stationCounts) {
-        Map<Instant, List<CosmosNodeCallCounts>> fiveMinutesIntervals = stationCounts.stream()
-                .collect(Collectors.groupingBy(item -> roundToNearest5Minutes(item.getTimestamp())));
+    private @NotNull List<CosmosNodeCallCounts> filterDuplicatedSlotData(List<CosmosNodeCallCounts> stationCounts) {
+        Map<Instant, List<CosmosNodeCallCounts>> groupNodeCallCountsToSlotInterval = stationCounts.stream()
+                .collect(Collectors.groupingBy(item -> roundToNearestSlotMinutes(item.getTimestamp())));
 
-        return fiveMinutesIntervals.entrySet().stream()
-                .map(entry -> entry.getValue().stream()
-                        .reduce(
-                                new CosmosNodeCallCounts(null, null, entry.getKey(), 0, 0, 0),
-                                (f, d) -> {
-                                    f.setTotal(f.getTotal() + d.getTotal());
-                                    f.setFaults(f.getFaults() + d.getFaults());
-                                    return f;
-                                }))
+        // keep only the most recent node call detection for each slot
+        return groupNodeCallCountsToSlotInterval.values().stream()
+                .map(cosmosNodeCallCounts -> cosmosNodeCallCounts.stream()
+                        .sorted(Comparator.comparing(s -> s.getTimestamp().getEpochSecond(), Comparator.reverseOrder()))
+                        .toList().get(0))
                 .toList();
     }
 
@@ -227,7 +221,7 @@ public class NodoCalcService {
         return this.totalTrafficDayThreshold;
     }
 
-    private Instant roundToNearest5Minutes(Instant instant) {
+    private Instant roundToNearestSlotMinutes(Instant instant) {
         long epochSeconds = instant.getEpochSecond();
         long roundedSeconds = Math.floorDiv(epochSeconds, this.slotMinutes * 60) * this.slotMinutes * 60;
         return Instant.ofEpochSecond(roundedSeconds);
