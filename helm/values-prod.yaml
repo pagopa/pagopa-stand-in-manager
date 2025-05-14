@@ -2,7 +2,7 @@ microservice-chart:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.1.5-2-PAGOPA-3049-update-stand-in-activation-checks"
+    tag: "0.1.5-3-PAGOPA-3049-update-stand-in-activation-checks"
   livenessProbe:
     httpGet:
       path: /actuator/health/liveness
