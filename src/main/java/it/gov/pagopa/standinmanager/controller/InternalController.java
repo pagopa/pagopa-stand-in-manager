@@ -107,7 +107,7 @@ public class InternalController {
   @GetMapping(value = { "/publish-event"})
   public ResponseEntity<String> test5() {
     try {
-      eventHubService.publishEvent(ZonedDateTime.now(), "test", Constants.type_added);
+      eventHubService.publishEvent(ZonedDateTime.now(), "test", Constants.TYPE_ADDED);
     } catch (JsonProcessingException e) {
       throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Json processing error", e.getMessage());
     }

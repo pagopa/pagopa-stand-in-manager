@@ -3,7 +3,7 @@
   "TableName": "RE",
   "Columns": [{"ColumnName":"stazione"},{"ColumnName":"count"}],
   "Rows": [
-    ["station1",1],
-    ["station2",1]
+    ["station1",10],
+    ["station2",5]
   ]
 }]

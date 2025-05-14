@@ -12,11 +12,11 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>stand-in-manager</artifactId>
-  <version>0.1.5</version>
+  <version>0.1.5-3-PAGOPA-3049-update-stand-in-activation-checks</version>
   <description>Stand in Manager</description>
 
   <properties>
-    <java.version>11</java.version>
+    <java.version>17</java.version>
   </properties>
 
   <repositories>

@@ -3,10 +3,13 @@
   "info": {
     "description": "Stand in Manager",
     "termsOfService": "https://www.pagopa.gov.it/",
-    "title": "@project.name@",
-    "version": "0.1.5"
+    "title": "stand-in-manager",
+    "version": "0.1.5-3-PAGOPA-3049-update-stand-in-activation-checks"
   },
   "servers": [
+    {
+      "url": "http://localhost:8080"
+    },
     {
       "url": "https://{host}/{basePath}",
       "variables": {

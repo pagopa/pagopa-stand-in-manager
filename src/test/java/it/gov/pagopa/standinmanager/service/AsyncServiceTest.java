@@ -1,4 +1,4 @@
-package it.gov.pagopa.standinmanager;
+package it.gov.pagopa.standinmanager.service;
 
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosContainer;
@@ -15,8 +15,6 @@ import it.gov.pagopa.standinmanager.repository.CosmosNodeDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
-import it.gov.pagopa.standinmanager.service.AsyncService;
-import it.gov.pagopa.standinmanager.service.ConfigService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

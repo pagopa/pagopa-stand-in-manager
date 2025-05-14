@@ -1,12 +1,8 @@
 package it.gov.pagopa.standinmanager.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.microsoft.azure.kusto.data.exceptions.DataClientException;
-import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
 import it.gov.pagopa.standinmanager.client.MailService;
-import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
-import it.gov.pagopa.standinmanager.config.model.Station;
-import it.gov.pagopa.standinmanager.config.model.StationCreditorInstitution;
+import it.gov.pagopa.standinmanager.exception.AppError;
 import it.gov.pagopa.standinmanager.exception.AppException;
 import it.gov.pagopa.standinmanager.repository.CosmosEventsRepository;
 import it.gov.pagopa.standinmanager.repository.CosmosStationDataRepository;
@@ -18,10 +14,8 @@ import it.gov.pagopa.standinmanager.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -155,12 +149,12 @@ public class StationCalcService {
         String station = stations.get(0).getStation();
 
         if (sendEvent) {
-            log.info("sending {} event for station {}", Constants.type_removed, station);
+                            log.info("sending {} event for station {}", Constants.TYPE_REMOVED, station);
             try {
-                eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.type_removed);
+                                eventHubService.publishEvent(ZonedDateTime.now(), station, Constants.TYPE_REMOVED);
             } catch (JsonProcessingException e) {
-                log.error("could not publish {} for stations {}", Constants.type_removed, station);
-                throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Json processing error", e.getMessage());
+                log.error("could not publish {} for stations {}", Constants.TYPE_REMOVED, station, e);
+                throw new AppException(AppError.EVENT_HUB_PUBLISH_ERROR, e);
             }
         }
         if (saveDB) {

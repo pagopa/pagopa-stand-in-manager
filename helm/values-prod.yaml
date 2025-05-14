@@ -2,7 +2,7 @@ microservice-chart:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.1.5"
+    tag: "0.1.5-3-PAGOPA-3049-update-stand-in-activation-checks"
   livenessProbe:
     httpGet:
       path: /actuator/health/liveness
@@ -58,9 +58,10 @@ microservice-chart:
     SPRING_DATASOURCE_URL: "jdbc:postgresql://nodo-db.p.internal.postgresql.pagopa.it:6432/nodo?prepareThreshold=0"
     SPRING_DATASOURCE_USERNAME: "cfg"
     API_CONFIG_CACHE_BASE_PATH: "https://api.platform.pagopa.it/api-config-cache/p/v1"
-    DATAEXPLORER_URL: "https://pagopapdataexplorer.westeurope.kusto.windows.net"
-    DATAEXPLORER_CLIENTID: ""
-    DATAEXPLORER_DBNAME: "re"
+    DATA_EXPLORER_URL: "https://pagopapdataexplorer.westeurope.kusto.windows.net"
+    DATA_EXPLORER_CLIENT_ID: "1e6c0b82-3e63-432d-9ad4-a443e47e1a19"
+    DATA_EXPLORER_TENANT_ID: "7788edaf-0346-4068-9d79-c868aed15b3d"
+    DATA_EXPLORER_DB_NAME: "re"
     COSMOS_ENDPOINT: "https://pagopa-p-weu-nodo-standin-cosmos-account.documents.azure.com:443/"
     FORWARDER_URL: "https://api.platform.pagopa.it/pagopa-node-forwarder/api/v1/forward"
     AWS_REGION: "eu-south-1"
@@ -73,6 +74,12 @@ microservice-chart:
     ADDER_SLOT_FAULT_THRESHOLD: "50"
     ADDER_RANGE_MINUTES: "30"
     ADDER_RANGE_FAULT_THRESHOLD: "50"
+    ADDER_TOTAL_DAYTIME_TRAFFIC_THRESHOLD: "5"
+    ADDER_TOTAL_NIGHTTIME_TRAFFIC_THRESHOLD: "10"
+    NIGHTTIME_START_HOURS: "22"
+    NIGHTTIME_START_MINUTES: "0"
+    NIGHTTIME_END_HOURS: "6"
+    NIGHTTIME_END_MINUTES: "0"
     REMOVER_SLOT_MINUTES: "60"
     REMOVER_SLOT_FAULT_LIMIT: "6"
     EXCLUDED_STATIONS: ""
@@ -97,6 +104,7 @@ microservice-chart:
     COSMOS_KEY: "cosmos-standin-account-key"
     FORWARDER_KEY: "node-forwarder-subscription-key-string"
     STAND_IN_TX_CONNECTION_STRING: "nodo-dei-pagamenti-stand-in-tx-connection-string-key"
+    DATA_EXPLORER_CLIENT_SECRET: "dataexplorer-client-secret"
   keyvault:
     name: "pagopa-p-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
