@@ -4,7 +4,7 @@
     "description": "Stand in Manager",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "stand-in-manager",
-    "version": "0.1.5-3-PAGOPA-3049-update-stand-in-activation-checks"
+    "version": "0.2.0"
   },
   "servers": [
     {
