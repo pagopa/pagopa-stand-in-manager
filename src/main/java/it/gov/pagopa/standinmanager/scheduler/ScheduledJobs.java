@@ -20,31 +20,30 @@ import java.time.ZonedDateTime;
 @EnableScheduling
 public class ScheduledJobs {
 
-    private final ConfigService configService;
-    private final NodoMonitorService nodoMonitorService;
-    private final NodoCalcService nodoCalcService;
-    private final StationMonitorService stationMonitorService;
-    private final StationCalcService stationCalcService;
+  private final ConfigService configService;
+  private final NodoMonitorService nodoMonitorService;
+  private final NodoCalcService nodoCalcService;
+  private final StationMonitorService stationMonitorService;
+  private final StationCalcService stationCalcService;
 
-    public ScheduledJobs(
-            ConfigService configService,
-            NodoMonitorService nodoMonitorService,
-            NodoCalcService nodoCalcService,
-            StationMonitorService stationMonitorService,
-            StationCalcService stationCalcService
-    ) {
-        this.configService = configService;
-        this.nodoMonitorService = nodoMonitorService;
-        this.nodoCalcService = nodoCalcService;
-        this.stationMonitorService = stationMonitorService;
-        this.stationCalcService = stationCalcService;
-    }
+  public ScheduledJobs(
+      ConfigService configService,
+      NodoMonitorService nodoMonitorService,
+      NodoCalcService nodoCalcService,
+      StationMonitorService stationMonitorService,
+      StationCalcService stationCalcService) {
+    this.configService = configService;
+    this.nodoMonitorService = nodoMonitorService;
+    this.nodoCalcService = nodoCalcService;
+    this.stationMonitorService = stationMonitorService;
+    this.stationCalcService = stationCalcService;
+  }
 
-    @Scheduled(cron = "${config.refresh.cron:-}")
-    public void refreshCache() {
-        log.info("[Scheduled] Starting config refresh {}", ZonedDateTime.now());
-        this.configService.loadCache();
-    }
+  @Scheduled(cron = "${config.refresh.cron:-}")
+  public void refreshCache() {
+    log.info("[Scheduled] Starting config refresh {}", ZonedDateTime.now());
+    this.configService.loadCache();
+  }
 
     @Scheduled(cron = "${nodo.monitor.cron:-}")
     public void checkNodo()
