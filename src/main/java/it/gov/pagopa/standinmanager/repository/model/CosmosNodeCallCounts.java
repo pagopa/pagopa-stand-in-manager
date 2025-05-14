@@ -14,25 +14,25 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CosmosNodeCallCounts {
-    private String id;
-    private String station;
-    private Instant timestamp;
-    private Integer total;
-    private Integer faults;
-    private Integer allStationCallInSlot;
+  private String id;
+  private String station;
+  private Instant timestamp;
+  private Integer total;
+  private Integer faults;
+  private Integer allStationCallInSlot;
 
-    @JsonProperty("PartitionKey")
-    public String getPartitionKey() {
-        return timestamp.toString().substring(0, 10);
-    }
+  @JsonProperty("PartitionKey")
+  public String getPartitionKey() {
+    return timestamp.toString().substring(0, 10);
+  }
 
-    @JsonIgnore
-    public double getFaultPercentage() {
-        return ((getFaults() / (double) getTotal()) * 100);
-    }
+  @JsonIgnore
+  public double getFaultPercentage() {
+    return ((getFaults() / (double) getTotal()) * 100);
+  }
 
-    @JsonIgnore
-    public double getTotalTrafficPercentage() {
-        return ((getTotal() / (double) getAllStationCallInSlot()) * 100);
-    }
+  @JsonIgnore
+  public double getTotalTrafficPercentage() {
+    return ((getTotal() / (double) getAllStationCallInSlot()) * 100);
+  }
 }
