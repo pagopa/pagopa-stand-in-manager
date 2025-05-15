@@ -12,11 +12,11 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>stand-in-manager</artifactId>
-  <version>0.1.4</version>
+  <version>0.2.1</version>
   <description>Stand in Manager</description>
 
   <properties>
-    <java.version>11</java.version>
+    <java.version>17</java.version>
   </properties>
 
   <repositories>

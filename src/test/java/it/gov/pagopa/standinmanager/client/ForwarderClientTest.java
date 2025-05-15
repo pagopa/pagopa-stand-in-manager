@@ -1,6 +1,5 @@
-package it.gov.pagopa.standinmanager;
+package it.gov.pagopa.standinmanager.client;
 
-import it.gov.pagopa.standinmanager.client.ForwarderClient;
 import it.gov.pagopa.standinmanager.config.model.Service;
 import it.gov.pagopa.standinmanager.config.model.Station;
 import it.gov.pagopa.standinmanager.config.model.StationCreditorInstitution;
