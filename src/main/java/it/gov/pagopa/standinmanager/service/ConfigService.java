@@ -23,9 +23,10 @@ import javax.annotation.PreDestroy;
 @Service
 public class ConfigService {
 
-  private ConfigDataV1 configData;
+    private ConfigDataV1 configData;
 
-    @Autowired private CacheApi cacheApi;
+    @Autowired
+    private CacheApi cacheApi;
 
     @Value("${nodo-dei-pagamenti-cache-rx-connection-string}")
     private String connectionString;
