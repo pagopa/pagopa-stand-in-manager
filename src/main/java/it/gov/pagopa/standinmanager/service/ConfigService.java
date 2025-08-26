@@ -72,21 +72,6 @@ public class ConfigService {
         return configData;
     }
 
-    public ConfigDataV1 getCacheOLD() {
-        if (cacheEvent != null) {
-            // verify cache version
-            if (configData != null && !configData.getVersion().equals(cacheEvent.getVersion())) {
-                log.info("Reload cache for new version {}", cacheEvent.getVersion());
-                loadCache();
-            }
-        }
-
-        if (configData == null) {
-            loadCache();
-        }
-        return configData;
-    }
-
     public void loadCache() {
         log.info("loadCache from cache api");
         try {
@@ -97,7 +82,7 @@ public class ConfigService {
     }
 
     @PostConstruct
-    private void postConstruct() {
+    void postConstruct() {
         getConsumer().getPartitionIds().subscribe(partitionId -> {
             subscription = getConsumer()
                     .receiveFromPartition(partitionId, EventPosition.latest()) // SOLO eventi futuri
@@ -121,7 +106,7 @@ public class ConfigService {
     }
 
     @PreDestroy
-    private void preDestroy() {
+    void preDestroy() {
         getConsumer().close();
         if (subscription != null && !subscription.isDisposed()) {
             subscription.dispose();
