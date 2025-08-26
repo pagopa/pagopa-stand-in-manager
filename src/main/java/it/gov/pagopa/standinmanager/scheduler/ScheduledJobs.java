@@ -20,11 +20,11 @@ import java.time.ZonedDateTime;
 @EnableScheduling
 public class ScheduledJobs {
 
-    private final ConfigService configService;
-    private final NodoMonitorService nodoMonitorService;
-    private final NodoCalcService nodoCalcService;
-    private final StationMonitorService stationMonitorService;
-    private final StationCalcService stationCalcService;
+  private final ConfigService configService;
+  private final NodoMonitorService nodoMonitorService;
+  private final NodoCalcService nodoCalcService;
+  private final StationMonitorService stationMonitorService;
+  private final StationCalcService stationCalcService;
 
     public ScheduledJobs(
             ConfigService configService,
