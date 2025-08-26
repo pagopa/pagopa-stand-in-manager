@@ -3,18 +3,14 @@ package it.gov.pagopa.standinmanager.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  * Object returned as response in case of an error.
  *
- * <p>See {@link it.pagopa.microservice.exception.ErrorHandler}
  */
 @Data
 @Builder(toBuilder = true)

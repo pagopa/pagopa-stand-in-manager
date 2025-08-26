@@ -1,10 +1,11 @@
 package it.gov.pagopa.standinmanager.service;
 
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DataService {

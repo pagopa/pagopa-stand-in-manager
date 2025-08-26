@@ -2,11 +2,7 @@ package it.gov.pagopa.standinmanager.scheduler;
 
 import com.microsoft.azure.kusto.data.exceptions.DataClientException;
 import com.microsoft.azure.kusto.data.exceptions.DataServiceException;
-import it.gov.pagopa.standinmanager.service.ConfigService;
-import it.gov.pagopa.standinmanager.service.NodoCalcService;
-import it.gov.pagopa.standinmanager.service.NodoMonitorService;
-import it.gov.pagopa.standinmanager.service.StationCalcService;
-import it.gov.pagopa.standinmanager.service.StationMonitorService;
+import it.gov.pagopa.standinmanager.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;

@@ -1,22 +1,20 @@
 package it.gov.pagopa.standinmanager.service;
 
-import com.azure.cosmos.implementation.guava25.base.Joiner;
 import it.gov.pagopa.standinmanager.client.ForwarderClient;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.config.model.Station;
 import it.gov.pagopa.standinmanager.config.model.StationCreditorInstitution;
 import it.gov.pagopa.standinmanager.repository.CosmosStationRepository;
 import it.gov.pagopa.standinmanager.repository.model.CosmosStandInStation;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.stereotype.Service;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service

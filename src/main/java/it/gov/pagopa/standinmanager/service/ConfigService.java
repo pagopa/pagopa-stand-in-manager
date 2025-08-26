@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.model.CacheEvent;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.openapitools.client.api.CacheApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +17,7 @@ import reactor.core.Disposable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
 
 @Slf4j
 @Service
@@ -127,5 +126,4 @@ public class ConfigService {
             subscription.dispose();
         }
     }
-  }
 }
