@@ -26,18 +26,18 @@ public class ScheduledJobs {
   private final StationMonitorService stationMonitorService;
   private final StationCalcService stationCalcService;
 
-    public ScheduledJobs(
-            ConfigService configService,
-            NodoMonitorService nodoMonitorService,
-            NodoCalcService nodoCalcService,
-            StationMonitorService stationMonitorService,
-            StationCalcService stationCalcService) {
-        this.configService = configService;
-        this.nodoMonitorService = nodoMonitorService;
-        this.nodoCalcService = nodoCalcService;
-        this.stationMonitorService = stationMonitorService;
-        this.stationCalcService = stationCalcService;
-    }
+  public ScheduledJobs(
+      ConfigService configService,
+      NodoMonitorService nodoMonitorService,
+      NodoCalcService nodoCalcService,
+      StationMonitorService stationMonitorService,
+      StationCalcService stationCalcService) {
+    this.configService = configService;
+    this.nodoMonitorService = nodoMonitorService;
+    this.nodoCalcService = nodoCalcService;
+    this.stationMonitorService = stationMonitorService;
+    this.stationCalcService = stationCalcService;
+  }
 
 //    @Scheduled(cron = "${config.refresh.cron:-}")
 //    public void refreshCache() {
