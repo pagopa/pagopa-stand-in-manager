@@ -5,7 +5,6 @@ import com.azure.messaging.eventhubs.EventHubClientBuilder;
 import com.azure.messaging.eventhubs.EventHubConsumerAsyncClient;
 import com.azure.messaging.eventhubs.models.EventPosition;
 import com.azure.messaging.eventhubs.models.PartitionEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.config.model.Station;
 import it.gov.pagopa.standinmanager.model.CacheEvent;
@@ -201,14 +200,14 @@ class ConfigServiceTest {
         when(mockBuilder.consumerGroup(any())).thenReturn(mockBuilder);
         when(mockBuilder.buildAsyncConsumerClient()).thenReturn(mockConsumer);
 
-        ConfigService configService = spy(new ConfigService());
-        doReturn(mockBuilder).when(configService).createBuilder();
+        ConfigService service = spy(new ConfigService());
+        doReturn(mockBuilder).when(service).createBuilder();
 
-        ReflectionTestUtils.setField(configService, "connectionString", "mock-conn-string");
-        ReflectionTestUtils.setField(configService, "eventHubName", "mock-event-hub-name");
-        ReflectionTestUtils.setField(configService, "consumerGroup", "mock-consumer-group");
+        ReflectionTestUtils.setField(service, "connectionString", "mock-conn-string");
+        ReflectionTestUtils.setField(service, "eventHubName", "mock-event-hub-name");
+        ReflectionTestUtils.setField(service, "consumerGroup", "mock-consumer-group");
 
-        EventHubConsumerAsyncClient result = configService.getConsumer();
+        EventHubConsumerAsyncClient result = service.getConsumer();
 
         assertNotNull(result);
         assertEquals(mockConsumer, result);

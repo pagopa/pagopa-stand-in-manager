@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
+import it.gov.pagopa.standinmanager.exception.AppException;
 import it.gov.pagopa.standinmanager.model.CacheEvent;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.openapitools.client.api.CacheApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
 
@@ -92,7 +94,7 @@ public class ConfigService {
     void postConstruct() {
         getConsumer().getPartitionIds().subscribe(partitionId -> {
             subscription = getConsumer()
-                    .receiveFromPartition(partitionId, EventPosition.latest()) // SOLO eventi futuri
+                    .receiveFromPartition(partitionId, EventPosition.latest())
                     .subscribe(event -> {
                         String body = event.getData().getBodyAsString();
                         ObjectMapper mapper = new ObjectMapper();
@@ -100,15 +102,14 @@ public class ConfigService {
                         try {
                             cacheEvent = mapper.readValue(body, CacheEvent.class);
                         } catch (JsonProcessingException e) {
-                            throw new RuntimeException(e);
+                            throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Json processing error", e.getMessage());
                         }
-                        log.info(String.format("New cache obj on partitionId %s: %s%n", partitionId, body));
-                        // cache is not reloaded here, but at first getCache() call
+                        log.info("New cache obj on partitionId {}: {}%n", partitionId, body);
+                        // cache is not reloaded here, but at first getCache() called
                         // this to avoid cache reload is busy due to another generation running
-                        // loadCache();
-                    }, error -> {
-                        log.error(String.format("Error on partitionId " + partitionId + ": " + error));
-                    });
+                    }, error ->
+                            log.error("Error on partitionId {}: {}", partitionId, error.getMessage(), error)
+                    );
         });
     }
 
