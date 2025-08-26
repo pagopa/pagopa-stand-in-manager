@@ -6,7 +6,6 @@ import com.azure.messaging.eventhubs.EventHubConsumerAsyncClient;
 import com.azure.messaging.eventhubs.models.EventPosition;
 import com.azure.messaging.eventhubs.models.PartitionEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.config.model.Station;
 import it.gov.pagopa.standinmanager.model.CacheEvent;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.client.api.CacheApi;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -44,12 +42,7 @@ class ConfigServiceTest {
     private EventHubConsumerAsyncClient consumer;
 
     @Mock
-    private EventHubClientBuilder mockBuilder;
-
-    @Mock
     private Disposable subscription;
-
-    private final ObjectMapper mapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
@@ -59,7 +52,7 @@ class ConfigServiceTest {
     }
 
     @Test
-    void test1() throws Exception {
+    void test1() {
         ConfigDataV1 configDataV1 = new ConfigDataV1();
         Map<String, Station> stations = new HashMap<>();
         Station station1 = new Station();
@@ -89,7 +82,7 @@ class ConfigServiceTest {
     }
 
     @Test
-    void getCache_should_return_cached_data_if_version_matches() throws JsonProcessingException {
+    void getCache_should_return_cached_data_if_version_matches() {
         String version = "1.0.0";
         ConfigDataV1 mockData = new ConfigDataV1();
         mockData.setVersion(version);
@@ -106,7 +99,7 @@ class ConfigServiceTest {
     }
 
     @Test
-    void getCache_should_reload_cache_if_version_is_different() throws JsonProcessingException {
+    void getCache_should_reload_cache_if_version_is_different() {
         String version = "1.0.0";
         ConfigDataV1 oldData = new ConfigDataV1();
         oldData.setVersion(version);
@@ -140,7 +133,7 @@ class ConfigServiceTest {
     }
 
     @Test
-    void postConstruct_should_subscribe_to_event_hub() throws Exception {
+    void postConstruct_should_subscribe_to_event_hub() {
         when(consumer.getPartitionIds()).thenReturn(Flux.just("0", "1"));
         when(consumer.receiveFromPartition(anyString(), any(EventPosition.class)))
                 .thenReturn(Flux.empty());
@@ -154,7 +147,7 @@ class ConfigServiceTest {
     }
 
     @Test
-    void postConstruct_should_process_new_event() throws Exception {
+    void postConstruct_should_process_new_event() {
         String partitionId = "0";
         String eventBody = "{\"version\": \"1.0.0\"}";
         EventData mockEventData = new EventData(ByteBuffer.wrap(eventBody.getBytes(StandardCharsets.UTF_8)));

@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.standinmanager.config.model.ConfigDataV1;
 import it.gov.pagopa.standinmanager.model.CacheEvent;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openapitools.client.api.CacheApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +23,12 @@ import javax.annotation.PreDestroy;
 
 @Slf4j
 @Service
+@AllArgsConstructor
+@NoArgsConstructor
 public class ConfigService {
 
     private ConfigDataV1 configData;
 
-    @Autowired
     private CacheApi cacheApi;
 
     @Value("${nodo-dei-pagamenti-cache-rx-connection-string}")
