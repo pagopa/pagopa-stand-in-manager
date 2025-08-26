@@ -91,25 +91,23 @@ public class ConfigService {
 
     @PostConstruct
     void postConstruct() {
-        getConsumer().getPartitionIds().subscribe(partitionId -> {
-            subscription = getConsumer()
-                    .receiveFromPartition(partitionId, EventPosition.latest())
-                    .subscribe(event -> {
-                        String body = event.getData().getBodyAsString();
-                        ObjectMapper mapper = new ObjectMapper();
-                        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                        try {
-                            cacheEvent = mapper.readValue(body, CacheEvent.class);
-                        } catch (JsonProcessingException e) {
-                            throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Json processing error", e.getMessage());
-                        }
-                        log.info("New cache obj on partitionId {}: {}%n", partitionId, body);
-                        // cache is not reloaded here, but at first getCache() called
-                        // this to avoid cache reload is busy due to another generation running
-                    }, error ->
-                            log.error("Error on partitionId {}: {}", partitionId, error.getMessage(), error)
-                    );
-        });
+        subscription = getConsumer().getPartitionIds().subscribe(partitionId ->
+                getConsumer()
+                        .receiveFromPartition(partitionId, EventPosition.latest())
+                        .subscribe(event -> {
+                            String body = event.getData().getBodyAsString();
+                            ObjectMapper mapper = new ObjectMapper();
+                            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                            try {
+                                cacheEvent = mapper.readValue(body, CacheEvent.class);
+                            } catch (JsonProcessingException e) {
+                                throw new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "Json processing error", e.getMessage());
+                            }
+                            log.info("New cache obj on partitionId {}: {}%n", partitionId, body);
+                            // cache is not reloaded here, but at first getCache() called
+                            // this to avoid cache reload is busy due to another generation running
+                        }, error -> log.error("Error on partitionId {}: {}", partitionId, error.getMessage(), error))
+        );
     }
 
     @PreDestroy
