@@ -127,4 +127,5 @@ public class ConfigService {
             subscription.dispose();
         }
     }
+  }
 }
