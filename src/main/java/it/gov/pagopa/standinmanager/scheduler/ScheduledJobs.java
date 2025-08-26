@@ -39,13 +39,6 @@ public class ScheduledJobs {
     this.stationCalcService = stationCalcService;
   }
 
-//    @Scheduled(cron = "${config.refresh.cron:-}")
-//    public void refreshCache() {
-//        log.info("[Scheduled] Starting config refresh {}", ZonedDateTime.now());
-//        TODO remove comment
-//        this.configService.loadCache();
-//    }
-
     @Scheduled(cron = "${nodo.monitor.cron:-}")
     public void checkNodo()
             throws
