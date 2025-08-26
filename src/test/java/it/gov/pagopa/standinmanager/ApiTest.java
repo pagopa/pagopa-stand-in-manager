@@ -18,6 +18,8 @@ import java.util.Arrays;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+
+import it.gov.pagopa.standinmanager.service.ConfigService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -46,6 +48,8 @@ class ApiTest {
     @MockBean private EntityManager entityManager;
     @MockBean private DataSource dataSource;
     @MockBean private CosmosClient cosmosClient;
+    @MockBean private ConfigService configService;
+
     @Test
     void swagger() throws Exception {
         mvc.perform(MockMvcRequestBuilders.get(UriComponentsBuilder.fromUriString("").build().toUri()).accept(MediaType.APPLICATION_JSON))

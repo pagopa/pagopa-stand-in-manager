@@ -1,664 +1,611 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "description": "Stand in Manager",
-    "termsOfService": "https://www.pagopa.gov.it/",
-    "title": "stand-in-manager",
-    "version": "0.2.1"
+  "openapi" : "3.0.1",
+  "info" : {
+    "description" : "Stand in Manager",
+    "termsOfService" : "https://www.pagopa.gov.it/",
+    "title" : "@project.name@",
+    "version" : "0.2.1"
   },
-  "servers": [
-    {
-      "url": "http://localhost:8080"
-    },
-    {
-      "url": "https://{host}/{basePath}",
-      "variables": {
-        "basePath": {
-          "default": "",
-          "enum": [
-            "stand-in-manager/v1"
-          ]
-        },
-        "host": {
-          "default": "api.dev.platform.pagopa.it",
-          "enum": [
-            "api.dev.platform.pagopa.it",
-            "api.uat.platform.pagopa.it",
-            "api.platform.pagopa.it"
-          ]
-        }
+  "servers" : [ {
+    "url" : "http://localhost:8080"
+  }, {
+    "url" : "https://{host}/{basePath}",
+    "variables" : {
+      "basePath" : {
+        "default" : "",
+        "enum" : [ "stand-in-manager/v1" ]
+      },
+      "host" : {
+        "default" : "api.dev.platform.pagopa.it",
+        "enum" : [ "api.dev.platform.pagopa.it", "api.uat.platform.pagopa.it", "api.platform.pagopa.it" ]
       }
     }
-  ],
-  "paths": {
-    "/info": {
-      "get": {
-        "operationId": "healthCheck",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AppInfo"
+  } ],
+  "paths" : {
+    "/info" : {
+      "get" : {
+        "operationId" : "healthCheck",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AppInfo"
                 }
               }
             },
-            "description": "OK",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "OK",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             },
-            "description": "Bad Request",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "Bad Request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "401" : {
+            "description" : "Unauthorized",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "403" : {
+            "description" : "Forbidden",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "429": {
-            "description": "Too many requests",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "429" : {
+            "description" : "Too many requests",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemJson"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemJson"
                 }
               }
             },
-            "description": "Service unavailable",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "Service unavailable",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "summary": "Return OK if application is started",
-        "tags": [
-          "Home"
-        ]
+        "security" : [ {
+          "ApiKey" : [ ]
+        } ],
+        "summary" : "Return OK if application is started",
+        "tags" : [ "Home" ]
       },
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ]
+      } ]
     },
-    "/internal/check-stations": {
-      "get": {
-        "operationId": "test3",
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "string"
+    "/internal/check-stations" : {
+      "get" : {
+        "operationId" : "test3",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
                 }
               }
             },
-            "description": "OK response",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "OK response",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "400": {
-            "description": "Invalid request",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "400" : {
+            "description" : "Invalid request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "summary": "Sends probe request to stations in stand-in",
-        "tags": [
-          "internal-controller"
-        ]
+        "summary" : "Sends probe request to stations in stand-in",
+        "tags" : [ "internal-controller" ]
       },
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ]
+      } ]
     },
-    "/internal/email": {
-      "get": {
-        "operationId": "testEmail",
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "string"
+    "/internal/email" : {
+      "get" : {
+        "operationId" : "testEmail",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
                 }
               }
             },
-            "description": "OK response",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "OK response",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "400": {
-            "description": "Invalid request",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "400" : {
+            "description" : "Invalid request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "summary": "Sends test email to the configured addresses",
-        "tags": [
-          "internal-controller"
-        ]
+        "summary" : "Sends test email to the configured addresses",
+        "tags" : [ "internal-controller" ]
       },
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ]
+      } ]
     },
-    "/internal/node-data": {
-      "get": {
-        "operationId": "test1",
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "string"
+    "/internal/node-data" : {
+      "get" : {
+        "operationId" : "test1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
                 }
               }
             },
-            "description": "OK response",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "OK response",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "400": {
-            "description": "Invalid request",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "400" : {
+            "description" : "Invalid request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "summary": "Retrieves data from dataExplorer and save it in node_data",
-        "tags": [
-          "internal-controller"
-        ]
+        "summary" : "Retrieves data from dataExplorer and save it in node_data",
+        "tags" : [ "internal-controller" ]
       },
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ]
+      } ]
     },
-    "/internal/publish-event": {
-      "get": {
-        "operationId": "test5",
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "string"
+    "/internal/publish-event" : {
+      "get" : {
+        "operationId" : "test5",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
                 }
               }
             },
-            "description": "OK response",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "OK response",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "400": {
-            "description": "Invalid request",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "400" : {
+            "description" : "Invalid request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "summary": "Sends a test event on the event-hub",
-        "tags": [
-          "internal-controller"
-        ]
+        "summary" : "Sends a test event on the event-hub",
+        "tags" : [ "internal-controller" ]
       },
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ]
+      } ]
     },
-    "/internal/run-calculations": {
-      "get": {
-        "operationId": "test2",
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "string"
+    "/internal/run-calculations" : {
+      "get" : {
+        "operationId" : "test2",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
                 }
               }
             },
-            "description": "OK response",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "OK response",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "400": {
-            "description": "Invalid request",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "400" : {
+            "description" : "Invalid request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "summary": "Evaluates data in node_data and stores the aggregate in station_data",
-        "tags": [
-          "internal-controller"
-        ]
+        "summary" : "Evaluates data in node_data and stores the aggregate in station_data",
+        "tags" : [ "internal-controller" ]
       },
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ]
+      } ]
     },
-    "/internal/station-data": {
-      "get": {
-        "operationId": "test4",
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "string"
+    "/internal/station-data" : {
+      "get" : {
+        "operationId" : "test4",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
                 }
               }
             },
-            "description": "OK response",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "OK response",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "400": {
-            "description": "Invalid request",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "400" : {
+            "description" : "Invalid request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "summary": "Evaluates data in station_data and add/remove station from stand_in_stations",
-        "tags": [
-          "internal-controller"
-        ]
+        "summary" : "Evaluates data in station_data and add/remove station from stand_in_stations",
+        "tags" : [ "internal-controller" ]
       },
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ]
+      } ]
     },
-    "/internal/stations/{station}": {
-      "delete": {
-        "operationId": "removeStationFromStandIn",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "station",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
+    "/internal/stations/{station}" : {
+      "delete" : {
+        "operationId" : "removeStationFromStandIn",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "station",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
           }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
                 }
               }
             },
-            "description": "OK response",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "OK response",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "400": {
-            "description": "Invalid request",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "400" : {
+            "description" : "Invalid request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "summary": "Removes the station from stand-in manually. The operation is saved in the event registry.",
-        "tags": [
-          "internal-controller"
-        ]
+        "summary" : "Removes the station from stand-in manually. The operation is saved in the event registry.",
+        "tags" : [ "internal-controller" ]
       },
-      "get": {
-        "operationId": "test6",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "station",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
+      "get" : {
+        "operationId" : "test6",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "station",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
           }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
                 }
               }
             },
-            "description": "OK response",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "OK response",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "400": {
-            "description": "Invalid request",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "400" : {
+            "description" : "Invalid request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "summary": "Sends probe to station specified in input. No impact on the workflow.",
-        "tags": [
-          "internal-controller"
-        ]
+        "summary" : "Sends probe to station specified in input. No impact on the workflow.",
+        "tags" : [ "internal-controller" ]
       },
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ]
+      } ]
     },
-    "/stations": {
-      "get": {
-        "operationId": "getEvents",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetResponse"
+    "/stations" : {
+      "get" : {
+        "operationId" : "getEvents",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GetResponse"
                 }
               }
             },
-            "description": "Get the list of standin stations",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "Get the list of standin stations",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           },
-          "400": {
-            "description": "Invalid request",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          "400" : {
+            "description" : "Invalid request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "summary": "Get the list of standin stations",
-        "tags": [
-          "data-controller"
-        ]
+        "summary" : "Get the list of standin stations",
+        "tags" : [ "data-controller" ]
       },
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ]
+      } ]
     }
   },
-  "components": {
-    "schemas": {
-      "AppInfo": {
-        "type": "object",
-        "properties": {
-          "environment": {
-            "type": "string"
+  "components" : {
+    "schemas" : {
+      "AppInfo" : {
+        "type" : "object",
+        "properties" : {
+          "environment" : {
+            "type" : "string"
           },
-          "name": {
-            "type": "string"
+          "name" : {
+            "type" : "string"
           },
-          "version": {
-            "type": "string"
+          "version" : {
+            "type" : "string"
           }
         }
       },
-      "GetResponse": {
-        "type": "object",
-        "properties": {
-          "stations": {
-            "type": "array",
-            "items": {
-              "type": "string"
+      "GetResponse" : {
+        "type" : "object",
+        "properties" : {
+          "stations" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
             }
           }
         }
       },
-      "ProblemJson": {
-        "type": "object",
-        "properties": {
-          "detail": {
-            "type": "string",
-            "description": "A human readable explanation specific to this occurrence of the problem.",
-            "example": "There was an error processing the request"
+      "ProblemJson" : {
+        "type" : "object",
+        "properties" : {
+          "detail" : {
+            "type" : "string",
+            "description" : "A human readable explanation specific to this occurrence of the problem.",
+            "example" : "There was an error processing the request"
           },
-          "status": {
-            "maximum": 600,
-            "minimum": 100,
-            "type": "integer",
-            "description": "The HTTP status code generated by the origin server for this occurrence of the problem.",
-            "format": "int32",
-            "example": 200
+          "status" : {
+            "maximum" : 600,
+            "minimum" : 100,
+            "type" : "integer",
+            "description" : "The HTTP status code generated by the origin server for this occurrence of the problem.",
+            "format" : "int32",
+            "example" : 200
           },
-          "title": {
-            "type": "string",
-            "description": "A short, summary of the problem type. Written in english and readable for engineers (usually not suited for non technical stakeholders and not localized); example: Service Unavailable"
+          "title" : {
+            "type" : "string",
+            "description" : "A short, summary of the problem type. Written in english and readable for engineers (usually not suited for non technical stakeholders and not localized); example: Service Unavailable"
           }
         }
       }
     },
-    "securitySchemes": {
-      "ApiKey": {
-        "description": "The API key to access this function app.",
-        "in": "header",
-        "name": "Ocp-Apim-Subscription-Key",
-        "type": "apiKey"
+    "securitySchemes" : {
+      "ApiKey" : {
+        "description" : "The API key to access this function app.",
+        "in" : "header",
+        "name" : "Ocp-Apim-Subscription-Key",
+        "type" : "apiKey"
       }
     }
   }

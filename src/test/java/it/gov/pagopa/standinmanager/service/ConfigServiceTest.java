@@ -37,7 +37,6 @@ class ConfigServiceTest {
         stations.put("station2",station2);
         configDataV1.setStations(stations);
         when(cacheApi.cache()).thenReturn(configDataV1);
-
     }
 
     @Test
