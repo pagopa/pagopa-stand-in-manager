@@ -1,6 +1,7 @@
 package it.gov.pagopa.standinmanager.service;
 
 import com.azure.messaging.eventhubs.EventData;
+import com.azure.messaging.eventhubs.EventHubClientBuilder;
 import com.azure.messaging.eventhubs.EventHubConsumerAsyncClient;
 import com.azure.messaging.eventhubs.models.EventPosition;
 import com.azure.messaging.eventhubs.models.PartitionEvent;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.client.api.CacheApi;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -40,6 +42,9 @@ class ConfigServiceTest {
 
     @Mock
     private EventHubConsumerAsyncClient consumer;
+
+    @Mock
+    private EventHubClientBuilder mockBuilder;
 
     @Mock
     private Disposable subscription;
@@ -190,6 +195,34 @@ class ConfigServiceTest {
 
         verify(consumer, times(1)).close();
         verifyNoInteractions(subscription);
+    }
+
+    @Test
+    void getConsumer_should_initialize_client_with_correct_consumer_group() {
+        ReflectionTestUtils.setField(configService, "consumer", null);
+
+        EventHubClientBuilder mockBuilder = mock(EventHubClientBuilder.class);
+        EventHubConsumerAsyncClient mockConsumer = mock(EventHubConsumerAsyncClient.class);
+
+        when(mockBuilder.connectionString(any(), any())).thenReturn(mockBuilder);
+        when(mockBuilder.consumerGroup(any())).thenReturn(mockBuilder);
+        when(mockBuilder.buildAsyncConsumerClient()).thenReturn(mockConsumer);
+
+        ConfigService configService = spy(new ConfigService());
+        doReturn(mockBuilder).when(configService).createBuilder();
+
+        ReflectionTestUtils.setField(configService, "connectionString", "mock-conn-string");
+        ReflectionTestUtils.setField(configService, "eventHubName", "mock-event-hub-name");
+        ReflectionTestUtils.setField(configService, "consumerGroup", "mock-consumer-group");
+
+        EventHubConsumerAsyncClient result = configService.getConsumer();
+
+        assertNotNull(result);
+        assertEquals(mockConsumer, result);
+
+        verify(mockBuilder).connectionString("mock-conn-string", "mock-event-hub-name");
+        verify(mockBuilder).consumerGroup("mock-consumer-group");
+        verify(mockBuilder).buildAsyncConsumerClient();
     }
 
 }

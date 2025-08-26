@@ -43,11 +43,15 @@ public class ConfigService {
 
     private Disposable subscription;
 
-    private EventHubConsumerAsyncClient getConsumer() {
+    protected EventHubClientBuilder createBuilder() {
+        return new EventHubClientBuilder();
+    }
+
+    EventHubConsumerAsyncClient getConsumer() {
         if (consumer == null) {
             log.info("Cache consumer initialized");
             consumer =
-                    new EventHubClientBuilder()
+                    createBuilder()
                             .connectionString(connectionString, eventHubName)
                             .consumerGroup(consumerGroup)
                             .buildAsyncConsumerClient();
