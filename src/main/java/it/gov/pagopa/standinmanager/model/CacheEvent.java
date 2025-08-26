@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CacheEvent {
-    String cacheVersion;
-    String version;
-    String timestamp;
+  String cacheVersion;
+  String version;
+  String timestamp;
 }
