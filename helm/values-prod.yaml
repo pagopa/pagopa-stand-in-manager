@@ -55,7 +55,7 @@ microservice-chart:
     APP_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
-    SPRING_DATASOURCE_URL: "jdbc:postgresql://nodo-db.p.internal.postgresql.pagopa.it:6432/nodo?prepareThreshold=0"
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://nodo-db.p.internal.postgresql.pagopa.it:5432/nodo?prepareThreshold=0"
     SPRING_DATASOURCE_USERNAME: "cfg"
     API_CONFIG_CACHE_BASE_PATH: "https://api.platform.pagopa.it/api-config-cache/p/v1"
     DATA_EXPLORER_URL: "https://pagopapdataexplorer.westeurope.kusto.windows.net"
