@@ -1,6 +1,11 @@
 package it.gov.pagopa.standinmanager.config;
 
 import jakarta.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.StreamSupport;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -20,11 +25,6 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.StreamSupport;
 
 @Aspect
 @Component
