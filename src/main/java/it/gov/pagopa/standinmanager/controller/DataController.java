@@ -38,6 +38,7 @@ public class DataController {
   @GetMapping("/stations")
   @NotEmpty
   public ResponseEntity<GetResponse> getEvents() {
-    return ResponseEntity.status(HttpStatus.OK).body(GetResponse.builder().stations(dataService.getStations()).build());
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(GetResponse.builder().stations(dataService.getStations()).build());
   }
 }

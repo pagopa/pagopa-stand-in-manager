@@ -144,9 +144,7 @@ public class LoggingAspect {
 
   @Around(value = "repository() || service()")
   public Object logTrace(ProceedingJoinPoint joinPoint) throws Throwable {
-    Set<String> methodNameToExclude = Set.of(
-            "ConfigService.getCache()"
-    );
+    Set<String> methodNameToExclude = Set.of("ConfigService.getCache()");
 
     String methodName = joinPoint.getSignature().toShortString();
 
@@ -155,8 +153,7 @@ public class LoggingAspect {
 
     if (methodNameToExclude.contains(methodName)) {
       log.debug("Return method {} - result: {}", methodName, "skipped");
-    }
-    else {
+    } else {
       log.debug("Return method {} - result: {}", methodName, result);
     }
 

@@ -7,10 +7,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import lombok.*;
 
-/**
- * Object returned as response in case of an error.
- *
- */
+/** Object returned as response in case of an error. */
 @Data
 @Builder(toBuilder = true)
 @NoArgsConstructor

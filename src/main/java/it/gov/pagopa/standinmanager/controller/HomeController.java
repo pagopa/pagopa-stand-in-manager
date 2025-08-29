@@ -101,5 +101,4 @@ public class HomeController {
     AppInfo info = AppInfo.builder().name(name).version(version).environment(environment).build();
     return ResponseEntity.status(HttpStatus.OK).body(info);
   }
-  
 }

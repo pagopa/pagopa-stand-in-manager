@@ -32,33 +32,27 @@ public class ScheduledJobs {
     this.stationCalcService = stationCalcService;
   }
 
-    @Scheduled(cron = "${nodo.monitor.cron:-}")
-    public void checkNodo()
-            throws
-            DataClientException,
-            DataServiceException {
-        log.info("[Scheduled] Starting nodo monitor check {}", ZonedDateTime.now());
-        this.nodoMonitorService.getAndSaveData();
-    }
+  @Scheduled(cron = "${nodo.monitor.cron:-}")
+  public void checkNodo() throws DataClientException, DataServiceException {
+    log.info("[Scheduled] Starting nodo monitor check {}", ZonedDateTime.now());
+    this.nodoMonitorService.getAndSaveData();
+  }
 
-    @Scheduled(cron = "${nodo.calc.cron:-}")
-    public void calcNodo() {
-        log.info("[Scheduled] Starting nodo calc {}", ZonedDateTime.now());
-        this.nodoCalcService.runCalculations();
-    }
+  @Scheduled(cron = "${nodo.calc.cron:-}")
+  public void calcNodo() {
+    log.info("[Scheduled] Starting nodo calc {}", ZonedDateTime.now());
+    this.nodoCalcService.runCalculations();
+  }
 
-    @Scheduled(cron = "${station.monitor.cron:-}")
-    public void checkStation() {
-        log.info("[Scheduled] Starting stations monitor check {}", ZonedDateTime.now());
-        this.stationMonitorService.checkStations();
-    }
+  @Scheduled(cron = "${station.monitor.cron:-}")
+  public void checkStation() {
+    log.info("[Scheduled] Starting stations monitor check {}", ZonedDateTime.now());
+    this.stationMonitorService.checkStations();
+  }
 
-    @Scheduled(cron = "${station.calc.cron:-}")
-    public void calcStation()
-            throws URISyntaxException,
-            DataClientException,
-            DataServiceException {
-        log.info("[Scheduled] Starting stations calc check {}", ZonedDateTime.now());
-        this.stationCalcService.runCalculations();
-    }
+  @Scheduled(cron = "${station.calc.cron:-}")
+  public void calcStation() throws URISyntaxException, DataClientException, DataServiceException {
+    log.info("[Scheduled] Starting stations calc check {}", ZonedDateTime.now());
+    this.stationCalcService.runCalculations();
+  }
 }
