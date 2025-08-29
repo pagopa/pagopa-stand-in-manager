@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -43,14 +42,18 @@ public class StationCalcService {
   @Value("${sendEvent}")
   private Boolean sendEvent;
 
-  @Autowired private CosmosStationRepository cosmosStationRepository;
-  @Autowired private CosmosStationDataRepository cosmosStationDataRepository;
-  @Autowired private CosmosEventsRepository cosmosEventsRepository;
-  @Autowired private MailService awsSesClient;
-  @Autowired private DatabaseStationsRepository dbStationsRepository;
-  @Autowired private EventHubService eventHubService;
-
-  private final DecimalFormat decimalFormat = new DecimalFormat("#.##");
+  @Autowired
+  private CosmosStationRepository cosmosStationRepository;
+  @Autowired
+  private CosmosStationDataRepository cosmosStationDataRepository;
+  @Autowired
+  private CosmosEventsRepository cosmosEventsRepository;
+  @Autowired
+  private MailService awsSesClient;
+  @Autowired
+  private DatabaseStationsRepository dbStationsRepository;
+  @Autowired
+  private EventHubService eventHubService;
 
   public void runCalculations() {
     ZonedDateTime now = ZonedDateTime.now();
@@ -62,7 +65,7 @@ public class StationCalcService {
 
     Map<String, Instant> standInStations =
         cosmosStationRepository.getStations().stream()
-            .collect(Collectors.toMap(d -> d.getStation(), d -> d.getTimestamp()));
+            .collect(Collectors.toMap(CosmosStandInStation::getStation, CosmosStandInStation::getTimestamp));
 
     List<CosmosForwarderCallCounts> allCounts =
         cosmosStationDataRepository.getStationCounts(now.minusMinutes(rangeMinutes));
@@ -75,7 +78,7 @@ public class StationCalcService {
             return;
           }
           Instant insertTime = standInStations.get(station);
-          long successfulCalls = stationCounts.stream().filter(d -> d.getOutcome()).count();
+          long successfulCalls = stationCounts.stream().filter(CosmosForwarderCallCounts::getOutcome).count();
           if (log.isDebugEnabled()) {
             log.debug(
                 "station [{}] data:\n{} of {} calls were successful",
