@@ -1,9 +1,8 @@
 package it.gov.pagopa.standinmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
-
 import java.util.List;
+import lombok.*;
 
 @Data
 @Builder(toBuilder = true)
