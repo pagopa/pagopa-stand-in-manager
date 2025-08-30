@@ -4,7 +4,7 @@
     "description": "Monitors the events of nodo-dei-pagamenti for station problems and activates/deactivates the standIn for that station.",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "Stand in Manager",
-    "version": "0.2.1-2-PIDM-884-cache"
+    "version": "0.2.2"
   },
   "servers": [
     {

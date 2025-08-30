@@ -12,7 +12,7 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>stand-in-manager</artifactId>
-  <version>0.2.1-2-PIDM-884-cache</version>
+  <version>0.2.2</version>
   <name>Stand in Manager</name>
   <description>Monitors the events of nodo-dei-pagamenti for station problems and activates/deactivates the standIn for that station.</description>
 
