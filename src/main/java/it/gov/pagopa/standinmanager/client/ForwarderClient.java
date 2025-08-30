@@ -46,46 +46,53 @@ public class ForwarderClient {
           + "   </soapenv:Body>\n"
           + "</soapenv:Envelope>";
 
-  public boolean paVerifyPaymentNotice(Station station, StationCreditorInstitution creditorInstitution) {
+  public boolean paVerifyPaymentNotice(
+      Station station, StationCreditorInstitution creditorInstitution) {
     log.info("paVerifyPaymentNotice to station [{}]", station.getStationCode());
     cosmosEventsRepository.newEvent(
+        station.getStationCode(),
+        Constants.EVENT_FORWARDER_CALL,
+        String.format(
+            "call forwarder for station [%s]\n[%s:%s%s]",
             station.getStationCode(),
-            Constants.EVENT_FORWARDER_CALL,
-            String.format(
-                    "call forwarder for station [%s]\n[%s:%s%s]",
-                    station.getStationCode(),
-                    station.getServicePof().getTargetHost(),
-                    station.getServicePof().getTargetPort(),
-                    station.getServicePof().getTargetPath()));
+            station.getServicePof().getTargetHost(),
+            station.getServicePof().getTargetPort(),
+            station.getServicePof().getTargetPath()));
 
     RequestEntity<String> request = buildSoapRequest(station, creditorInstitution);
 
     try {
       ResponseEntity<String> responseEntity = restTemplate.exchange(request, String.class);
-      if (responseEntity.getStatusCode().is2xxSuccessful() &&
-              responseEntity.getBody().contains("SCONOSCIUTO")) {
+      if (responseEntity.getStatusCode().is2xxSuccessful()
+          && responseEntity.getBody().contains("SCONOSCIUTO")) {
         cosmosEventsRepository.newEvent(
-                station.getStationCode(),
-                Constants.EVENT_FORWARDER_CALL_RESP_SUCCCESS,
-                String.format("call forwarder for station [%s] returned SCONOSCIUTO", station.getStationCode()));
+            station.getStationCode(),
+            Constants.EVENT_FORWARDER_CALL_RESP_SUCCCESS,
+            String.format(
+                "call forwarder for station [%s] returned SCONOSCIUTO", station.getStationCode()));
         return true;
       } else {
         cosmosEventsRepository.newEvent(
-                station.getStationCode(),
-                Constants.EVENT_FORWARDER_CALL_RESP_ERROR,
-                String.format("call forwarder for station [%s] did not return SCONOSCIUTO", station.getStationCode()));
+            station.getStationCode(),
+            Constants.EVENT_FORWARDER_CALL_RESP_ERROR,
+            String.format(
+                "call forwarder for station [%s] did not return SCONOSCIUTO",
+                station.getStationCode()));
         return false;
       }
     } catch (Exception e) {
       cosmosEventsRepository.newEvent(
-              station.getStationCode(),
-              Constants.EVENT_FORWARDER_CALL_RESP_ERROR,
-              String.format("call forwarder for station [%s] returned [%s]", station.getStationCode(), e.getMessage()));
+          station.getStationCode(),
+          Constants.EVENT_FORWARDER_CALL_RESP_ERROR,
+          String.format(
+              "call forwarder for station [%s] returned [%s]",
+              station.getStationCode(), e.getMessage()));
       return false;
     }
   }
 
-  public String testPaVerifyPaymentNotice(Station station, StationCreditorInstitution creditorInstitution) {
+  public String testPaVerifyPaymentNotice(
+      Station station, StationCreditorInstitution creditorInstitution) {
     log.info("paVerifyPaymentNotice to station [{}]", station.getStationCode());
     RequestEntity<String> request = buildSoapRequest(station, creditorInstitution);
     try {
@@ -96,18 +103,23 @@ public class ForwarderClient {
     }
   }
 
-  private RequestEntity<String> buildSoapRequest(Station station, StationCreditorInstitution creditorInstitution) {
-    final RequestEntity.BodyBuilder requestBuilder = RequestEntity
-            .method(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(url).build().toUri())
+  private RequestEntity<String> buildSoapRequest(
+      Station station, StationCreditorInstitution creditorInstitution) {
+    final RequestEntity.BodyBuilder requestBuilder =
+        RequestEntity.method(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(url).build().toUri())
             .header("Content-Type", "text/xml")
             .header("Ocp-Apim-Subscription-Key", key)
             .header("X-Host-Url", station.getServicePof().getTargetHost())
-            .header("X-Host-Port", Optional.ofNullable(station.getServicePof().getTargetPort())
-                    .map(Object::toString).orElse("443"))
+            .header(
+                "X-Host-Port",
+                Optional.ofNullable(station.getServicePof().getTargetPort())
+                    .map(Object::toString)
+                    .orElse("443"))
             .header("X-Host-Path", station.getServicePof().getTargetPath())
             .header("SOAPAction", "\"paVerifyPaymentNotice\"");
 
-    String replacedBody = paVerifyRequestBody
+    String replacedBody =
+        paVerifyRequestBody
             .replace("{idPA}", creditorInstitution.getCreditorInstitutionCode())
             .replace("{idBrokerPA}", station.getBrokerCode())
             .replace("{idStation}", station.getStationCode());

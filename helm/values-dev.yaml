@@ -2,7 +2,7 @@ microservice-chart:
   namespace: "nodo"
   image:
     repository: ghcr.io/pagopa/pagopa-stand-in-manager
-    tag: "0.2.1"
+    tag: "0.2.1-2-PIDM-884-cache"
   livenessProbe:
     httpGet:
       path: /actuator/health/liveness
@@ -55,7 +55,7 @@ microservice-chart:
     APP_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
-    SPRING_DATASOURCE_URL: "jdbc:postgresql://pagopa-d-weu-nodo-flexible-postgresql.postgres.database.azure.com:6432/nodo?prepareThreshold=0"
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://pagopa-d-weu-nodo-flexible-postgresql.postgres.database.azure.com:5432/nodo?prepareThreshold=0"
     SPRING_DATASOURCE_USERNAME: "cfg"
     API_CONFIG_CACHE_BASE_PATH: "https://api.dev.platform.pagopa.it/api-config-cache/p/v1"
     DATA_EXPLORER_URL: "https://pagopaddataexplorer.westeurope.kusto.windows.net"
@@ -65,7 +65,6 @@ microservice-chart:
     COSMOS_ENDPOINT: "https://pagopa-d-weu-nodo-standin-cosmos-account.documents.azure.com:443/"
     FORWARDER_URL: "https://api.dev.platform.pagopa.it/pagopa-node-forwarder/api/v1/forward"
     AWS_REGION: "eu-south-1"
-    CONFIG_REFRESH_CRON: "0 * * * * *"
     NODO_MONITOR_CRON: "0 */5 * * * *"
     NODO_CALC_CRON: "30 */5 * * * *"
     STATION_MONITOR_CRON: "15 */5 * * * *"
@@ -91,6 +90,7 @@ microservice-chart:
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
     STAND_IN_TX_NAME: "nodo-dei-pagamenti-stand-in"
+    CACHE_RX_NAME: "nodo-dei-pagamenti-cache"
   envFieldRef:
     APP_NAME: "metadata.labels['app.kubernetes.io/instance']"
     APP_VERSION: "metadata.labels['app.kubernetes.io/version']"
@@ -104,6 +104,7 @@ microservice-chart:
     AWS_SECRET_ACCESS_KEY: "pagopa-aws-secret-access-key"
     AWS_SES_USER: "standin-aws-ses-user"
     AWS_MAILTO: "standin-mail-to"
+    CACHE_RX_CONNECTION_STRING: "nodo-dei-pagamenti-cache-stand-in-rx-connection-string-key"
     COSMOS_KEY: "cosmos-standin-account-key"
     FORWARDER_KEY: "node-forwarder-subscription-key-string"
     STAND_IN_TX_CONNECTION_STRING: "nodo-dei-pagamenti-stand-in-tx-connection-string-key"

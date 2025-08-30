@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 
 @RestController
@@ -39,6 +38,7 @@ public class DataController {
   @GetMapping("/stations")
   @NotEmpty
   public ResponseEntity<GetResponse> getEvents() {
-    return ResponseEntity.status(HttpStatus.OK).body(GetResponse.builder().stations(dataService.getStations()).build());
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(GetResponse.builder().stations(dataService.getStations()).build());
   }
 }

@@ -4,12 +4,13 @@ import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.models.CosmosItemResponse;
 import it.gov.pagopa.standinmanager.repository.model.CosmosEvent;
-import java.time.Instant;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.util.UUID;
 
 @Slf4j
 @Component

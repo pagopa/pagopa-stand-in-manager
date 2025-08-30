@@ -19,27 +19,32 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AsyncService {
 
-    private final CosmosStationDataRepository cosmosStationDataRepository;
-    private final ForwarderClient forwarderClient;
+  private final CosmosStationDataRepository cosmosStationDataRepository;
+  private final ForwarderClient forwarderClient;
 
-    @Async
-    public void checkStation(ZonedDateTime now, Station station, StationCreditorInstitution creditorInstitution, CosmosStandInStation standInStation) {
+  @Async
+  public void checkStation(
+      ZonedDateTime now,
+      Station station,
+      StationCreditorInstitution creditorInstitution,
+      CosmosStandInStation standInStation) {
 
-        log.info("[async checkStation] [{}] [{}]", standInStation.getStation(), now);
-        boolean b = false;
-        try {
-            b = forwarderClient.paVerifyPaymentNotice(station, creditorInstitution);
-        } catch (Exception e) {
-            log.error(String.format("[async checkStation] error in paVerifyPaymentNotice [%s]", station), e);
-        }
-        log.info("[async checkStation] [{}] done success:[{}]", station.getStationCode(), b);
-        CosmosForwarderCallCounts forwarderCallCounts =
-                CosmosForwarderCallCounts.builder()
-                        .id(UUID.randomUUID().toString())
-                        .station(standInStation.getStation())
-                        .timestamp(now.toInstant())
-                        .outcome(b)
-                        .build();
-        cosmosStationDataRepository.save(forwarderCallCounts);
+    log.info("[async checkStation] [{}] [{}]", standInStation.getStation(), now);
+    boolean b = false;
+    try {
+      b = forwarderClient.paVerifyPaymentNotice(station, creditorInstitution);
+    } catch (Exception e) {
+      log.error(
+          String.format("[async checkStation] error in paVerifyPaymentNotice [%s]", station), e);
     }
+    log.info("[async checkStation] [{}] done success:[{}]", station.getStationCode(), b);
+    CosmosForwarderCallCounts forwarderCallCounts =
+        CosmosForwarderCallCounts.builder()
+            .id(UUID.randomUUID().toString())
+            .station(standInStation.getStation())
+            .timestamp(now.toInstant())
+            .outcome(b)
+            .build();
+    cosmosStationDataRepository.save(forwarderCallCounts);
+  }
 }
