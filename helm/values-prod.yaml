@@ -33,7 +33,7 @@ microservice-chart:
     name: "nodo-workload-identity"
   azure:
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
-  podAnnotations: {}
+  podAnnotations: { }
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -82,7 +82,7 @@ microservice-chart:
     NIGHTTIME_END_MINUTES: "0"
     REMOVER_SLOT_MINUTES: "60"
     REMOVER_SLOT_FAULT_LIMIT: "6"
-    EXCLUDED_STATIONS: ""
+    EXCLUDED_STATIONS: "10387150963_01"
     OTEL_SERVICE_NAME: "pagopastandinmanager"
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=prod"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
@@ -136,7 +136,7 @@ microservice-chart:
             labelSelector:
               matchLabels:
                 app.kubernetes.io/instance: "pagopa-stand-in-manager"
-            namespaces: ["nodo"]
+            namespaces: [ "nodo" ]
             topologyKey: topology.kubernetes.io/zone
   canaryDelivery:
     create: false
