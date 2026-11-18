@@ -54,7 +54,7 @@ microservice-chart:
   autoscaling:
     enable: false
   envConfig:
-    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics -XX:UseAVX=2"
+    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
     WEBSITE_SITE_NAME: 'pagopa-stand-in-manager' # required to show cloud role name in application insights
     TZ: "Europe/Rome"
     ENV: 'prod'
